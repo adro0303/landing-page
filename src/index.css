@@ -226,6 +226,11 @@
       0 0 4px color-mix(in srgb, var(--color-green) 80%, transparent),
       0 0 16px color-mix(in srgb, var(--color-green) 40%, transparent);
   }
+  .text-glow-cyan {
+    text-shadow:
+      0 0 4px color-mix(in srgb, var(--color-cyan) 80%, transparent),
+      0 0 16px color-mix(in srgb, var(--color-cyan) 40%, transparent);
+  }
   .text-glow-amber {
     text-shadow:
       0 0 4px color-mix(in srgb, var(--color-amber) 80%, transparent),

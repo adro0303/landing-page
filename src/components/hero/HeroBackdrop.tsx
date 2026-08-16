@@ -25,7 +25,6 @@ function mulberry32(seed: number) {
 
 const RAY_MIN = -7;
 const RAY_MAX = 7;
-const ROAD_HALF_WIDTH = 3.1; // rays within this index stay flat (the "road")
 
 type PeakDef = {
   xFrac: number;
@@ -253,42 +252,22 @@ export function HeroBackdrop({
       });
       ctx.globalAlpha = 1;
 
-      // retro sun — sits mostly above/behind the horizon, centered so the
-      // statue (rendered on top by AsciiFigure) occludes its bright core
+      // retro sun — a soft glow only, no solid disc, so the statue in front
+      // of it never reads as sitting inside a filled background circle.
+      // Position is kept (AsciiFigure looks up this same geometry for its
+      // hover rim-light), just the rendering is ambient light, not a shape.
       const sunR = Math.min(width, height) * 0.16;
       const sunX = width / 2;
       const sunY = horizon - sunR * 0.2;
 
-      ctx.save();
-      const sunGlow = ctx.createRadialGradient(sunX, sunY, sunR * 0.1, sunX, sunY, sunR * 1.5);
-      sunGlow.addColorStop(0, "rgba(141,255,196,0.16)");
+      const sunGlow = ctx.createRadialGradient(sunX, sunY, 0, sunX, sunY, sunR * 1.6);
+      sunGlow.addColorStop(0, "rgba(190,255,220,0.14)");
+      sunGlow.addColorStop(0.5, "rgba(141,255,196,0.07)");
       sunGlow.addColorStop(1, "rgba(43,220,110,0)");
       ctx.fillStyle = sunGlow;
       ctx.beginPath();
-      ctx.arc(sunX, sunY, sunR * 1.5, 0, Math.PI * 2);
+      ctx.arc(sunX, sunY, sunR * 1.6, 0, Math.PI * 2);
       ctx.fill();
-
-      const sunFill = ctx.createLinearGradient(sunX, sunY - sunR, sunX, sunY + sunR);
-      sunFill.addColorStop(0, "rgba(190,255,220,0.3)");
-      sunFill.addColorStop(1, "rgba(43,220,110,0.08)");
-      ctx.fillStyle = sunFill;
-      ctx.beginPath();
-      ctx.arc(sunX, sunY, sunR, 0, Math.PI * 2);
-      ctx.fill();
-
-      // vaporwave scanline cut-bands across the lower half of the disc
-      ctx.globalCompositeOperation = "destination-out";
-      const bandCount = 6;
-      for (let i = 0; i < bandCount; i++) {
-        const p = i / bandCount;
-        if (p < 0.32) continue;
-        const bandY = sunY - sunR + p * sunR * 2;
-        const bandH = 2 + p * 6;
-        ctx.fillStyle = "rgba(0,0,0,1)";
-        ctx.fillRect(sunX - sunR * 1.05, bandY, sunR * 2.1, bandH);
-      }
-      ctx.globalCompositeOperation = "source-over";
-      ctx.restore();
 
       // static wireframe mountain range, both sides — fixed in place
       leftRange.forEach((p) => drawPeak(p, horizon));
@@ -307,22 +286,18 @@ export function HeroBackdrop({
         ctx.stroke();
       }
 
-      // road rungs — the only part of the scene that animates ("flying"
-      // toward the viewer), confined to the flat corridor between the
-      // static mountains on either side
+      // depth rungs — the only part of the scene that animates ("flying"
+      // toward the viewer). They span the full ray fan (same RAY_MIN..
+      // RAY_MAX range as the vertical lines above) so every rung lines up
+      // with every ray instead of stopping short in the middle.
       const speed = animate ? time * 0.00006 : 0;
-      const ROAD_STEPS = 24;
       for (let j = 0; j < 9; j++) {
         const p = (j / 9 + speed) % 1;
         const baseY = horizon + p * p * (height - horizon);
         const xScale = (spread / 14) + ((spread / 90) - (spread / 14)) * (1 - p);
         ctx.beginPath();
-        for (let s = 0; s <= ROAD_STEPS; s++) {
-          const i = -ROAD_HALF_WIDTH + (s / ROAD_STEPS) * (ROAD_HALF_WIDTH * 2);
-          const x = cx + i * xScale;
-          if (s === 0) ctx.moveTo(x, baseY);
-          else ctx.lineTo(x, baseY);
-        }
+        ctx.moveTo(cx + RAY_MIN * xScale, baseY);
+        ctx.lineTo(cx + RAY_MAX * xScale, baseY);
         ctx.strokeStyle = `rgba(140,255,186,${0.5 - p * 0.38})`;
         ctx.stroke();
       }
