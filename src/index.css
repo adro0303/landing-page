@@ -10,21 +10,21 @@
   --font-display: "VT323", "Fira Code", monospace;
   --font-pixel: "Press Start 2P", "Fira Code", monospace;
 
-  --color-void: #05060a;
-  --color-panel: #0a0e16;
-  --color-panel-raised: #10151f;
-  --color-line: #1c2433;
+  --color-void: #050f08;
+  --color-panel: #0a1710;
+  --color-panel-raised: #122a1c;
+  --color-line: #1c3327;
 
-  --color-blue: #58a6ff;
-  --color-cyan: #6ff6ff;
-  --color-magenta: #ff2e88;
-  --color-amber: #ffb000;
+  --color-blue: #2bdc6e;
+  --color-cyan: #8dffc4;
+  --color-magenta: #34e0a1;
+  --color-amber: #d4f042;
   --color-green: #39ff88;
   --color-red: #ff3b3b;
 
-  --color-fg: #dbe6ff;
-  --color-fg-dim: #7c8aa8;
-  --color-fg-faint: #454f66;
+  --color-fg: #dcf5e6;
+  --color-fg-dim: #7ca890;
+  --color-fg-faint: #45664f;
 
   /* hero-only phosphor CRT palette — not used outside src/components/hero */
   --color-phosphor-black: #030905;

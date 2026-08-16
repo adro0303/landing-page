@@ -75,11 +75,14 @@ export function AsciiFigure({
     if (!ctx) return;
 
     const minCell = 2;
-    const maxCell = tier === "high" ? 7.2 : 6;
+    const maxCell = tier === "high" ? 10 : 7.5;
+    const fillFraction = 0.96;
 
     let cellPx = 6;
     let width = 0;
     let height = 0;
+    let offsetX = 0;
+    let offsetY = 0;
     let radius = 90;
     let dpr = Math.min(window.devicePixelRatio || 1, 2);
 
@@ -90,9 +93,16 @@ export function AsciiFigure({
     function resize() {
       const w = wrap!.clientWidth;
       const h = wrap!.clientHeight;
-      cellPx = Math.max(minCell, Math.min(maxCell, Math.min(w / cols, h / rows)));
-      width = cols * cellPx;
-      height = rows * cellPx;
+      width = w;
+      height = h;
+      cellPx = Math.max(
+        minCell,
+        Math.min(maxCell, Math.min((w * fillFraction) / cols, (h * fillFraction) / rows)),
+      );
+      const figW = cols * cellPx;
+      const figH = rows * cellPx;
+      offsetX = (w - figW) / 2;
+      offsetY = (h - figH) / 2;
       radius = cellPx * (tier === "high" ? 26 : 18);
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       const el = canvasRef.current;
@@ -105,7 +115,7 @@ export function AsciiFigure({
 
     let raf = 0;
     let t = 0;
-    const decay = 0.965;
+    const decay = 0.97;
 
     let glitchFrames = 0;
     let glitchRowStart = 0;
@@ -132,13 +142,13 @@ export function AsciiFigure({
       const pointerInside = px > -100 && px < width + 100 && py > -100 && py < height + 100;
 
       if (pointerInside) {
-        const glow = ctx.createRadialGradient(px, py, 2, px, py, radius * 1.15);
+        const glow = ctx.createRadialGradient(px, py, 2, px, py, radius * 1.4);
         glow.addColorStop(0, "rgba(234,255,241,0.16)");
-        glow.addColorStop(0.4, "rgba(125,255,176,0.07)");
+        glow.addColorStop(0.4, "rgba(125,255,176,0.06)");
         glow.addColorStop(1, "rgba(43,220,110,0)");
         ctx.fillStyle = glow;
         ctx.beginPath();
-        ctx.arc(px, py, radius * 1.15, 0, Math.PI * 2);
+        ctx.arc(px, py, radius * 1.4, 0, Math.PI * 2);
         ctx.fill();
       }
 
@@ -168,14 +178,15 @@ export function AsciiFigure({
           const dv = DISPLAY[idx];
           if (dv < 0.025 && energy[idx] < 0.02) continue;
 
-          const x = col * cellPx + cellPx / 2 + rowShift;
-          const y = row * cellPx + cellPx / 2;
+          const x = col * cellPx + cellPx / 2 + rowShift + offsetX;
+          const y = row * cellPx + cellPx / 2 + offsetY;
 
           let e = energy[idx];
           if (pointerInside) {
             const d = Math.hypot(x - px, y - py);
-            const influence = Math.max(0, 1 - d / radius);
-            e = Math.min(1, e * decay + influence * influence * 0.85);
+            const sigma = radius * 0.55;
+            const influence = Math.exp(-(d * d) / (2 * sigma * sigma));
+            e = Math.min(1, e * decay + influence * 0.9);
           } else {
             e *= decay;
           }
@@ -196,9 +207,10 @@ export function AsciiFigure({
           }
           const eFx = Math.min(1, e + scanBoost);
 
+          const boostedDv = Math.min(1, dv + eFx * (1 - dv) * 0.5);
           const charIdx = Math.min(
             RAMP.length - 1,
-            Math.max(0, Math.round(dv * (RAMP.length - 1))),
+            Math.max(0, Math.round(boostedDv * (RAMP.length - 1))),
           );
           let ch = RAMP[charIdx];
           if (ch === " ") continue;
@@ -206,9 +218,9 @@ export function AsciiFigure({
             ch = RAMP[Math.min(RAMP.length - 1, charIdx + 1)];
           }
 
-          const restAlpha = dv * 0.11;
-          const liveAlpha = dv * 0.92 * eFx;
-          const alpha = Math.min(0.96, restAlpha + liveAlpha);
+          const restAlpha = dv * 0.42;
+          const liveAlpha = dv * 0.75 * eFx;
+          const alpha = Math.min(0.98, restAlpha + liveAlpha);
           if (alpha < 0.02) continue;
 
           const restColor = mixColor(DIM, BRIGHT, dv);
@@ -219,42 +231,6 @@ export function AsciiFigure({
           ctx.fillStyle = `rgba(${r | 0},${g | 0},${b | 0},${alpha.toFixed(3)})`;
           ctx.fillText(ch, x + jitter, y + jitter);
         }
-      }
-
-      if (pointerInside && !reducedMotion) {
-        const col = Math.floor(px / cellPx);
-        const row = Math.floor(py / cellPx);
-        ctx.strokeStyle = "rgba(125,255,176,0.55)";
-        ctx.lineWidth = 1;
-        const s = cellPx * 2.4;
-        ctx.strokeRect(px - s, py - s, s * 2, s * 2);
-        const cs = 5;
-        ctx.beginPath();
-        [
-          [px - s, py - s, px - s + cs, py - s],
-          [px - s, py - s, px - s, py - s + cs],
-          [px + s, py - s, px + s - cs, py - s],
-          [px + s, py - s, px + s, py - s + cs],
-          [px - s, py + s, px - s + cs, py + s],
-          [px - s, py + s, px - s, py + s - cs],
-          [px + s, py + s, px + s - cs, py + s],
-          [px + s, py + s, px + s, py + s - cs],
-        ].forEach(([x1, y1, x2, y2]) => {
-          ctx.moveTo(x1, y1);
-          ctx.lineTo(x2, y2);
-        });
-        ctx.strokeStyle = "rgba(234,255,241,0.85)";
-        ctx.stroke();
-
-        ctx.font = "9px 'Fira Code', monospace";
-        ctx.textAlign = "left";
-        ctx.textBaseline = "alphabetic";
-        ctx.fillStyle = "rgba(125,255,176,0.75)";
-        ctx.fillText(
-          `X:${String(col).padStart(3, "0")} Y:${String(row).padStart(3, "0")}`,
-          px + s + 8,
-          py - s,
-        );
       }
 
       if (t % 20 === 0) {
