@@ -6,7 +6,7 @@ export type DeviceCapability = {
   reducedMotion: boolean;
   isTouch: boolean;
   isNarrow: boolean;
-  /** "high" = safe to mount the full R3F scene with postprocessing */
+  /** "high" = capable device, safe to run denser canvas/particle effects */
   tier: "high" | "low";
 };
 

@@ -1,16 +1,15 @@
-import { Suspense, lazy, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { profile } from "@/data/profile";
 import { useDeviceCapability } from "@/lib/useDeviceCapability";
 import { useTypewriter } from "@/lib/useTypewriter";
-import { HeroFallback } from "./HeroFallback";
+import { HeroBackdrop } from "./HeroBackdrop";
 import { AsciiFigure } from "./AsciiFigure";
-
-const HeroScene = lazy(() => import("./HeroScene").then((m) => ({ default: m.HeroScene })));
 
 export function HeroSection({ booted }: { booted: boolean }) {
   const capability = useDeviceCapability();
   const containerRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(true);
+  const [scanPct, setScanPct] = useState(0);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -28,63 +27,85 @@ export function HeroSection({ booted }: { booted: boolean }) {
     active: booted,
   });
 
-  const use3d = capability.ready && capability.tier === "high";
+  const active = inView && booted;
+  const statusLine = scanPct > 2 ? `STATUS: SCANNING ${String(scanPct).padStart(2, "0")}%` : "STATUS: DORMANT";
 
   return (
     <section
       id="hero"
       ref={containerRef}
-      className="relative flex h-[100svh] w-full flex-col items-center justify-center overflow-hidden bg-(--color-void)"
+      className="relative flex h-[100svh] w-full flex-col overflow-hidden bg-(--color-phosphor-black)"
     >
       <div className="absolute inset-0">
-        {capability.ready && use3d && (
-          <Suspense fallback={<HeroFallback animate={!capability.reducedMotion} />}>
-            <HeroScene active={inView && booted} />
-          </Suspense>
+        {capability.ready && (
+          <HeroBackdrop animate={!capability.reducedMotion} active={active} />
         )}
-        {capability.ready && !use3d && <HeroFallback animate={!capability.reducedMotion} />}
       </div>
 
-      {capability.ready && (
-        <AsciiFigure
-          active={inView && booted}
-          tier={capability.tier}
-          reducedMotion={capability.reducedMotion}
-          isTouch={capability.isTouch}
-        />
-      )}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-(--color-phosphor-black) via-transparent to-(--color-phosphor-black)" />
+      <div
+        className="pointer-events-none absolute inset-0 opacity-[0.05]"
+        style={{
+          backgroundImage:
+            "linear-gradient(color-mix(in srgb, var(--color-phosphor) 60%, transparent) 1px, transparent 1px), linear-gradient(90deg, color-mix(in srgb, var(--color-phosphor) 60%, transparent) 1px, transparent 1px)",
+          backgroundSize: "42px 42px",
+        }}
+      />
 
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-(--color-void) via-transparent to-(--color-void)/40" />
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between px-5 pt-5 sm:px-8 sm:pt-6">
+        <span className="font-mono text-[9px] tracking-[0.25em] text-(--color-phosphor-dim) sm:text-[10px]">
+          ADRO_OS // TERMINAL.EXE
+        </span>
+        <span className="flex items-center gap-2 font-mono text-[9px] tracking-[0.25em] text-(--color-phosphor-dim) sm:text-[10px]">
+          <span className="animate-blink h-1.5 w-1.5 rounded-full bg-(--color-phosphor)" />
+          SYSTEM ACTIVE
+        </span>
+      </div>
 
-      <div className="relative z-10 flex flex-col items-center px-6 text-center">
-        <p className="mb-3 font-mono text-[11px] tracking-[0.35em] text-(--color-fg-dim) sm:text-xs">
-          ADRO_OS // BOOT.INTERFACE
-        </p>
+      <div className="relative z-10 flex shrink-0 flex-col items-center px-6 pt-16 text-center sm:pt-20">
         <h1
-          data-text="ADRIÁN PLIEGO"
-          className="glitch font-display text-glow-blue max-w-[92vw] text-balance text-[2.6rem] leading-[0.95] text-(--color-blue) sm:text-[4.25rem] md:text-[5.75rem] lg:text-[7rem]"
+          data-text="ADRIAN PLIEGO"
+          className="glitch font-display text-glow-phosphor max-w-[94vw] text-balance text-[2.75rem] leading-[0.95] text-(--color-phosphor) sm:text-[4.5rem] md:text-[5.75rem] lg:text-[6.75rem]"
         >
-          ADRIÁN PLIEGO
+          ADRIAN PLIEGO
         </h1>
-        <p className="mt-2 font-mono text-sm tracking-[0.15em] text-(--color-fg-dim) sm:text-base">
-          @{profile.handle}
+        <p className="mt-2 font-mono text-xs tracking-[0.3em] text-(--color-phosphor-dim) sm:text-sm">
+          [ id: {profile.handle} ]
         </p>
-        <p className="mt-6 h-6 font-mono text-base text-(--color-cyan) sm:text-lg">
+        <p className="mt-5 h-6 font-mono text-sm text-(--color-phosphor-bright) sm:text-base">
           {output}
           <span className="animate-blink">▌</span>
         </p>
-        <p className="mt-4 max-w-md text-pretty font-mono text-xs text-(--color-fg-dim) sm:text-sm">
+        <p className="mt-3 max-w-md text-pretty font-mono text-[11px] text-(--color-phosphor-dim) sm:text-sm">
           {profile.role} — {profile.status}
         </p>
       </div>
 
-      <a
-        href="#identity"
-        className="group absolute bottom-8 z-10 flex flex-col items-center gap-2 font-mono text-[10px] tracking-[0.3em] text-(--color-fg-dim) transition-colors hover:text-(--color-blue)"
-      >
-        <span>SCROLL TO CONTINUE</span>
-        <span className="animate-blink text-(--color-blue)">▼</span>
-      </a>
+      <div className="relative z-10 mt-4 min-h-0 flex-1 px-4 pb-2 sm:mt-6">
+        <AsciiFigure
+          active={active}
+          reducedMotion={capability.reducedMotion}
+          isTouch={capability.isTouch}
+          tier={capability.tier}
+          onScanChange={setScanPct}
+        />
+      </div>
+
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-4 px-5 pb-4 sm:px-8 sm:pb-6">
+        <span className="hidden font-mono text-[9px] tracking-[0.2em] text-(--color-phosphor-dim) sm:inline">
+          OBJECT.CLASS: MARBLE // GALLERIA.ACCADEMIA
+        </span>
+        <a
+          href="#identity"
+          className="group pointer-events-auto flex flex-col items-center gap-2 font-mono text-[10px] tracking-[0.3em] text-(--color-phosphor-dim) transition-colors hover:text-(--color-phosphor)"
+        >
+          <span>SCROLL TO CONTINUE</span>
+          <span className="animate-blink text-(--color-phosphor)">▼</span>
+        </a>
+        <span className="hidden font-mono text-[9px] tracking-[0.2em] text-(--color-phosphor-dim) sm:inline">
+          {statusLine}
+        </span>
+      </div>
     </section>
   );
 }

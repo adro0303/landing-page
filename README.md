@@ -3,9 +3,10 @@
 Adrián's personal landing page / portfolio, built as an interactive retro-terminal
 operating system rather than a conventional Hero → About → Skills → Projects page.
 
-Boot sequence → 3D terminal-core hero (React Three Fiber) → `whoami` identity
-terminal → a circuit "blueprint" of the real stack → six real GitHub projects,
-each rendered with a visual metaphor matched to what it actually does → an
+Boot sequence → a phosphor-green CRT hero with a hidden ASCII statue that
+reveals itself as the cursor scans over it → `whoami` identity terminal → a
+circuit "blueprint" of the real stack → six real GitHub projects, each
+rendered with a visual metaphor matched to what it actually does → an
 uplink/contact panel → a hidden `~` shell with a few easter eggs.
 
 All project data, bio facts, and stack badges in `src/data/` are sourced from
@@ -15,19 +16,36 @@ the real `adro0303` GitHub profile and repo READMEs — nothing fabricated.
 
 - Vite + React 19 + TypeScript
 - Tailwind CSS v4 (CSS-first theme, see `src/index.css`)
-- React Three Fiber / drei / postprocessing — hero scene only, lazy-loaded
+- Hero background/statue: hand-rolled canvas2D renderers, no WebGL/3D
+  dependency — see `src/components/hero/`
 - GSAP + ScrollTrigger — pinned horizontal scroll for the Projects section
 - Framer Motion — scroll-reveal animations
 
+## The hero's hidden statue
+
+`src/components/hero/AsciiFigure.tsx` renders a classical bust (Michelangelo's
+David, head/shoulders/upper chest) as a field of monospace characters. The
+per-cell brightness data comes from `src/data/statueField.ts`, generated once
+by `scripts/generate-statue-field.mjs` from a CC-BY 3.0 photograph (Wikimedia
+Commons) — luminance + Sobel edge magnitude, vignetted and gamma-curved. Only
+that derived digit string is committed; the source photo itself is never
+shipped. Re-run the script with `node scripts/generate-statue-field.mjs
+<path-to-photo>` to regenerate it from a different source image.
+
+At rest the figure sits just barely visible. Cursor proximity drives a
+decaying per-cell "energy" field that brightens density/color toward a hot
+white-green core, with a trailing scan-beam, glyph jitter, and a scan-coverage
+readout in the hero's HUD. Touch devices get a slow autonomous roam instead of
+pointer tracking; `prefers-reduced-motion` gets one static faint render with
+no animation loop at all.
+
 ## Performance & responsiveness
 
-- `useDeviceCapability` (`src/lib/useDeviceCapability.ts`) detects WebGL
-  support, `prefers-reduced-motion`, touch input, and rough device power. The
-  R3F hero only mounts on capable desktop devices; everything else gets a
-  cheap animated canvas2D fallback (`HeroFallback.tsx`) with the same layout.
-- The Three.js/R3F/postprocessing bundle is code-split behind `React.lazy` —
-  it's never downloaded on mobile or low-power devices.
-- The hero's `frameloop` pauses when scrolled out of view.
+- `useDeviceCapability` (`src/lib/useDeviceCapability.ts`) detects
+  `prefers-reduced-motion`, touch input, and rough device power, and both
+  hero canvases (`HeroBackdrop`, `AsciiFigure`) adapt cell density/effects to
+  it — no heavy 3D bundle to gate in the first place.
+- The hero's canvas render loops pause when scrolled out of view.
 - The Projects section's GSAP pin-scroll is desktop-only; mobile/touch gets a
   native `scroll-snap` swipe carousel instead of a hijacked scroll.
 - `prefers-reduced-motion` disables the boot sequence typing, pin-scroll, and
@@ -47,12 +65,14 @@ npm run lint      # oxlint
 
 ```
 src/
-  data/        # real bio, stack and project data (single source of truth)
+  data/        # real bio, stack, project data + generated statueField.ts
   lib/         # device capability, typewriter, section list hooks
   components/
-    hero/      # HeroScene (R3F), HeroFallback (canvas2D), HeroSection
+    hero/      # HeroBackdrop, AsciiFigure (statue), HeroSection
     terminal/  # BootSequence, hidden InteractiveTerminal, PlasmaEffect
     layout/    # CRTOverlay, ScrollRail, TerminalWindow chrome
     sections/  # Identity, StackBlueprint, Projects, Uplink
     projects/  # per-project-kind visualizations + ProjectCard
+scripts/
+  generate-statue-field.mjs  # one-off: photo -> src/data/statueField.ts
 ```
