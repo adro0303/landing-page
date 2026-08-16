@@ -14,8 +14,8 @@ for (let i = 0; i < data.length; i++) {
   if (dv >= 0.025) REVEALABLE_COUNT++;
 }
 
-const DIM = [42, 138, 76] as const;
-const BRIGHT = [140, 255, 186] as const;
+const DIM = [58, 158, 96] as const;
+const BRIGHT = [152, 255, 195] as const;
 const HOT = [234, 255, 241] as const;
 const SUNLIT = [255, 145, 64] as const;
 
@@ -89,6 +89,13 @@ export function AsciiFigure({
     let radius = 90;
     let dpr = Math.min(window.devicePixelRatio || 1, 2);
 
+    // the statue's own box (the flex layout slot below the header text) —
+    // the canvas itself is drawn taller than this, extending up to the
+    // section's top edge, so the pointer glow has room to fade out instead
+    // of hitting a hard ceiling when the cursor moves up toward the title
+    let boxTop = 0;
+    let boxHeight = 0;
+
     // where the backdrop's retro sun sits, translated into this canvas's
     // local coordinates — so the statue's sunlit silhouette lines up with
     // the sun actually drawn behind it in HeroBackdrop
@@ -102,17 +109,26 @@ export function AsciiFigure({
 
     function resize() {
       const w = wrap!.clientWidth;
-      const h = wrap!.clientHeight;
+      const wrapH = wrap!.clientHeight;
+
+      const sectionEl = sectionRef?.current;
+      const sectionRect = sectionEl?.getBoundingClientRect();
+      const wrapRect = wrap!.getBoundingClientRect();
+      const extraTop = sectionRect ? Math.max(0, wrapRect.top - sectionRect.top) : 0;
+
       width = w;
-      height = h;
+      height = extraTop + wrapH;
+      boxTop = extraTop;
+      boxHeight = wrapH;
+
       cellPx = Math.max(
         minCell,
-        Math.min(maxCell, Math.min((w * fillFraction) / cols, (h * fillFraction) / rows)),
+        Math.min(maxCell, Math.min((w * fillFraction) / cols, (wrapH * fillFraction) / rows)),
       );
       const figW = cols * cellPx;
       const figH = rows * cellPx;
       offsetX = (w - figW) / 2;
-      offsetY = (h - figH) / 2;
+      offsetY = extraTop + (wrapH - figH) / 2;
       radius = cellPx * (tier === "high" ? 26 : 18);
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       const el = canvasRef.current;
@@ -121,20 +137,17 @@ export function AsciiFigure({
       el.height = height * dpr;
       el.style.width = `${width}px`;
       el.style.height = `${height}px`;
+      el.style.top = `${-extraTop}px`;
 
-      const sectionEl = sectionRef?.current;
-      const sectionRect = sectionEl?.getBoundingClientRect();
-      const wrapRect = wrap!.getBoundingClientRect();
       const sectionW = sectionRect?.width ?? w;
-      const sectionH = sectionRect?.height ?? h;
+      const sectionH = sectionRect?.height ?? height;
       const horizonSection = sectionH * 0.66;
       sunLocalR = Math.min(sectionW, sectionH) * 0.16;
-      const sunYSection = horizonSection - sunLocalR * 0.2;
-      const sunXSection = sectionW / 2;
-      const offsetTop = sectionRect ? wrapRect.top - sectionRect.top : 0;
+      // canvas-local y now matches section-local y directly (canvas top
+      // edge is pinned to the section's top edge), so no offset needed
+      sunLocalY = horizonSection - sunLocalR * 0.2;
       const offsetLeft = sectionRect ? wrapRect.left - sectionRect.left : 0;
-      sunLocalX = sunXSection - offsetLeft;
-      sunLocalY = sunYSection - offsetTop;
+      sunLocalX = sectionW / 2 - offsetLeft;
     }
 
     let raf = 0;
@@ -157,7 +170,7 @@ export function AsciiFigure({
       if (isTouch) {
         const phase = t * 0.0055;
         px = width * (0.5 + 0.24 * Math.sin(phase * 1.2));
-        py = height * (0.46 + 0.32 * Math.sin(phase * 0.75 + 1.1));
+        py = boxTop + boxHeight * (0.46 + 0.32 * Math.sin(phase * 0.75 + 1.1));
       } else if (hasPointer.current) {
         px = pointer.current.x;
         py = pointer.current.y;
@@ -244,7 +257,7 @@ export function AsciiFigure({
             ch = RAMP[Math.min(RAMP.length - 1, charIdx + 1)];
           }
 
-          const restAlpha = Math.min(1, dv * 1.3 + 0.05);
+          const restAlpha = Math.min(1, dv * 1.6 + 0.16);
           const liveAlpha = eFx * 0.3;
           const alpha = Math.min(1, restAlpha + liveAlpha);
           if (alpha < 0.02) continue;
@@ -259,6 +272,42 @@ export function AsciiFigure({
           ctx.fillStyle = `rgba(${r | 0},${g | 0},${b | 0},${alpha.toFixed(3)})`;
           ctx.fillText(ch, x + jitter, y + jitter);
         }
+      }
+
+      if (pointerInside && !reducedMotion) {
+        const col = Math.floor((px - offsetX) / cellPx);
+        const row = Math.floor((py - offsetY) / cellPx);
+        ctx.strokeStyle = "rgba(152,255,195,0.55)";
+        ctx.lineWidth = 1;
+        const s = cellPx * 2.4;
+        ctx.strokeRect(px - s, py - s, s * 2, s * 2);
+        const cs = 5;
+        ctx.beginPath();
+        [
+          [px - s, py - s, px - s + cs, py - s],
+          [px - s, py - s, px - s, py - s + cs],
+          [px + s, py - s, px + s - cs, py - s],
+          [px + s, py - s, px + s, py - s + cs],
+          [px - s, py + s, px - s + cs, py + s],
+          [px - s, py + s, px - s, py + s - cs],
+          [px + s, py + s, px + s - cs, py + s],
+          [px + s, py + s, px + s, py + s - cs],
+        ].forEach(([x1, y1, x2, y2]) => {
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+        });
+        ctx.strokeStyle = "rgba(234,255,241,0.85)";
+        ctx.stroke();
+
+        ctx.font = "9px 'Fira Code', monospace";
+        ctx.textAlign = "left";
+        ctx.textBaseline = "alphabetic";
+        ctx.fillStyle = "rgba(152,255,195,0.75)";
+        ctx.fillText(
+          `X:${String(col).padStart(3, "0")} Y:${String(row).padStart(3, "0")}`,
+          px + s + 8,
+          py - s,
+        );
       }
 
       if (t % 20 === 0) {
@@ -286,8 +335,8 @@ export function AsciiFigure({
   }, [tier, reducedMotion, isTouch, active]);
 
   return (
-    <div ref={wrapRef} className="relative flex h-full w-full items-center justify-center">
-      <canvas ref={canvasRef} aria-hidden="true" />
+    <div ref={wrapRef} className="relative h-full w-full">
+      <canvas ref={canvasRef} aria-hidden="true" className="pointer-events-none absolute inset-x-0" />
     </div>
   );
 }

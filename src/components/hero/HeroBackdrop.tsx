@@ -2,13 +2,14 @@ import { useEffect, useRef } from "react";
 
 /**
  * Ambient CRT backdrop: phosphor starfield, a retro sun behind the horizon,
- * and a single perspective grid whose outer rays rise into wireframe
- * mountains on either side — same mesh, same lines, just lifted where it's
- * not the road — plus a pair of line-drawn palm trees. Deliberately not
- * cursor-reactive — that role belongs entirely to AsciiFigure, so the two
- * layers read as one intentional scene rather than competing effects. Kept
- * clearly secondary in brightness/contrast to the statue, which stays the
- * protagonist.
+ * a static low-poly wireframe mountain range on either side of a perspective
+ * floor grid, and a pair of line-drawn palm trees. Only the grid's central
+ * "road" corridor animates (flying toward the viewer) — the mountains and
+ * everything else stay put, so the terrain reads as solid, fixed ground.
+ * Deliberately not cursor-reactive — that role belongs entirely to
+ * AsciiFigure, so the two layers read as one intentional scene rather than
+ * competing effects. Kept clearly secondary in brightness/contrast to the
+ * statue, which stays the protagonist.
  */
 
 function mulberry32(seed: number) {
@@ -25,6 +26,30 @@ function mulberry32(seed: number) {
 const RAY_MIN = -7;
 const RAY_MAX = 7;
 const ROAD_HALF_WIDTH = 3.1; // rays within this index stay flat (the "road")
+
+type PeakDef = {
+  xFrac: number;
+  widthFrac: number;
+  heightFrac: number;
+  apexLean: number; // -1..1, how far the apex leans off-center
+  facets: number[]; // 0..1 fractions along the base for internal facet lines
+};
+
+function buildRange(rand: () => number, side: -1 | 1): PeakDef[] {
+  const count = 3;
+  const list: PeakDef[] = [];
+  for (let k = 0; k < count; k++) {
+    list.push({
+      xFrac: 0.5 + side * (0.13 + k * 0.12 + rand() * 0.05),
+      widthFrac: 0.1 + rand() * 0.07,
+      heightFrac: 0.09 + rand() * 0.075 + (k === 1 ? 0.03 : 0),
+      apexLean: (rand() - 0.5) * 1.4,
+      facets: [0.3 + rand() * 0.15, 0.6 + rand() * 0.15],
+    });
+  }
+  // draw the tallest/nearest peak last so it layers in front
+  return list.sort((a, b) => a.heightFrac - b.heightFrac);
+}
 
 export function HeroBackdrop({
   animate = true,
@@ -53,40 +78,9 @@ export function HeroBackdrop({
       phase: Math.random() * Math.PI * 2,
     }));
 
-    // per-ray peak depth/height/width, seeded so the range doesn't reshuffle
-    // on re-render — amplitude tapers to zero inside the road corridor, so
-    // interpolating between neighbouring rays blends smoothly into the flat
-    // road with no hard seam
     const rand = mulberry32(4242);
-    const peaks = new Map<number, { peakT: number; amp: number; sigma: number }>();
-    for (let i = RAY_MIN - 2; i <= RAY_MAX + 2; i++) {
-      const outside = Math.max(0, Math.abs(i) - ROAD_HALF_WIDTH);
-      peaks.set(i, {
-        peakT: 0.3 + rand() * 0.42,
-        amp: outside * (0.55 + rand() * 0.4),
-        sigma: 0.22 + rand() * 0.14,
-      });
-    }
-
-    function lerp(a: number, b: number, t: number) {
-      return a + (b - a) * t;
-    }
-
-    function terrainLift(i: number, t: number, ampScale: number) {
-      const i0 = Math.floor(i);
-      const i1 = i0 + 1;
-      const frac = i - i0;
-      const p0 = peaks.get(i0);
-      const p1 = peaks.get(i1);
-      if (!p0 || !p1) return 0;
-      const peakT = lerp(p0.peakT, p1.peakT, frac);
-      const amp = lerp(p0.amp, p1.amp, frac);
-      const sigma = lerp(p0.sigma, p1.sigma, frac);
-      if (amp <= 0.001) return 0;
-      const dt = t - peakT;
-      const bell = Math.exp(-(dt * dt) / (2 * sigma * sigma));
-      return amp * bell * ampScale;
-    }
+    const leftRange = buildRange(rand, -1);
+    const rightRange = buildRange(rand, 1);
 
     function resize() {
       const el = canvasRef.current;
@@ -96,6 +90,41 @@ export function HeroBackdrop({
       dpr = Math.min(window.devicePixelRatio || 1, 2);
       el.width = width * dpr;
       el.height = height * dpr;
+    }
+
+    // static low-poly wireframe mountain: a filled triangle for mass, a
+    // bright ridge outline, and a couple of internal facet lines for the
+    // faceted 3D look — completely fixed, no time term anywhere
+    function drawPeak(peak: PeakDef, horizon: number) {
+      const c = ctx!;
+      const baseX = peak.xFrac * width;
+      const halfW = (peak.widthFrac * width) / 2;
+      const peakH = peak.heightFrac * height;
+      const baseLeftX = baseX - halfW;
+      const baseRightX = baseX + halfW;
+      const apexX = baseX + peak.apexLean * halfW * 0.7;
+      const apexY = horizon - peakH;
+
+      c.beginPath();
+      c.moveTo(baseLeftX, horizon);
+      c.lineTo(apexX, apexY);
+      c.lineTo(baseRightX, horizon);
+      c.closePath();
+      c.fillStyle = "rgba(43,220,110,0.09)";
+      c.fill();
+      c.strokeStyle = "rgba(150,255,196,0.6)";
+      c.lineWidth = 1.2;
+      c.stroke();
+
+      c.strokeStyle = "rgba(140,255,186,0.32)";
+      c.lineWidth = 1;
+      peak.facets.forEach((f) => {
+        const fx = baseLeftX + (baseRightX - baseLeftX) * f;
+        c.beginPath();
+        c.moveTo(apexX, apexY);
+        c.lineTo(fx, horizon);
+        c.stroke();
+      });
     }
 
     // detailed wireframe palm: leaning trunk with bark rings, pinnate
@@ -261,48 +290,38 @@ export function HeroBackdrop({
       ctx.globalCompositeOperation = "source-over";
       ctx.restore();
 
-      // perspective floor grid — the outer rays rise into wireframe
-      // mountains, the inner ones (the road) stay flat, all one mesh
+      // static wireframe mountain range, both sides — fixed in place
+      leftRange.forEach((p) => drawPeak(p, horizon));
+      rightRange.forEach((p) => drawPeak(p, horizon));
+
+      // perspective floor grid — straight converging lines, static; only
+      // the road corridor's rungs (drawn further below) animate
       const cx = width / 2;
       const spread = width * 1.1;
-      const ampScale = height * 0.058;
-      const RAY_STEPS = 14;
-
       ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(43,220,110,0.35)";
       for (let i = RAY_MIN; i <= RAY_MAX; i++) {
-        const xBase = cx + i * (spread / 14);
-        const xTop = cx + i * (spread / 90);
         ctx.beginPath();
-        for (let s = 0; s <= RAY_STEPS; s++) {
-          const t = s / RAY_STEPS;
-          const x = xBase + (xTop - xBase) * t;
-          const y = height + (horizon - height) * t - terrainLift(i, t, ampScale);
-          if (s === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
-        }
-        const isMountainRay = Math.abs(i) > ROAD_HALF_WIDTH;
-        ctx.strokeStyle = isMountainRay ? "rgba(140,255,186,0.4)" : "rgba(43,220,110,0.4)";
+        ctx.moveTo(cx + i * (spread / 14), height);
+        ctx.lineTo(cx + i * (spread / 90), horizon);
         ctx.stroke();
       }
 
-      // rungs are sampled in ray-index space (not inverted from x) so the
-      // terrain lift stays numerically stable as the rays converge near
-      // the horizon, instead of blowing up under a near-zero x scale
+      // road rungs — the only part of the scene that animates ("flying"
+      // toward the viewer), confined to the flat corridor between the
+      // static mountains on either side
       const speed = animate ? time * 0.00006 : 0;
-      const RUNG_STEPS = 64;
-      const iSpan = RAY_MAX - RAY_MIN + 2;
+      const ROAD_STEPS = 24;
       for (let j = 0; j < 9; j++) {
         const p = (j / 9 + speed) % 1;
-        const t = 1 - p;
         const baseY = horizon + p * p * (height - horizon);
-        const xScale = (spread / 14) + ((spread / 90) - (spread / 14)) * t;
+        const xScale = (spread / 14) + ((spread / 90) - (spread / 14)) * (1 - p);
         ctx.beginPath();
-        for (let s = 0; s <= RUNG_STEPS; s++) {
-          const i = RAY_MIN - 1 + (s / RUNG_STEPS) * iSpan;
+        for (let s = 0; s <= ROAD_STEPS; s++) {
+          const i = -ROAD_HALF_WIDTH + (s / ROAD_STEPS) * (ROAD_HALF_WIDTH * 2);
           const x = cx + i * xScale;
-          const y = baseY - terrainLift(i, t, ampScale);
-          if (s === 0) ctx.moveTo(x, y);
-          else ctx.lineTo(x, y);
+          if (s === 0) ctx.moveTo(x, baseY);
+          else ctx.lineTo(x, baseY);
         }
         ctx.strokeStyle = `rgba(140,255,186,${0.5 - p * 0.38})`;
         ctx.stroke();

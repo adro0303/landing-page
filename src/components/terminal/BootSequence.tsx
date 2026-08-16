@@ -127,12 +127,12 @@ export function BootSequence({ onDone }: { onDone: () => void }) {
   }
 
   return (
-    <div
-      className={`fixed inset-0 z-[100] flex flex-col justify-between bg-(--color-void) px-6 py-10 font-mono text-[13px] transition-opacity duration-500 sm:px-12 sm:py-16 sm:text-base ${
-        leaving ? "pointer-events-none opacity-0" : "opacity-100"
-      }`}
-    >
-      <div className="mx-auto w-full max-w-2xl">
+    <div className="fixed inset-0 z-[100] flex flex-col justify-between bg-(--color-void) px-6 py-10 font-mono text-[13px] sm:px-12 sm:py-16 sm:text-base">
+      <div
+        className={`mx-auto w-full max-w-2xl transition-opacity duration-500 ${
+          leaving ? "opacity-0" : "opacity-100"
+        }`}
+      >
         {lines.map((line, i) => (
           <p
             key={i}
@@ -146,7 +146,11 @@ export function BootSequence({ onDone }: { onDone: () => void }) {
           <span className="animate-blink text-(--color-blue)">▌</span>
         </p>
       </div>
-      <div className="mx-auto flex w-full max-w-2xl justify-end">
+      <div
+        className={`mx-auto flex w-full max-w-2xl justify-end transition-opacity duration-500 ${
+          leaving ? "opacity-0" : "opacity-100"
+        }`}
+      >
         <span className="animate-blink text-[10px] tracking-[0.2em] text-(--color-fg-faint) sm:text-xs">
           PRESS ANY KEY TO SKIP
         </span>
