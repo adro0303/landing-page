@@ -3,6 +3,7 @@ import { profile } from "@/data/profile";
 import { useDeviceCapability } from "@/lib/useDeviceCapability";
 import { useTypewriter } from "@/lib/useTypewriter";
 import { HeroFallback } from "./HeroFallback";
+import { AsciiFigure } from "./AsciiFigure";
 
 const HeroScene = lazy(() => import("./HeroScene").then((m) => ({ default: m.HeroScene })));
 
@@ -44,6 +45,15 @@ export function HeroSection({ booted }: { booted: boolean }) {
         {capability.ready && !use3d && <HeroFallback animate={!capability.reducedMotion} />}
       </div>
 
+      {capability.ready && (
+        <AsciiFigure
+          active={inView && booted}
+          tier={capability.tier}
+          reducedMotion={capability.reducedMotion}
+          isTouch={capability.isTouch}
+        />
+      )}
+
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-(--color-void) via-transparent to-(--color-void)/40" />
 
       <div className="relative z-10 flex flex-col items-center px-6 text-center">
@@ -51,10 +61,10 @@ export function HeroSection({ booted }: { booted: boolean }) {
           ADRO_OS // BOOT.INTERFACE
         </p>
         <h1
-          data-text="ADRIÁN"
-          className="glitch font-display text-glow-blue text-[4.4rem] leading-none text-(--color-blue) sm:text-[7rem] md:text-[9rem]"
+          data-text="ADRIÁN PLIEGO"
+          className="glitch font-display text-glow-blue max-w-[92vw] text-balance text-[2.6rem] leading-[0.95] text-(--color-blue) sm:text-[4.25rem] md:text-[5.75rem] lg:text-[7rem]"
         >
-          ADRIÁN
+          ADRIÁN PLIEGO
         </h1>
         <p className="mt-2 font-mono text-sm tracking-[0.15em] text-(--color-fg-dim) sm:text-base">
           @{profile.handle}
