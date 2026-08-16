@@ -179,14 +179,30 @@ export function AsciiFigure({
       const pointerInside = px > -100 && px < width + 100 && py > -100 && py < height + 100;
 
       if (pointerInside) {
-        const glow = ctx.createRadialGradient(px, py, 2, px, py, radius * 1.4);
-        glow.addColorStop(0, "rgba(234,255,241,0.22)");
-        glow.addColorStop(0.4, "rgba(140,255,186,0.09)");
+        const glowR = radius * 1.4;
+        const glow = ctx.createRadialGradient(px, py, 2, px, py, glowR);
+        glow.addColorStop(0, "rgba(234,255,241,0.32)");
+        glow.addColorStop(0.4, "rgba(140,255,186,0.14)");
         glow.addColorStop(1, "rgba(43,220,110,0)");
         ctx.fillStyle = glow;
         ctx.beginPath();
-        ctx.arc(px, py, radius * 1.4, 0, Math.PI * 2);
+        ctx.arc(px, py, glowR, 0, Math.PI * 2);
         ctx.fill();
+
+        // vaporwave scanline cut-bands across the lower half, same retro
+        // look as the backdrop's sun
+        ctx.save();
+        ctx.globalCompositeOperation = "destination-out";
+        const bandCount = 5;
+        for (let bi = 0; bi < bandCount; bi++) {
+          const bp = bi / bandCount;
+          if (bp < 0.3) continue;
+          const bandY = py - glowR + bp * glowR * 2;
+          const bandH = 2 + bp * 6;
+          ctx.fillStyle = "rgba(0,0,0,1)";
+          ctx.fillRect(px - glowR * 1.05, bandY, glowR * 2.1, bandH);
+        }
+        ctx.restore();
       }
 
       if (!reducedMotion) {

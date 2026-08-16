@@ -287,17 +287,15 @@ export function HeroBackdrop({
       }
 
       // depth rungs — the only part of the scene that animates ("flying"
-      // toward the viewer). They span the full ray fan (same RAY_MIN..
-      // RAY_MAX range as the vertical lines above) so every rung lines up
-      // with every ray instead of stopping short in the middle.
+      // toward the viewer). Full canvas width at every depth, so they
+      // always reach both edges instead of over/undershooting the ray fan.
       const speed = animate ? time * 0.00006 : 0;
       for (let j = 0; j < 9; j++) {
         const p = (j / 9 + speed) % 1;
         const baseY = horizon + p * p * (height - horizon);
-        const xScale = (spread / 14) + ((spread / 90) - (spread / 14)) * (1 - p);
         ctx.beginPath();
-        ctx.moveTo(cx + RAY_MIN * xScale, baseY);
-        ctx.lineTo(cx + RAY_MAX * xScale, baseY);
+        ctx.moveTo(0, baseY);
+        ctx.lineTo(width, baseY);
         ctx.strokeStyle = `rgba(140,255,186,${0.5 - p * 0.38})`;
         ctx.stroke();
       }
