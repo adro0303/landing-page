@@ -27,7 +27,7 @@ export function HeroSection({ booted }: { booted: boolean }) {
     active: booted,
   });
 
-  const active = inView && booted;
+  const active = inView;
   const statusLine = scanPct > 2 ? `STATUS: SCANNING ${String(scanPct).padStart(2, "0")}%` : "STATUS: DORMANT";
 
   return (
@@ -62,7 +62,7 @@ export function HeroSection({ booted }: { booted: boolean }) {
         </span>
       </div>
 
-      <div className="relative z-10 flex shrink-0 flex-col items-center px-6 pt-16 text-center sm:pt-20">
+      <div className="relative z-10 flex shrink-0 flex-col items-center px-6 pt-10 text-center sm:pt-12">
         <h1
           data-text="ADRIAN PLIEGO"
           className="glitch font-display text-glow-phosphor max-w-[94vw] text-balance text-[2.75rem] leading-[0.95] text-(--color-phosphor) sm:text-[4.5rem] md:text-[5.75rem] lg:text-[6.75rem]"
@@ -72,16 +72,16 @@ export function HeroSection({ booted }: { booted: boolean }) {
         <p className="mt-2 font-mono text-xs tracking-[0.3em] text-(--color-phosphor-dim) sm:text-sm">
           [ id: {profile.handle} ]
         </p>
-        <p className="mt-5 h-6 font-mono text-sm text-(--color-phosphor-bright) sm:text-base">
+        <p className="mt-3 h-6 font-mono text-sm text-(--color-phosphor-bright) sm:text-base">
           {output}
           <span className="animate-blink">▌</span>
         </p>
-        <p className="mt-3 max-w-md text-pretty font-mono text-[11px] text-(--color-phosphor-dim) sm:text-sm">
+        <p className="mt-2 max-w-md text-pretty font-mono text-[11px] text-(--color-phosphor-dim) sm:text-sm">
           {profile.role} — {profile.status}
         </p>
       </div>
 
-      <div className="relative z-10 mt-4 min-h-0 flex-1 px-4 pb-2 sm:mt-6">
+      <div className="relative z-10 mt-2 min-h-0 flex-1 px-4 pb-2 sm:mt-3">
         <AsciiFigure
           active={active}
           reducedMotion={capability.reducedMotion}

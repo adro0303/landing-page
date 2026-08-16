@@ -2,22 +2,13 @@ import { useEffect, useRef } from "react";
 
 /**
  * Ambient CRT backdrop: phosphor starfield, a retro sun behind the horizon,
- * mountain silhouettes, a perspective grid, and a pair of ASCII palm trees.
+ * a wireframe mountain ridge, a perspective grid, and a pair of line-drawn
+ * palm trees — all rendered as strokes in the same vector/grid language.
  * Deliberately not cursor-reactive — that role belongs entirely to
  * AsciiFigure, so the two layers read as one intentional scene rather than
  * competing effects. Kept clearly secondary in brightness/contrast to the
  * statue, which stays the protagonist.
  */
-
-const PALM_ART = [
-  "  \\  |  /  ",
-  "   \\ | /   ",
-  "  -- * --   ",
-  "     #      ",
-  "     #      ",
-  "    ##      ",
-  "   # #      ",
-];
 
 function mulberry32(seed: number) {
   let a = seed;
@@ -50,20 +41,20 @@ export function HeroBackdrop({
     let height = 0;
     let dpr = Math.min(window.devicePixelRatio || 1, 2);
 
-    const stars = Array.from({ length: 70 }, () => ({
+    const stars = Array.from({ length: 80 }, () => ({
       x: Math.random(),
       y: Math.random() * 0.62,
-      r: Math.random() * 1.3 + 0.3,
+      r: Math.random() * 1.4 + 0.4,
       phase: Math.random() * Math.PI * 2,
     }));
 
-    // deterministic jagged mountain silhouette, seeded so it doesn't
+    // deterministic jagged mountain ridge line, seeded so it doesn't
     // reshuffle on re-render
     const rand = mulberry32(1337);
-    const MOUNTAIN_POINTS = 14;
+    const MOUNTAIN_POINTS = 16;
     const mountain = Array.from({ length: MOUNTAIN_POINTS + 1 }, (_, i) => ({
       x: i / MOUNTAIN_POINTS,
-      h: 0.18 + rand() * 0.62,
+      h: 0.15 + rand() * 0.85,
     }));
 
     function resize() {
@@ -76,25 +67,44 @@ export function HeroBackdrop({
       el.height = height * dpr;
     }
 
-    function drawAsciiCluster(
-      originX: number,
-      originY: number,
-      cell: number,
-      alpha: number,
-    ) {
-      ctx!.font = `${cell * 1.6}px "Fira Code", monospace`;
-      ctx!.textAlign = "center";
-      ctx!.textBaseline = "middle";
-      ctx!.fillStyle = `rgba(125,255,176,${alpha})`;
-      PALM_ART.forEach((line, row) => {
-        for (let col = 0; col < line.length; col++) {
-          const ch = line[col];
-          if (ch === " ") continue;
-          const x = originX + (col - line.length / 2) * cell;
-          const y = originY + row * cell;
-          ctx!.fillText(ch, x, y);
-        }
+    // simple wireframe palm: a leaning trunk + drooping fronds, drawn with
+    // the same stroke language as the ground grid
+    function drawPalm(originX: number, groundY: number, h: number, alpha: number) {
+      ctx!.save();
+      ctx!.globalAlpha = alpha;
+      ctx!.strokeStyle = "#8dffc4";
+      ctx!.lineCap = "round";
+      ctx!.lineWidth = Math.max(1, h * 0.045);
+
+      const lean = h * 0.18;
+      const topX = originX + lean;
+      const topY = groundY - h;
+
+      ctx!.beginPath();
+      ctx!.moveTo(originX, groundY);
+      ctx!.quadraticCurveTo(originX + lean * 0.55, groundY - h * 0.6, topX, topY);
+      ctx!.stroke();
+
+      const fronds: [number, number][] = [
+        [-1.25, 0.82],
+        [-0.6, 1.0],
+        [0.05, 1.08],
+        [0.6, 1.0],
+        [1.2, 0.8],
+      ];
+      fronds.forEach(([angOffset, lenF]) => {
+        const angle = -Math.PI / 2 + angOffset;
+        const len = h * 0.62 * lenF;
+        const midX = topX + Math.cos(angle) * len * 0.55;
+        const midY = topY + Math.sin(angle) * len * 0.55 - h * 0.04;
+        const endX = topX + Math.cos(angle) * len;
+        const endY = topY + Math.sin(angle) * len + h * 0.16;
+        ctx!.beginPath();
+        ctx!.moveTo(topX, topY);
+        ctx!.quadraticCurveTo(midX, midY, endX, endY);
+        ctx!.stroke();
       });
+      ctx!.restore();
     }
 
     function draw(time: number) {
@@ -107,8 +117,8 @@ export function HeroBackdrop({
       // stars
       stars.forEach((s) => {
         const twinkle = 0.4 + 0.6 * Math.sin(time * 0.0007 + s.phase);
-        ctx.globalAlpha = 0.25 + twinkle * 0.4;
-        ctx.fillStyle = "#2bdc6e";
+        ctx.globalAlpha = 0.35 + twinkle * 0.5;
+        ctx.fillStyle = "#8dffc4";
         ctx.beginPath();
         ctx.arc(s.x * width, s.y * height, s.r, 0, Math.PI * 2);
         ctx.fill();
@@ -117,13 +127,13 @@ export function HeroBackdrop({
 
       // retro sun — sits mostly above/behind the horizon, centered so the
       // statue (rendered on top by AsciiFigure) occludes its bright core
-      const sunR = Math.min(width, height) * 0.15;
+      const sunR = Math.min(width, height) * 0.16;
       const sunX = width / 2;
       const sunY = horizon - sunR * 0.2;
 
       ctx.save();
       const sunGlow = ctx.createRadialGradient(sunX, sunY, sunR * 0.1, sunX, sunY, sunR * 1.5);
-      sunGlow.addColorStop(0, "rgba(141,255,196,0.1)");
+      sunGlow.addColorStop(0, "rgba(141,255,196,0.16)");
       sunGlow.addColorStop(1, "rgba(43,220,110,0)");
       ctx.fillStyle = sunGlow;
       ctx.beginPath();
@@ -131,8 +141,8 @@ export function HeroBackdrop({
       ctx.fill();
 
       const sunFill = ctx.createLinearGradient(sunX, sunY - sunR, sunX, sunY + sunR);
-      sunFill.addColorStop(0, "rgba(180,255,215,0.2)");
-      sunFill.addColorStop(1, "rgba(43,220,110,0.05)");
+      sunFill.addColorStop(0, "rgba(190,255,220,0.3)");
+      sunFill.addColorStop(1, "rgba(43,220,110,0.08)");
       ctx.fillStyle = sunFill;
       ctx.beginPath();
       ctx.arc(sunX, sunY, sunR, 0, Math.PI * 2);
@@ -152,25 +162,26 @@ export function HeroBackdrop({
       ctx.globalCompositeOperation = "source-over";
       ctx.restore();
 
-      // mountain silhouette, low behind the grid, overlapping the sun's base
+      // mountain ridge — a wireframe line, same visual language as the grid
       ctx.beginPath();
-      ctx.moveTo(0, horizon);
-      mountain.forEach((pt) => {
+      mountain.forEach((pt, i) => {
         const mx = pt.x * width;
-        const my = horizon - pt.h * height * 0.1;
-        ctx.lineTo(mx, my);
+        const my = horizon - pt.h * height * 0.16;
+        if (i === 0) ctx.moveTo(mx, my);
+        else ctx.lineTo(mx, my);
       });
-      ctx.lineTo(width, horizon);
-      ctx.closePath();
-      ctx.fillStyle = "rgba(10,30,18,0.85)";
-      ctx.fill();
-      ctx.strokeStyle = "rgba(43,220,110,0.2)";
-      ctx.lineWidth = 1;
+      ctx.strokeStyle = "rgba(140,255,186,0.5)";
+      ctx.lineWidth = 1.25;
       ctx.stroke();
+      ctx.lineTo(width, horizon);
+      ctx.lineTo(0, horizon);
+      ctx.closePath();
+      ctx.fillStyle = "rgba(43,220,110,0.05)";
+      ctx.fill();
 
       // perspective grid
       const cx = width / 2;
-      ctx.strokeStyle = "rgba(43,220,110,0.32)";
+      ctx.strokeStyle = "rgba(43,220,110,0.4)";
       ctx.lineWidth = 1;
       const spread = width * 1.1;
       for (let i = -7; i <= 7; i++) {
@@ -184,23 +195,23 @@ export function HeroBackdrop({
       for (let j = 0; j < 9; j++) {
         const p = (j / 9 + speed) % 1;
         const y = horizon + p * p * (height - horizon);
-        ctx.strokeStyle = `rgba(43,220,110,${0.4 - p * 0.32})`;
+        ctx.strokeStyle = `rgba(140,255,186,${0.5 - p * 0.38})`;
         ctx.beginPath();
         ctx.moveTo(0, y);
         ctx.lineTo(width, y);
         ctx.stroke();
       }
 
-      const glow = ctx.createLinearGradient(0, horizon - height * 0.14, 0, horizon);
+      const glow = ctx.createLinearGradient(0, horizon - height * 0.16, 0, horizon);
       glow.addColorStop(0, "rgba(43,220,110,0)");
-      glow.addColorStop(1, "rgba(43,220,110,0.12)");
+      glow.addColorStop(1, "rgba(43,220,110,0.18)");
       ctx.fillStyle = glow;
-      ctx.fillRect(0, horizon - height * 0.14, width, height * 0.14);
+      ctx.fillRect(0, horizon - height * 0.16, width, height * 0.16);
 
-      // ASCII palm trees — background detail, deliberately low-contrast
-      const cell = Math.max(4, Math.min(9, width * 0.012));
-      drawAsciiCluster(width * 0.09, horizon - cell * 5, cell, 0.16);
-      drawAsciiCluster(width * 0.91, horizon - cell * 4.2, cell, 0.13);
+      // line-drawn palm trees — background detail, still legible at a glance
+      const palmH = Math.max(48, Math.min(110, width * 0.075));
+      drawPalm(width * 0.07, horizon + 2, palmH, 0.4);
+      drawPalm(width * 0.94, horizon + 4, palmH * 0.88, 0.34);
 
       if (animate) raf = requestAnimationFrame(draw);
     }

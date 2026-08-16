@@ -14,8 +14,8 @@ for (let i = 0; i < data.length; i++) {
   if (dv >= 0.025) REVEALABLE_COUNT++;
 }
 
-const DIM = [23, 92, 48] as const;
-const BRIGHT = [125, 255, 176] as const;
+const DIM = [42, 138, 76] as const;
+const BRIGHT = [140, 255, 186] as const;
 const HOT = [234, 255, 241] as const;
 
 function lerp(a: number, b: number, t: number) {
@@ -75,8 +75,8 @@ export function AsciiFigure({
     if (!ctx) return;
 
     const minCell = 2;
-    const maxCell = tier === "high" ? 10 : 7.5;
-    const fillFraction = 0.96;
+    const maxCell = tier === "high" ? 14 : 10;
+    const fillFraction = 0.985;
 
     let cellPx = 6;
     let width = 0;
@@ -143,8 +143,8 @@ export function AsciiFigure({
 
       if (pointerInside) {
         const glow = ctx.createRadialGradient(px, py, 2, px, py, radius * 1.4);
-        glow.addColorStop(0, "rgba(234,255,241,0.16)");
-        glow.addColorStop(0.4, "rgba(125,255,176,0.06)");
+        glow.addColorStop(0, "rgba(234,255,241,0.22)");
+        glow.addColorStop(0.4, "rgba(140,255,186,0.09)");
         glow.addColorStop(1, "rgba(43,220,110,0)");
         ctx.fillStyle = glow;
         ctx.beginPath();
@@ -207,7 +207,9 @@ export function AsciiFigure({
           }
           const eFx = Math.min(1, e + scanBoost);
 
-          const boostedDv = Math.min(1, dv + eFx * (1 - dv) * 0.5);
+          // statue is fully readable at rest; hovering only brightens/shifts
+          // color on top of the already-visible base, it doesn't reveal it
+          const boostedDv = Math.min(1, dv + eFx * 0.12);
           const charIdx = Math.min(
             RAMP.length - 1,
             Math.max(0, Math.round(boostedDv * (RAMP.length - 1))),
@@ -218,13 +220,13 @@ export function AsciiFigure({
             ch = RAMP[Math.min(RAMP.length - 1, charIdx + 1)];
           }
 
-          const restAlpha = dv * 0.42;
-          const liveAlpha = dv * 0.75 * eFx;
-          const alpha = Math.min(0.98, restAlpha + liveAlpha);
+          const restAlpha = Math.min(1, dv * 1.3 + 0.05);
+          const liveAlpha = eFx * 0.3;
+          const alpha = Math.min(1, restAlpha + liveAlpha);
           if (alpha < 0.02) continue;
 
           const restColor = mixColor(DIM, BRIGHT, dv);
-          const [r, g, b] = mixColor(restColor, HOT, Math.min(1, eFx * 1.25));
+          const [r, g, b] = mixColor(restColor, HOT, Math.min(1, eFx * 1.4));
 
           const jitter = eFx > 0.08 ? (Math.random() - 0.5) * eFx * 2.4 : 0;
 

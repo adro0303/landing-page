@@ -48,6 +48,53 @@
   }
 }
 
+@keyframes boot-name-flicker {
+  0% {
+    opacity: 0;
+  }
+  6% {
+    opacity: 1;
+  }
+  14% {
+    opacity: 0.12;
+  }
+  22% {
+    opacity: 1;
+  }
+  30% {
+    opacity: 0.2;
+  }
+  40% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 1;
+  }
+}
+
+@keyframes boot-sweep-cover {
+  0% {
+    clip-path: inset(0 0 0 0);
+  }
+  100% {
+    clip-path: inset(100% 0 0 0);
+  }
+}
+
+@keyframes boot-sweep-beam {
+  0% {
+    top: 0%;
+    opacity: 1;
+  }
+  92% {
+    opacity: 1;
+  }
+  100% {
+    top: 100%;
+    opacity: 0;
+  }
+}
+
 @keyframes scan {
   0% {
     transform: translateY(-100%);
