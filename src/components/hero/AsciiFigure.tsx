@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, type RefObject } from "react";
 import { STATUE_FIELD } from "@/data/statueField";
 
 const { cols, rows, data, ramp: RAMP } = STATUE_FIELD;
@@ -17,6 +17,7 @@ for (let i = 0; i < data.length; i++) {
 const DIM = [42, 138, 76] as const;
 const BRIGHT = [140, 255, 186] as const;
 const HOT = [234, 255, 241] as const;
+const SUNLIT = [255, 145, 64] as const;
 
 function lerp(a: number, b: number, t: number) {
   return a + (b - a) * t;
@@ -34,12 +35,14 @@ export function AsciiFigure({
   isTouch,
   tier,
   onScanChange,
+  sectionRef,
 }: {
   active: boolean;
   reducedMotion: boolean;
   isTouch: boolean;
   tier: "high" | "low";
   onScanChange?: (pct: number) => void;
+  sectionRef?: RefObject<HTMLElement | null>;
 }) {
   const wrapRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -86,6 +89,13 @@ export function AsciiFigure({
     let radius = 90;
     let dpr = Math.min(window.devicePixelRatio || 1, 2);
 
+    // where the backdrop's retro sun sits, translated into this canvas's
+    // local coordinates — so the statue's sunlit silhouette lines up with
+    // the sun actually drawn behind it in HeroBackdrop
+    let sunLocalX = 0;
+    let sunLocalY = 0;
+    let sunLocalR = 0;
+
     const energy = new Float32Array(cols * rows);
     const revealed = new Uint8Array(cols * rows);
     let revealedCount = 0;
@@ -111,6 +121,20 @@ export function AsciiFigure({
       el.height = height * dpr;
       el.style.width = `${width}px`;
       el.style.height = `${height}px`;
+
+      const sectionEl = sectionRef?.current;
+      const sectionRect = sectionEl?.getBoundingClientRect();
+      const wrapRect = wrap!.getBoundingClientRect();
+      const sectionW = sectionRect?.width ?? w;
+      const sectionH = sectionRect?.height ?? h;
+      const horizonSection = sectionH * 0.66;
+      sunLocalR = Math.min(sectionW, sectionH) * 0.16;
+      const sunYSection = horizonSection - sunLocalR * 0.2;
+      const sunXSection = sectionW / 2;
+      const offsetTop = sectionRect ? wrapRect.top - sectionRect.top : 0;
+      const offsetLeft = sectionRect ? wrapRect.left - sectionRect.left : 0;
+      sunLocalX = sunXSection - offsetLeft;
+      sunLocalY = sunYSection - offsetTop;
     }
 
     let raf = 0;
@@ -226,9 +250,11 @@ export function AsciiFigure({
           if (alpha < 0.02) continue;
 
           const restColor = mixColor(DIM, BRIGHT, dv);
-          const [r, g, b] = mixColor(restColor, HOT, Math.min(1, eFx * 1.4));
+          const sunDist = Math.hypot(x - sunLocalX, y - sunLocalY);
+          const hotTarget = sunDist < sunLocalR * 1.1 ? SUNLIT : HOT;
+          const [r, g, b] = mixColor(restColor, hotTarget, Math.min(1, eFx * 1.4));
 
-          const jitter = eFx > 0.08 ? (Math.random() - 0.5) * eFx * 2.4 : 0;
+          const jitter = eFx > 0.15 ? (Math.random() - 0.5) * eFx * 1.1 : 0;
 
           ctx.fillStyle = `rgba(${r | 0},${g | 0},${b | 0},${alpha.toFixed(3)})`;
           ctx.fillText(ch, x + jitter, y + jitter);

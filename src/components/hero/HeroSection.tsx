@@ -88,6 +88,7 @@ export function HeroSection({ booted }: { booted: boolean }) {
           isTouch={capability.isTouch}
           tier={capability.tier}
           onScanChange={setScanPct}
+          sectionRef={containerRef}
         />
       </div>
 
