@@ -33,18 +33,178 @@ const RAMP = " .:-=+*#%@";
 const EDGE_WEIGHT = 0.3;
 const TONE_WEIGHT = 0.85;
 
-// vignette: ellipse centered slightly above mid-frame, fading to 0 by the
-// crop edges — this both frames the figure and kills background bleed.
-const V_CX = 0.5;
-const V_CY = 0.44;
-const V_RX = 0.58;
-const V_RY = 0.64;
-const V_INNER = 0.5;
-const V_OUTER = 0.92;
+// Subject mask: the background isn't a plain dark backdrop (it's a lit
+// gallery wall with architectural panel moulding, similar tone to the
+// marble), so a brightness-based vignette can't cleanly separate statue
+// from wall — it either leaves a halo or eats real silhouette detail. Instead
+// we derive an actual silhouette mask from local texture: the carved marble
+// has continuous micro-contrast (chiaroscuro from tool marks, hair, muscle
+// definition) while the wall is flat except for thin panel-line edges. A
+// windowed variance map, opened (eroded+dilated) to strip those thin lines,
+// then flood-filled as background from the crop's edges, isolates the
+// subject. Only the top/left/right edges are used as flood seeds — the crop
+// is tight enough that the *bottom* edge cuts through the torso/drapery
+// itself, not background.
+const MASK_SCALE = 4; // working-resolution multiple of the final grid
+const VAR_RADIUS = 4; // half-width of the local variance window, in working px
+const VAR_THRESHOLD = 30; // variance above this reads as "textured" (subject)
+const OPEN_RADIUS = 3; // erode+dilate radius that strips thin panel-line edges
 
-function smoothstep(edge0, edge1, x) {
-  const t = Math.min(1, Math.max(0, (x - edge0) / (edge1 - edge0)));
-  return t * t * (3 - 2 * t);
+function integralImages(values, w, h) {
+  const sum = new Float64Array((w + 1) * (h + 1));
+  const sumSq = new Float64Array((w + 1) * (h + 1));
+  for (let y = 0; y < h; y++) {
+    let rowSum = 0;
+    let rowSumSq = 0;
+    for (let x = 0; x < w; x++) {
+      const v = values[y * w + x];
+      rowSum += v;
+      rowSumSq += v * v;
+      const idx = (y + 1) * (w + 1) + (x + 1);
+      sum[idx] = sum[idx - (w + 1)] + rowSum;
+      sumSq[idx] = sumSq[idx - (w + 1)] + rowSumSq;
+    }
+  }
+  return { sum, sumSq };
+}
+
+function boxVariance(grey, w, h, radius) {
+  const { sum, sumSq } = integralImages(grey, w, h);
+  const out = new Float32Array(w * h);
+  const W1 = w + 1;
+  for (let y = 0; y < h; y++) {
+    const y0 = Math.max(0, y - radius);
+    const y1 = Math.min(h - 1, y + radius);
+    for (let x = 0; x < w; x++) {
+      const x0 = Math.max(0, x - radius);
+      const x1 = Math.min(w - 1, x + radius);
+      const area = (y1 - y0 + 1) * (x1 - x0 + 1);
+      const s =
+        sum[(y1 + 1) * W1 + (x1 + 1)] -
+        sum[y0 * W1 + (x1 + 1)] -
+        sum[(y1 + 1) * W1 + x0] +
+        sum[y0 * W1 + x0];
+      const sq =
+        sumSq[(y1 + 1) * W1 + (x1 + 1)] -
+        sumSq[y0 * W1 + (x1 + 1)] -
+        sumSq[(y1 + 1) * W1 + x0] +
+        sumSq[y0 * W1 + x0];
+      const mean = s / area;
+      out[y * w + x] = Math.max(0, sq / area - mean * mean);
+    }
+  }
+  return out;
+}
+
+// binary min/max filter (erode/dilate) over a square window, via integral image
+function morphBinary(binary, w, h, radius, mode) {
+  const { sum } = integralImages(binary, w, h);
+  const out = new Uint8Array(w * h);
+  const W1 = w + 1;
+  for (let y = 0; y < h; y++) {
+    const y0 = Math.max(0, y - radius);
+    const y1 = Math.min(h - 1, y + radius);
+    for (let x = 0; x < w; x++) {
+      const x0 = Math.max(0, x - radius);
+      const x1 = Math.min(w - 1, x + radius);
+      const area = (y1 - y0 + 1) * (x1 - x0 + 1);
+      const s =
+        sum[(y1 + 1) * W1 + (x1 + 1)] -
+        sum[y0 * W1 + (x1 + 1)] -
+        sum[(y1 + 1) * W1 + x0] +
+        sum[y0 * W1 + x0];
+      out[y * w + x] = mode === "dilate" ? (s > 0 ? 1 : 0) : s === area ? 1 : 0;
+    }
+  }
+  return out;
+}
+
+// flood-fill "background" through non-textured cells, seeded only from the
+// top/left/right edges (see comment above on why not the bottom edge)
+function floodBackground(textured, w, h) {
+  const reached = new Uint8Array(w * h);
+  const queue = [];
+  const idx = (r, c) => r * w + c;
+  const trySeed = (r, c) => {
+    const i = idx(r, c);
+    if (textured[i] === 0 && !reached[i]) {
+      reached[i] = 1;
+      queue.push(i);
+    }
+  };
+  for (let c = 0; c < w; c++) trySeed(0, c);
+  for (let r = 0; r < h; r++) {
+    trySeed(r, 0);
+    trySeed(r, w - 1);
+  }
+  const dirs = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ];
+  for (let qi = 0; qi < queue.length; qi++) {
+    const i = queue[qi];
+    const r = Math.floor(i / w);
+    const c = i % w;
+    for (const [dr, dc] of dirs) {
+      const nr = r + dr;
+      const nc = c + dc;
+      if (nr < 0 || nr >= h || nc < 0 || nc >= w) continue;
+      const ni = idx(nr, nc);
+      if (reached[ni] || textured[ni] !== 0) continue;
+      reached[ni] = 1;
+      queue.push(ni);
+    }
+  }
+  return reached;
+}
+
+// largest 4-connected component of a binary mask (by pixel count)
+function largestComponent(mask, w, h) {
+  const label = new Int32Array(w * h).fill(-1);
+  let bestLabel = -1;
+  let bestSize = 0;
+  const dirs = [
+    [1, 0],
+    [-1, 0],
+    [0, 1],
+    [0, -1],
+  ];
+  const queue = new Int32Array(w * h);
+  let cur = 0;
+  for (let start = 0; start < w * h; start++) {
+    if (mask[start] !== 1 || label[start] !== -1) continue;
+    let qh = 0;
+    let qt = 0;
+    queue[qt++] = start;
+    label[start] = cur;
+    let size = 0;
+    while (qh < qt) {
+      const i = queue[qh++];
+      size++;
+      const r = Math.floor(i / w);
+      const c = i % w;
+      for (const [dr, dc] of dirs) {
+        const nr = r + dr;
+        const nc = c + dc;
+        if (nr < 0 || nr >= h || nc < 0 || nc >= w) continue;
+        const ni = nr * w + nc;
+        if (mask[ni] === 1 && label[ni] === -1) {
+          label[ni] = cur;
+          queue[qt++] = ni;
+        }
+      }
+    }
+    if (size > bestSize) {
+      bestSize = size;
+      bestLabel = cur;
+    }
+    cur++;
+  }
+  const keep = new Uint8Array(w * h);
+  for (let i = 0; i < w * h; i++) keep[i] = label[i] === bestLabel ? 1 : 0;
+  return keep;
 }
 
 async function main() {
@@ -106,25 +266,74 @@ async function main() {
     }
   }
 
-  let digits = "";
+  // subject mask — see comment on the MASK_* constants above
+  const mw = COLS * MASK_SCALE;
+  const mh = ROWS * MASK_SCALE;
+  const maskGrey = await cropped
+    .clone()
+    .greyscale()
+    .resize(mw, mh, { fit: "fill", kernel: "lanczos3" })
+    .raw()
+    .toBuffer();
+
+  const variance = boxVariance(maskGrey, mw, mh, VAR_RADIUS);
+  const textured = new Uint8Array(mw * mh);
+  for (let i = 0; i < variance.length; i++) {
+    textured[i] = variance[i] > VAR_THRESHOLD ? 1 : 0;
+  }
+  const opened = morphBinary(morphBinary(textured, mw, mh, OPEN_RADIUS, "erode"), mw, mh, OPEN_RADIUS, "dilate");
+  const floodReached = floodBackground(opened, mw, mh);
+  // border flood-fill alone leaves disconnected textured islands standing
+  // (real embossed wall moulding has its own genuine local contrast, so
+  // opening can't strip it like it strips thin flat edges) — of what the
+  // flood didn't reach, keep only the largest connected blob (the statue)
+  // and treat every other island as background too
+  const notBg = new Uint8Array(mw * mh);
+  for (let i = 0; i < notBg.length; i++) notBg[i] = floodReached[i] ? 0 : 1;
+  const keep = largestComponent(notBg, mw, mh);
+  const bgReached = new Uint8Array(mw * mh);
+  for (let i = 0; i < bgReached.length; i++) bgReached[i] = keep[i] ? 0 : 1;
+
+  const maskAlpha = new Float32Array(COLS * ROWS);
+  for (let row = 0; row < ROWS; row++) {
+    for (let col = 0; col < COLS; col++) {
+      let bgCount = 0;
+      for (let dy = 0; dy < MASK_SCALE; dy++) {
+        for (let dx = 0; dx < MASK_SCALE; dx++) {
+          const mx = col * MASK_SCALE + dx;
+          const my = row * MASK_SCALE + dy;
+          bgCount += bgReached[my * mw + mx];
+        }
+      }
+      maskAlpha[row * COLS + col] = 1 - bgCount / (MASK_SCALE * MASK_SCALE);
+    }
+  }
+
+  const levels = new Uint8Array(COLS * ROWS);
   for (let row = 0; row < ROWS; row++) {
     for (let col = 0; col < COLS; col++) {
       const idx = row * COLS + col;
       const tonal = Math.pow(tonalBuf[idx] / 255, 1.5);
       const edge = edgeGrid[idx];
 
-      const u = col / (COLS - 1);
-      const v = row / (ROWS - 1);
-      const d = Math.sqrt(
-        Math.pow((u - V_CX) / V_RX, 2) + Math.pow((v - V_CY) / V_RY, 2),
-      );
-      const vignette = 1 - smoothstep(V_INNER, V_OUTER, d);
-
       const raw = Math.min(1, tonal * TONE_WEIGHT + edge * EDGE_WEIGHT);
-      const final = Math.max(0, Math.min(1, raw * vignette));
-      const level = Math.round(final * (RAMP.length - 1));
-      digits += String(level);
+      const final = Math.max(0, Math.min(1, raw * maskAlpha[idx]));
+      levels[idx] = Math.round(final * (RAMP.length - 1));
     }
+  }
+
+  // final cleanup at grid resolution: the working-resolution mask above
+  // still lets the odd small island of low-level noise through (a bridge
+  // that reads as connected at working res can land as an isolated speck
+  // once box-averaged down to the coarse grid) — drop everything except the
+  // single largest connected blob of non-zero cells, which is the statue.
+  const nonZero = new Uint8Array(COLS * ROWS);
+  for (let i = 0; i < levels.length; i++) nonZero[i] = levels[i] > 0 ? 1 : 0;
+  const keepFinal = largestComponent(nonZero, COLS, ROWS);
+
+  let digits = "";
+  for (let i = 0; i < levels.length; i++) {
+    digits += String(keepFinal[i] ? levels[i] : 0);
   }
 
   const out = `// Generated by scripts/generate-statue-field.mjs — do not edit by hand.

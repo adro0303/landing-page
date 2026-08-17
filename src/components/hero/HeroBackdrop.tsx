@@ -269,6 +269,22 @@ export function HeroBackdrop({
       ctx.arc(sunX, sunY, sunR * 1.6, 0, Math.PI * 2);
       ctx.fill();
 
+      // vaporwave scanline cut-bands, notched into the glow itself (no hard
+      // disc underneath, so this stays a faint ambient ripple, not a ringed
+      // shape the statue could read as sitting inside)
+      ctx.save();
+      ctx.globalCompositeOperation = "destination-out";
+      const sunBandCount = 6;
+      for (let bi = 0; bi < sunBandCount; bi++) {
+        const bp = bi / sunBandCount;
+        if (bp < 0.25) continue;
+        const bandY = sunY - sunR * 1.6 + bp * sunR * 3.2;
+        const bandH = 1.5 + bp * 5;
+        ctx.fillStyle = "rgba(0,0,0,1)";
+        ctx.fillRect(sunX - sunR * 1.68, bandY, sunR * 3.36, bandH);
+      }
+      ctx.restore();
+
       // static wireframe mountain range, both sides — fixed in place
       leftRange.forEach((p) => drawPeak(p, horizon));
       rightRange.forEach((p) => drawPeak(p, horizon));

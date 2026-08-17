@@ -165,6 +165,10 @@
     background: var(--color-void);
     color-scheme: dark;
     scroll-behavior: smooth;
+    cursor:
+      url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAAZElEQVRIie3TQQrAMAhE0YB0kUP/O/WGli7jRtqaaKDCrN+g2NBT70g/hrToYTXEbJAsiFkg2RDRIFUgokCqQXwFqQrxFqQ6xFNwGwgD/pAuX52YY+8LiQE8UMpC4jygVyAdugDkUeXexOfGJQAAAABJRU5ErkJggg==")
+        1 1,
+      auto;
   }
 
   body {
@@ -173,6 +177,14 @@
     font-family: var(--font-mono);
     -webkit-font-smoothing: antialiased;
     overflow-x: hidden;
+  }
+
+  /* keep the native text I-beam where text entry is expected — the pixel
+     arrow above is for pointing, not typing */
+  input,
+  textarea,
+  [contenteditable="true"] {
+    cursor: text;
   }
 
   ::selection {

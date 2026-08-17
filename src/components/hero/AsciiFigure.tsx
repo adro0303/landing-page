@@ -188,21 +188,6 @@ export function AsciiFigure({
         ctx.beginPath();
         ctx.arc(px, py, glowR, 0, Math.PI * 2);
         ctx.fill();
-
-        // vaporwave scanline cut-bands across the lower half, same retro
-        // look as the backdrop's sun
-        ctx.save();
-        ctx.globalCompositeOperation = "destination-out";
-        const bandCount = 5;
-        for (let bi = 0; bi < bandCount; bi++) {
-          const bp = bi / bandCount;
-          if (bp < 0.3) continue;
-          const bandY = py - glowR + bp * glowR * 2;
-          const bandH = 2 + bp * 6;
-          ctx.fillStyle = "rgba(0,0,0,1)";
-          ctx.fillRect(px - glowR * 1.05, bandY, glowR * 2.1, bandH);
-        }
-        ctx.restore();
       }
 
       if (!reducedMotion) {
