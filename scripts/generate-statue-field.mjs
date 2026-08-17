@@ -281,6 +281,26 @@ async function main() {
   for (let i = 0; i < variance.length; i++) {
     textured[i] = variance[i] > VAR_THRESHOLD ? 1 : 0;
   }
+
+  // A curved gallery-wall corner (real architectural relief, so it has its
+  // own genuine local contrast — opening alone can't strip it) passes
+  // behind the statue at shoulder height and briefly touches the
+  // silhouette on both the left (near the neck) and right (past the arm),
+  // fusing into the same connected blob before the flood-fill/largest-
+  // component step below ever runs. Photo-specific, hand-measured cuts:
+  // sever both bridges at points confirmed (by rendering the working-
+  // resolution texture mask) to be clear of any real statue detail.
+  const cutBand = (colMin, colMax, rowOf, halfThickness) => {
+    for (let c = colMin; c <= colMax; c++) {
+      const rc = rowOf(c);
+      for (let r = Math.max(0, Math.round(rc - halfThickness)); r <= Math.min(mh - 1, Math.round(rc + halfThickness)); r++) {
+        textured[r * mw + c] = 0;
+      }
+    }
+  };
+  cutBand(0, 100, (c) => 218 + 0.2656 * c, 20); // left bridge, near the neck
+  cutBand(395, mw - 1, () => 278, 22); // right bridge, past the arm
+
   const opened = morphBinary(morphBinary(textured, mw, mh, OPEN_RADIUS, "erode"), mw, mh, OPEN_RADIUS, "dilate");
   const floodReached = floodBackground(opened, mw, mh);
   // border flood-fill alone leaves disconnected textured islands standing

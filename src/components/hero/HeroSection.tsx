@@ -5,11 +5,23 @@ import { useTypewriter } from "@/lib/useTypewriter";
 import { HeroBackdrop } from "./HeroBackdrop";
 import { AsciiFigure } from "./AsciiFigure";
 
+const NAME = "ADRIAN PLIEGO";
+
 export function HeroSection({ booted }: { booted: boolean }) {
   const capability = useDeviceCapability();
   const containerRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(true);
   const [scanPct, setScanPct] = useState(0);
+  const [deadLetters, setDeadLetters] = useState<Set<number>>(() => new Set());
+
+  const toggleLetter = (i: number) => {
+    setDeadLetters((prev) => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i);
+      else next.add(i);
+      return next;
+    });
+  };
 
   useEffect(() => {
     const el = containerRef.current;
@@ -64,10 +76,23 @@ export function HeroSection({ booted }: { booted: boolean }) {
 
       <div className="relative z-10 flex shrink-0 flex-col items-center px-6 pt-10 text-center sm:pt-12">
         <h1
-          data-text="ADRIAN PLIEGO"
+          data-text={NAME}
+          title="psst — try clicking a letter"
           className="glitch font-display text-glow-phosphor max-w-[94vw] text-balance text-[2.75rem] leading-[0.95] text-(--color-phosphor) sm:text-[4.5rem] md:text-[5.75rem] lg:text-[6.75rem]"
         >
-          ADRIAN PLIEGO
+          {NAME.split("").map((ch, i) =>
+            ch === " " ? (
+              <span key={i}>&nbsp;</span>
+            ) : (
+              <span
+                key={i}
+                onClick={() => toggleLetter(i)}
+                className={`letter-toggle ${deadLetters.has(i) ? "letter-dead" : ""}`}
+              >
+                {ch}
+              </span>
+            ),
+          )}
         </h1>
         <p className="mt-2 font-mono text-xs tracking-[0.3em] text-(--color-phosphor-dim) sm:text-sm">
           [ id: {profile.handle} ]

@@ -306,6 +306,25 @@
     color: var(--color-phosphor-bright);
     animation: glitch-b 7.5s infinite linear;
   }
+
+  .letter-toggle {
+    display: inline-block;
+    cursor: pointer;
+    transition:
+      color 0.15s ease,
+      text-shadow 0.15s ease;
+  }
+  .letter-toggle:hover {
+    color: var(--color-phosphor-hot);
+  }
+  .letter-dead {
+    color: color-mix(in srgb, var(--color-phosphor-dim) 35%, var(--color-phosphor-black));
+    text-shadow: none;
+    animation: letter-power-off 0.4s ease-out;
+  }
+  .letter-dead:hover {
+    color: color-mix(in srgb, var(--color-phosphor-dim) 70%, var(--color-phosphor-black));
+  }
 }
 
 @keyframes glitch-a {
@@ -356,5 +375,26 @@
   }
   93% {
     opacity: 0;
+  }
+}
+
+@keyframes letter-power-off {
+  0% {
+    color: var(--color-phosphor-hot);
+    text-shadow: 0 0 14px var(--color-phosphor-hot);
+    transform: scaleY(1) scaleX(1);
+  }
+  35% {
+    color: var(--color-phosphor-hot);
+    text-shadow: 0 0 18px var(--color-phosphor-hot);
+    transform: scaleY(1.2) scaleX(0.85);
+  }
+  60% {
+    color: var(--color-phosphor-black);
+    text-shadow: none;
+    transform: scaleY(0.04) scaleX(1.15);
+  }
+  100% {
+    transform: scaleY(1) scaleX(1);
   }
 }
