@@ -298,8 +298,22 @@ async function main() {
       }
     }
   };
-  cutBand(0, 100, (c) => 218 + 0.2656 * c, 20); // left bridge, near the neck
+  cutBand(0, 120, (c) => 218 + 0.2656 * c, 20); // left bridge, near the neck
   cutBand(395, mw - 1, () => 278, 22); // right bridge, past the arm
+  cutBand(383, 408, () => 448, 14); // small speck under the raised arm, past the elbow
+
+  // The raised arm's underside carries a genuine cast shadow that photographs
+  // almost as flat/low-contrast as the wall next to it, so the variance mask
+  // misread it as background and the flood-fill ate into real silhouette.
+  // Force this patch back to "textured" before opening/flood so it survives.
+  const protectBand = (x0, x1, y0, y1) => {
+    for (let x = x0; x <= x1; x++) {
+      for (let y = y0; y <= y1; y++) {
+        textured[y * mw + x] = 1;
+      }
+    }
+  };
+  protectBand(10, 34, 405, 465); // shaded underside of the lower-left arm
 
   const opened = morphBinary(morphBinary(textured, mw, mh, OPEN_RADIUS, "erode"), mw, mh, OPEN_RADIUS, "dilate");
   const floodReached = floodBackground(opened, mw, mh);

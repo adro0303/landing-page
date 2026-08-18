@@ -1,3 +1,4 @@
+import { useState } from "react";
 import type { Project } from "@/data/projects";
 import { PipelineViz } from "./PipelineViz";
 import { ControlPanelViz } from "./ControlPanelViz";
@@ -21,9 +22,11 @@ function Visual({ project }: { project: Project }) {
 }
 
 export function ProjectCard({ project }: { project: Project }) {
+  const [notesOpen, setNotesOpen] = useState(false);
+
   return (
     <article
-      className="flex h-full w-[86vw] shrink-0 flex-col overflow-hidden rounded-sm border border-(--color-line) bg-(--color-panel)/85 backdrop-blur-sm sm:w-[70vw] md:w-[520px]"
+      className="relative flex h-full w-[86vw] shrink-0 flex-col overflow-hidden rounded-sm border border-(--color-line) bg-(--color-panel)/85 backdrop-blur-sm sm:w-[70vw] md:w-[520px]"
       style={{ boxShadow: `0 0 0 1px color-mix(in srgb, ${project.accent} 14%, transparent)` }}
     >
       <div className="flex items-start justify-between gap-4 border-b border-(--color-line) bg-(--color-panel-raised)/70 px-5 py-4">
@@ -62,26 +65,13 @@ export function ProjectCard({ project }: { project: Project }) {
           ))}
         </div>
 
-        <details className="group">
-          <summary className="cursor-pointer list-none font-mono text-[11px] tracking-wide text-(--color-fg-dim) transition-colors select-none hover:text-(--color-fg)">
-            <span className="group-open:hidden">[ + expand build notes ]</span>
-            <span className="hidden group-open:inline">[ − collapse ]</span>
-          </summary>
-          <div className="mt-3 space-y-2 border-t border-(--color-line) pt-3 font-mono text-[12px] leading-relaxed text-(--color-fg-dim)">
-            <p>
-              <span className="text-(--color-fg-faint)">problem — </span>
-              {project.problem}
-            </p>
-            <p>
-              <span className="text-(--color-fg-faint)">built — </span>
-              {project.built}
-            </p>
-            <p className="italic">
-              <span className="not-italic text-(--color-fg-faint)">why it matters — </span>
-              {project.why}
-            </p>
-          </div>
-        </details>
+        <button
+          type="button"
+          onClick={() => setNotesOpen(true)}
+          className="cursor-pointer self-start font-mono text-[11px] tracking-wide text-(--color-fg-dim) transition-colors select-none hover:text-(--color-fg)"
+        >
+          [ + expand build notes ]
+        </button>
 
         <div className="mt-auto flex flex-wrap gap-1.5 pt-1">
           {project.tech.map((t) => (
@@ -108,6 +98,37 @@ export function ProjectCard({ project }: { project: Project }) {
           view source →
         </a>
       </div>
+
+      {notesOpen && (
+        <div className="absolute inset-0 z-20 flex flex-col rounded-sm bg-(--color-panel)">
+          <div className="flex items-center justify-between gap-4 border-b border-(--color-line) bg-(--color-panel-raised)/70 px-5 py-4">
+            <p className="truncate font-mono text-[11px] tracking-[0.25em] text-(--color-fg-dim)">
+              build_notes — {project.title}
+            </p>
+            <button
+              type="button"
+              onClick={() => setNotesOpen(false)}
+              className="shrink-0 cursor-pointer font-mono text-[11px] tracking-wide whitespace-nowrap text-(--color-fg-dim) transition-colors hover:text-(--color-fg)"
+            >
+              [ − collapse ]
+            </button>
+          </div>
+          <div className="flex-1 space-y-4 overflow-y-auto px-5 py-5 font-mono text-[12px] leading-relaxed text-(--color-fg-dim)">
+            <p>
+              <span className="text-(--color-fg-faint)">problem — </span>
+              {project.problem}
+            </p>
+            <p>
+              <span className="text-(--color-fg-faint)">built — </span>
+              {project.built}
+            </p>
+            <p className="italic">
+              <span className="not-italic text-(--color-fg-faint)">why it matters — </span>
+              {project.why}
+            </p>
+          </div>
+        </div>
+      )}
     </article>
   );
 }

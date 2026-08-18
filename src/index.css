@@ -166,8 +166,8 @@
     color-scheme: dark;
     scroll-behavior: smooth;
     cursor:
-      url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABoAAAAaCAYAAACpSkzOAAAACXBIWXMAAAPoAAAD6AG1e1JrAAAAZElEQVRIie3TQQrAMAhE0YB0kUP/O/WGli7jRtqaaKDCrN+g2NBT70g/hrToYTXEbJAsiFkg2RDRIFUgokCqQXwFqQrxFqQ6xFNwGwgD/pAuX52YY+8LiQE8UMpC4jygVyAdugDkUeXexOfGJQAAAABJRU5ErkJggg==")
-        1 1,
+      url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAVCAYAAABPPm7SAAAAlklEQVR4nKXUwQqAIAwG4Jl5sAcKerhOXXy2HqgOEus0EHP2rwaCTPZtIIzoZzgiIh8DS+I6s7MAg1zmY6MaMwFfkaFOWJEHYEWagAVRARTpAgjyCrwhENBDYEBDTECJSIxI0T6t6ltzAq3gOrOTowJSXCLwL0iRdECQ7j4o8wLUTaDwMbCPgRdOvHDiEoaVenTr5lLjBkDdUhtGK9gQAAAAAElFTkSuQmCC")
+        2 2,
       auto;
   }
 
@@ -185,6 +185,21 @@
   textarea,
   [contenteditable="true"] {
     cursor: text;
+  }
+
+  /* same pixel-art phosphor style as the default arrow, swapped for a
+     pointing hand so clickable elements read as clickable */
+  a,
+  button,
+  summary,
+  label,
+  select,
+  .letter-toggle,
+  .cursor-pointer {
+    cursor:
+      url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAVCAYAAABG1c6oAAAAm0lEQVR4nK2UQRKAIAhFyWxRB/J2rbxdB7JF09QKh5QU1L9T4ftUEGCwJm5yXpeHju/zYuM4mb8FFzy44OVoNcNWDTe0mmDJ3aoJa3crIkzJSqoalmjoRnh8qyXgNju2Pc4ZuqipuzQWobJHaSlmmhMNKXaL6cdQ06siQxSl7DYcRZk9SgslWzYAfZSYy/ayhjKNFf3YNY2skkwvg6Q8iA29GUYAAAAASUVORK5CYII=")
+        7 2,
+      pointer;
   }
 
   ::selection {

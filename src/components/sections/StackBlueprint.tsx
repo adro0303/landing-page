@@ -80,12 +80,12 @@ export function StackBlueprint() {
                             viewport={{ once: true, margin: "-60px" }}
                             transition={{ duration: 0.35, delay: 0.15 + itemIndex * 0.05 }}
                             whileHover={{ y: -2 }}
-                            className="group/badge flex items-center gap-1.5 rounded-sm border border-(--color-line) px-2.5 py-1.5 font-mono text-xs text-(--color-fg) transition-colors hover:border-(--accent)"
+                            className="group/badge flex items-center gap-2 rounded-sm border border-(--color-line) px-3 py-2 font-mono text-xs text-(--color-fg) transition-colors hover:border-(--accent)"
                             style={{ "--accent": cat.color } as CSSProperties}
                           >
                             <TechIcon
                               item={item}
-                              className="h-3.5 w-3.5 shrink-0 text-(--color-fg-faint) transition-colors group-hover/badge:text-(--accent)"
+                              className="h-5 w-5 shrink-0 text-(--color-fg-faint) transition-colors group-hover/badge:text-(--accent)"
                             />
                             {item}
                           </motion.span>
