@@ -26,6 +26,8 @@ export const profile = {
     linkedin: "https://www.linkedin.com/in/adrianpliegoperez/",
     email: "adroplpe@gmail.com",
   },
+  photoUrl: "/photo.jpg" as string | null,
+  resumeUrl: "/resume.pdf" as string | null,
   archiveRepos: [
     "ab20app",
     "abCPLUS",

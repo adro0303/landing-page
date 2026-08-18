@@ -31,15 +31,17 @@ export function Projects() {
     if (!container || !track) return;
 
     const ctx = gsap.context(() => {
-      const distance = track.scrollWidth - container.clientWidth;
-      if (distance <= 0) return;
+      if (track.scrollWidth - container.clientWidth <= 0) return;
       gsap.to(track, {
-        x: -distance,
+        // functions so GSAP re-measures on every ScrollTrigger.refresh() —
+        // a static value here goes stale once webfonts finish swapping in
+        // and the cards reflow wider, leaving the last card(s) unreachable.
+        x: () => -(track.scrollWidth - container.clientWidth),
         ease: "none",
         scrollTrigger: {
           trigger: container,
           start: "top top",
-          end: () => `+=${distance}`,
+          end: () => `+=${track.scrollWidth - container.clientWidth}`,
           scrub: 0.6,
           pin: true,
           anticipatePin: 1,
@@ -47,6 +49,8 @@ export function Projects() {
         },
       });
     }, container);
+
+    document.fonts?.ready?.then(() => ScrollTrigger.refresh());
 
     return () => ctx.revert();
   }, [pinEnabled]);

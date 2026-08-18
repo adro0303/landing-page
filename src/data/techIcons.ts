@@ -1,0 +1,48 @@
+import {
+  siCplusplus,
+  siCss,
+  siDocker,
+  siFfmpeg,
+  siGit,
+  siGithubactions,
+  siHtml5,
+  siJavascript,
+  siJupyter,
+  siN8n,
+  siNumpy,
+  siOpenjdk,
+  siPandas,
+  siPython,
+  siPytest,
+  siPytorch,
+  siScikitlearn,
+  siStreamlit,
+  siYaml,
+} from "simple-icons";
+
+export type TechIconData = { path: string };
+
+/** Keyed by the exact item string used in src/data/stack.ts. Items with no
+ * matching brand mark (CLI design, SMTP, ComfyUI, Kokoro TTS, gh CLI) fall
+ * back to a generic prompt glyph in TechIcon. */
+export const techIcons: Record<string, TechIconData> = {
+  Python: siPython,
+  JavaScript: siJavascript,
+  Java: siOpenjdk,
+  "C++": siCplusplus,
+  HTML5: siHtml5,
+  CSS3: siCss,
+  PyTorch: siPytorch,
+  "scikit-learn": siScikitlearn,
+  pandas: siPandas,
+  NumPy: siNumpy,
+  Jupyter: siJupyter,
+  Streamlit: siStreamlit,
+  "YAML configs": siYaml,
+  n8n: siN8n,
+  ffmpeg: siFfmpeg,
+  "GitHub Actions": siGithubactions,
+  Docker: siDocker,
+  pytest: siPytest,
+  Git: siGit,
+};

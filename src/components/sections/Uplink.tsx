@@ -52,6 +52,46 @@ export function Uplink() {
           connect()
         </motion.h2>
 
+        {profile.resumeUrl && (
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.5, delay: 0.06 }}
+            className="mb-6"
+          >
+            <TerminalWindow title="cat ~/resume.pdf" accent="var(--color-amber)">
+              <div className="flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="font-mono text-sm text-(--color-fg-dim)">
+                    <span className="text-(--color-green)">$</span> file resume.pdf
+                  </p>
+                  <p className="mt-1 font-mono text-sm text-(--color-fg)">
+                    One-page CV — role, stack, and shipped work.
+                  </p>
+                </div>
+                <div className="flex shrink-0 gap-3">
+                  <a
+                    href={profile.resumeUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="border border-(--color-amber) px-4 py-2 font-mono text-xs tracking-[0.15em] text-(--color-amber) transition-colors hover:bg-(--color-amber)/10"
+                  >
+                    VIEW CV
+                  </a>
+                  <a
+                    href={profile.resumeUrl}
+                    download
+                    className="border border-(--color-line) px-4 py-2 font-mono text-xs tracking-[0.15em] text-(--color-fg-dim) transition-colors hover:border-(--color-fg-dim) hover:text-(--color-fg)"
+                  >
+                    DOWNLOAD ↓
+                  </a>
+                </div>
+              </div>
+            </TerminalWindow>
+          </motion.div>
+        )}
+
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}

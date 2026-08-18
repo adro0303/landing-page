@@ -97,7 +97,7 @@ export function HeroSection({ booted }: { booted: boolean }) {
         <p className="mt-2 font-mono text-xs tracking-[0.3em] text-(--color-phosphor-dim) sm:text-sm">
           [ id: {profile.handle} ]
         </p>
-        <p className="mt-3 h-6 font-mono text-sm text-(--color-phosphor-bright) sm:text-base">
+        <p className="mt-3 min-h-6 font-mono text-sm text-(--color-phosphor-bright) sm:h-6 sm:text-base">
           {output}
           <span className="animate-blink">▌</span>
         </p>

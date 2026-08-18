@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { profile } from "@/data/profile";
 import { TerminalWindow } from "@/components/layout/TerminalWindow";
+import { IdCard } from "@/components/sections/IdCard";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 32 },
@@ -83,8 +84,9 @@ export function Identity() {
             viewport={{ once: true, margin: "-80px" }}
             variants={fadeUp}
             transition={{ duration: 0.55, delay: 0.18 }}
-            className="lg:col-span-2"
+            className="flex flex-col gap-6 lg:col-span-2"
           >
+            <IdCard />
             <TerminalWindow title="cat engineering_mindset.log" accent="var(--color-magenta)">
               <ul className="space-y-3 font-mono text-[13px] leading-relaxed text-(--color-fg-dim) sm:text-sm">
                 {profile.mindset.map((line, i) => (

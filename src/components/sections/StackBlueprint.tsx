@@ -1,5 +1,7 @@
+import type { CSSProperties } from "react";
 import { motion } from "framer-motion";
 import { stackCategories } from "@/data/stack";
+import { TechIcon } from "@/components/sections/TechIcon";
 
 export function StackBlueprint() {
   return (
@@ -70,13 +72,23 @@ export function StackBlueprint() {
                         {cat.label}
                       </p>
                       <div className="flex flex-wrap gap-2">
-                        {cat.items.map((item) => (
-                          <span
+                        {cat.items.map((item, itemIndex) => (
+                          <motion.span
                             key={item}
-                            className="rounded-sm border border-(--color-line) px-2.5 py-1 font-mono text-xs text-(--color-fg) transition-colors hover:border-(--color-fg-dim)"
+                            initial={{ opacity: 0, y: 8, scale: 0.94 }}
+                            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                            viewport={{ once: true, margin: "-60px" }}
+                            transition={{ duration: 0.35, delay: 0.15 + itemIndex * 0.05 }}
+                            whileHover={{ y: -2 }}
+                            className="group/badge flex items-center gap-1.5 rounded-sm border border-(--color-line) px-2.5 py-1.5 font-mono text-xs text-(--color-fg) transition-colors hover:border-(--accent)"
+                            style={{ "--accent": cat.color } as CSSProperties}
                           >
+                            <TechIcon
+                              item={item}
+                              className="h-3.5 w-3.5 shrink-0 text-(--color-fg-faint) transition-colors group-hover/badge:text-(--accent)"
+                            />
                             {item}
-                          </span>
+                          </motion.span>
                         ))}
                       </div>
                     </div>
