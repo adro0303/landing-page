@@ -3,6 +3,32 @@ import { motion } from "framer-motion";
 import { stackCategories } from "@/data/stack";
 import { TechIcon } from "@/components/sections/TechIcon";
 
+const ICON_SIZES = ["h-8 w-8", "h-12 w-12", "h-9 w-9", "h-7 w-7", "h-10 w-10", "h-8 w-8"];
+
+function ToolConstellation({ items, color }: { items: string[]; color: string }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      whileInView={{ opacity: 1 }}
+      viewport={{ once: true, margin: "-100px" }}
+      transition={{ duration: 0.6, delay: 0.15 }}
+      className="hidden items-center md:flex"
+    >
+      <div className="grid w-full grid-cols-3 items-center gap-x-6 gap-y-8 px-8">
+        {items.slice(0, 6).map((item, i) => (
+          <span
+            key={item}
+            className={`${ICON_SIZES[i % ICON_SIZES.length]} ${i % 2 === 0 ? "justify-self-start" : "justify-self-end"} text-(--accent)`}
+            style={{ "--accent": color, opacity: 0.3 + ((i * 7) % 4) * 0.12 } as CSSProperties}
+          >
+            <TechIcon item={item} className="h-full w-full" />
+          </span>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
 export function StackBlueprint() {
   return (
     <section id="stack" className="relative overflow-hidden bg-(--color-void) px-6 py-28 sm:px-10 lg:px-20">
@@ -93,6 +119,10 @@ export function StackBlueprint() {
                       </div>
                     </div>
                   </motion.div>
+
+                  <div className={alignRight ? "md:col-start-1 md:row-start-1" : "md:col-start-2 md:row-start-1"}>
+                    <ToolConstellation items={cat.items} color={cat.color} />
+                  </div>
 
                   <div
                     className="absolute top-1/2 left-1/2 hidden h-2 w-2 -translate-x-1/2 -translate-y-1/2 rotate-45 border md:block"

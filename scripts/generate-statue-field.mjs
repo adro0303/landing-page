@@ -301,6 +301,11 @@ async function main() {
   cutBand(0, 120, (c) => 218 + 0.2656 * c, 20); // left bridge, near the neck
   cutBand(395, mw - 1, () => 278, 22); // right bridge, past the arm
   cutBand(383, 408, () => 448, 14); // small speck under the raised arm, past the elbow
+  // The sling strap draped from the raised hand is real carved detail (confirmed
+  // against the source photo), but at this grid resolution it reads as a stray
+  // dangling line rather than anything recognizable — cut it for a cleaner
+  // silhouette, same call as the wall-bridge cuts above.
+  cutBand(348, 392, () => 445, 55);
 
   // The raised arm's underside carries a genuine cast shadow that photographs
   // almost as flat/low-contrast as the wall next to it, so the variance mask
@@ -313,7 +318,7 @@ async function main() {
       }
     }
   };
-  protectBand(10, 34, 405, 465); // shaded underside of the lower-left arm
+  protectBand(6, 44, 398, 510); // shaded bicep/underside of the lower-left arm
 
   const opened = morphBinary(morphBinary(textured, mw, mh, OPEN_RADIUS, "erode"), mw, mh, OPEN_RADIUS, "dilate");
   const floodReached = floodBackground(opened, mw, mh);

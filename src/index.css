@@ -166,7 +166,7 @@
     color-scheme: dark;
     scroll-behavior: smooth;
     cursor:
-      url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAVCAYAAABPPm7SAAAAlklEQVR4nKXUwQqAIAwG4Jl5sAcKerhOXXy2HqgOEus0EHP2rwaCTPZtIIzoZzgiIh8DS+I6s7MAg1zmY6MaMwFfkaFOWJEHYEWagAVRARTpAgjyCrwhENBDYEBDTECJSIxI0T6t6ltzAq3gOrOTowJSXCLwL0iRdECQ7j4o8wLUTaDwMbCPgRdOvHDiEoaVenTr5lLjBkDdUhtGK9gQAAAAAElFTkSuQmCC")
+      url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABIAAAAYCAYAAAD3Va0xAAAAsUlEQVR4nK2VSw6DMAxEh1Rd0ANxu664XQ8EC4TalSMwk/hDvYryeZ6ZRArwpxoA4DE+vzKxr9uQARUZTMsMDU2BNCwKLHpiWuaUugr6vN4XYARWgHbAEasXawzmUWeCmLpbIA3TwJqNLMhmq+RyJN+qKPqidcOQNaboNgg4u0iBtBoKYpvYus70BLICb0GoIqtazdwgy7IL1LPUBR27eyAUxA54Xn3XmpXLsWinzK/yAzQRXCyusZH/AAAAAElFTkSuQmCC")
         2 2,
       auto;
   }
@@ -185,21 +185,6 @@
   textarea,
   [contenteditable="true"] {
     cursor: text;
-  }
-
-  /* same pixel-art phosphor style as the default arrow, swapped for a
-     pointing hand so clickable elements read as clickable */
-  a,
-  button,
-  summary,
-  label,
-  select,
-  .letter-toggle,
-  .cursor-pointer {
-    cursor:
-      url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAVCAYAAABG1c6oAAAAm0lEQVR4nK2UQRKAIAhFyWxRB/J2rbxdB7JF09QKh5QU1L9T4ftUEGCwJm5yXpeHju/zYuM4mb8FFzy44OVoNcNWDTe0mmDJ3aoJa3crIkzJSqoalmjoRnh8qyXgNju2Pc4ZuqipuzQWobJHaSlmmhMNKXaL6cdQ06siQxSl7DYcRZk9SgslWzYAfZSYy/ayhjKNFf3YNY2skkwvg6Q8iA29GUYAAAAASUVORK5CYII=")
-        7 2,
-      pointer;
   }
 
   ::selection {
@@ -234,6 +219,24 @@
       scroll-behavior: auto !important;
     }
   }
+}
+
+/* Deliberately unlayered: cascade layers always beat plain rules by layer
+   order regardless of specificity, and Tailwind's own `.cursor-pointer`
+   utility lives in the (higher-priority) utilities layer — a same-named
+   rule inside our `@layer base` above would silently lose to it. Staying
+   unlayered guarantees this always wins, on every clickable element. */
+a,
+button,
+summary,
+label,
+select,
+.letter-toggle,
+.cursor-pointer {
+  cursor:
+    url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABQAAAAVCAYAAABG1c6oAAAAm0lEQVR4nK2UQRKAIAhFyWxRB/J2rbxdB7JF09QKh5QU1L9T4ftUEGCwJm5yXpeHju/zYuM4mb8FFzy44OVoNcNWDTe0mmDJ3aoJa3crIkzJSqoalmjoRnh8qyXgNju2Pc4ZuqipuzQWobJHaSlmmhMNKXaL6cdQ06siQxSl7DYcRZk9SgslWzYAfZSYy/ayhjKNFf3YNY2skkwvg6Q8iA29GUYAAAAASUVORK5CYII=")
+      7 2,
+    pointer;
 }
 
 @layer utilities {

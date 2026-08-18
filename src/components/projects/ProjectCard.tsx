@@ -68,9 +68,17 @@ export function ProjectCard({ project }: { project: Project }) {
         <button
           type="button"
           onClick={() => setNotesOpen(true)}
-          className="cursor-pointer self-start font-mono text-[11px] tracking-wide text-(--color-fg-dim) transition-colors select-none hover:text-(--color-fg)"
+          className="flex w-fit items-center gap-1.5 self-start rounded-sm border px-3 py-1.5 font-mono text-[11px] tracking-wide transition-all select-none hover:gap-2.5"
+          style={{
+            borderColor: `color-mix(in srgb, ${project.accent} 55%, transparent)`,
+            color: project.accent,
+            background: `color-mix(in srgb, ${project.accent} 10%, transparent)`,
+          }}
         >
-          [ + expand build notes ]
+          build notes
+          <svg viewBox="0 0 24 24" className="h-3 w-3 shrink-0" fill="none" stroke="currentColor" strokeWidth={2.5}>
+            <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
         </button>
 
         <div className="mt-auto flex flex-wrap gap-1.5 pt-1">

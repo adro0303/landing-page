@@ -6,7 +6,7 @@ export const profile = {
   headline:
     "Junior Software / AI Developer who'd rather ship a rough prototype than read one more tutorial.",
   bio: "I build backend systems, ML pipelines, and small tools that solve one problem well — then push them until they actually work, not just until the demo does.",
-  education: "BSc Artificial Intelligence — Coventry University (Final Year Project)",
+  education: "BSc Artificial Intelligence — Coventry University (Upper Second Class Honours)",
   motto: "ship it, see what breaks, fix it for real",
   status: "Open to junior backend, AI/ML, and Python engineering roles.",
   mindset: [
