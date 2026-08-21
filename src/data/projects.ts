@@ -47,12 +47,18 @@ export type NodeGraphProject = BaseProject & {
   nodes: string[];
 };
 
+export type HubProject = BaseProject & {
+  kind: "hub";
+  modules: string[];
+};
+
 export type Project =
   | PipelineProject
   | ControlPanelProject
   | SecurityProject
   | QuantProject
-  | NodeGraphProject;
+  | NodeGraphProject
+  | HubProject;
 
 export const projects: Project[] = [
   {
@@ -112,8 +118,29 @@ export const projects: Project[] = [
     ],
   },
   {
-    id: "ai-log-anomaly",
+    id: "overclaude",
     index: 2,
+    kind: "hub",
+    title: "overclaude",
+    tagline: "Curates and wires up add-ons for Claude Code — without opening a single inbound port",
+    problem: "Every 'always-on' integration for an AI coding agent is also attack surface you didn't ask for.",
+    built:
+      "A curation layer for Claude Code add-ons: a codebase knowledge graph, on-demand internet access, remote control from mobile / Telegram, and custom notification hooks — all pull-based, nothing listening.",
+    why: "The support-nudge feature ships opt-in and off by default — the whole design optimizes for zero inbound exposure over convenience.",
+    tech: ["TypeScript", "MCP", "Telegram Bot API", "Node.js"],
+    status: "Newest repo · created 2026-08-19",
+    stats: [
+      { label: "Inbound ports", value: "0" },
+      { label: "Support nudge", value: "off by default" },
+      { label: "Remote control", value: "mobile / Telegram" },
+    ],
+    href: "https://github.com/adro0303/overclaude",
+    accent: "var(--color-magenta)",
+    modules: ["knowledge graph", "on-demand internet", "remote control", "notification hooks"],
+  },
+  {
+    id: "ai-log-anomaly",
+    index: 3,
     kind: "security",
     title: "AI-LogAnomalyDetectionSystem",
     tagline: "Unsupervised anomaly detection over OpenSSH logs — no labeled attack data required",
@@ -143,7 +170,7 @@ export const projects: Project[] = [
   },
   {
     id: "ipa-builder",
-    index: 3,
+    index: 4,
     kind: "pipeline",
     title: "ipa-builder",
     tagline: "Unsigned iOS builds in the cloud — no Mac, no $99/yr Apple Developer account",
@@ -174,7 +201,7 @@ export const projects: Project[] = [
   },
   {
     id: "auto_applyer",
-    index: 4,
+    index: 5,
     kind: "control-panel",
     title: "auto_applyer",
     tagline: "Local-first job-outreach automation that refuses to become a spam bot",
@@ -199,7 +226,7 @@ export const projects: Project[] = [
   },
   {
     id: "youtube-ai-pipeline",
-    index: 5,
+    index: 6,
     kind: "node-graph",
     title: "youtube-ai-pipeline",
     tagline: "Local AI video pipeline: script → voice → character-consistent images → assembly",
@@ -217,30 +244,5 @@ export const projects: Project[] = [
     href: "https://github.com/adro0303/youtube-ai-pipeline",
     accent: "var(--color-amber)",
     nodes: ["script (70 scenes)", "n8n orchestrator", "Kokoro TTS", "ComfyUI · Krea2 + LoRA", "video-worker (ffmpeg)", "YouTube upload"],
-  },
-  {
-    id: "overclaude",
-    index: 6,
-    kind: "control-panel",
-    title: "overclaude",
-    tagline: "Curates and wires up add-ons for Claude Code — without opening a single inbound port",
-    problem: "Every 'always-on' integration for an AI coding agent is also attack surface you didn't ask for.",
-    built:
-      "A curation layer for Claude Code add-ons: a codebase knowledge graph, on-demand internet access, remote control from mobile / Telegram, and custom notification hooks — all pull-based, nothing listening.",
-    why: "The support-nudge feature ships opt-in and off by default — the whole design optimizes for zero inbound exposure over convenience.",
-    tech: ["TypeScript", "MCP", "Telegram Bot API", "Node.js"],
-    status: "Newest repo · created 2026-08-19",
-    stats: [
-      { label: "Inbound ports", value: "0" },
-      { label: "Support nudge", value: "off by default" },
-      { label: "Remote control", value: "mobile / Telegram" },
-    ],
-    href: "https://github.com/adro0303/overclaude",
-    accent: "var(--color-magenta)",
-    switches: [
-      { label: "INBOUND_PORTS", state: "off" },
-      { label: "SUPPORT_NUDGE", state: "off" },
-      { label: "REMOTE_CONTROL", state: "on" },
-    ],
   },
 ];

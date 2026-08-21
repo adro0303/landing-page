@@ -5,6 +5,7 @@ import { ControlPanelViz } from "./ControlPanelViz";
 import { SecurityViz } from "./SecurityViz";
 import { QuantViz } from "./QuantViz";
 import { NodeGraphViz } from "./NodeGraphViz";
+import { HubViz } from "./HubViz";
 
 function Visual({ project }: { project: Project }) {
   switch (project.kind) {
@@ -18,6 +19,8 @@ function Visual({ project }: { project: Project }) {
       return <QuantViz project={project} />;
     case "node-graph":
       return <NodeGraphViz project={project} />;
+    case "hub":
+      return <HubViz project={project} />;
   }
 }
 
