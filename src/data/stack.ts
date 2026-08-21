@@ -40,6 +40,13 @@ export const stackCategories: StackCategory[] = [
     label: "CI/CD & DEVOPS",
     prompt: "git log --oneline -5",
     color: "var(--color-cyan)",
-    items: ["GitHub Actions", "Docker", "pytest", "Git", "gh CLI"],
+    items: ["GitHub Actions", "Docker", "pytest", "Git", "gh CLI", "Vercel"],
+  },
+  {
+    id: "frontend",
+    label: "THIS SITE",
+    prompt: "npm ls --depth=0",
+    color: "var(--color-red)",
+    items: ["React 19", "TypeScript", "Vite", "Tailwind CSS", "GSAP", "Framer Motion"],
   },
 ];

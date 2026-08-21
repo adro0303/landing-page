@@ -14,6 +14,8 @@ export const profile = {
     "One command that runs the whole pipeline beats ten manual steps in a README.",
     "Walk-forward validation isn't optional when the whole point is \"did this actually generalize.\"",
     "If a project has a Limitations section, I wrote it myself before anyone had to ask.",
+    "SOLID and OOP aren't classroom theory — abCPLUS's Paciente/Medico/Cita split is why adding a feature didn't mean rewriting three others.",
+    "Agile in practice: small commits, working software over documentation, re-plan when the backlog says the priority changed.",
   ],
   focus: [
     "AI / ML pipelines — forecasting, anomaly detection, applied research",

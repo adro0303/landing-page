@@ -218,4 +218,29 @@ export const projects: Project[] = [
     accent: "var(--color-amber)",
     nodes: ["script (70 scenes)", "n8n orchestrator", "Kokoro TTS", "ComfyUI · Krea2 + LoRA", "video-worker (ffmpeg)", "YouTube upload"],
   },
+  {
+    id: "overclaude",
+    index: 6,
+    kind: "control-panel",
+    title: "overclaude",
+    tagline: "Curates and wires up add-ons for Claude Code — without opening a single inbound port",
+    problem: "Every 'always-on' integration for an AI coding agent is also attack surface you didn't ask for.",
+    built:
+      "A curation layer for Claude Code add-ons: a codebase knowledge graph, on-demand internet access, remote control from mobile / Telegram, and custom notification hooks — all pull-based, nothing listening.",
+    why: "The support-nudge feature ships opt-in and off by default — the whole design optimizes for zero inbound exposure over convenience.",
+    tech: ["TypeScript", "MCP", "Telegram Bot API", "Node.js"],
+    status: "Newest repo · created 2026-08-19",
+    stats: [
+      { label: "Inbound ports", value: "0" },
+      { label: "Support nudge", value: "off by default" },
+      { label: "Remote control", value: "mobile / Telegram" },
+    ],
+    href: "https://github.com/adro0303/overclaude",
+    accent: "var(--color-magenta)",
+    switches: [
+      { label: "INBOUND_PORTS", state: "off" },
+      { label: "SUPPORT_NUDGE", state: "off" },
+      { label: "REMOTE_CONTROL", state: "on" },
+    ],
+  },
 ];
