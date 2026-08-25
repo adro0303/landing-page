@@ -62,8 +62,24 @@ export function InteractiveTerminal() {
   const [showPlasma, setShowPlasma] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
   const [historyIdx, setHistoryIdx] = useState<number | null>(null);
+  const [kbInset, setKbInset] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const endRef = useRef<HTMLDivElement>(null);
+
+  // lift the panel above the on-screen keyboard on mobile (fixed elements
+  // don't reposition on their own when the visual viewport shrinks)
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+    const onResize = () => setKbInset(Math.max(0, window.innerHeight - vv.height - vv.offsetTop));
+    vv.addEventListener("resize", onResize);
+    vv.addEventListener("scroll", onResize);
+    onResize();
+    return () => {
+      vv.removeEventListener("resize", onResize);
+      vv.removeEventListener("scroll", onResize);
+    };
+  }, []);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -82,7 +98,11 @@ export function InteractiveTerminal() {
   }, [open]);
 
   useEffect(() => {
-    if (open) setTimeout(() => inputRef.current?.focus(), 60);
+    // skip autofocus on touch devices — popping the keyboard the instant the
+    // panel opens is jarring; let the user tap the input when ready
+    if (!open || window.matchMedia("(pointer: coarse)").matches) return;
+    const t = setTimeout(() => inputRef.current?.focus(), 60);
+    return () => clearTimeout(t);
   }, [open]);
 
   useEffect(() => {
@@ -254,6 +274,7 @@ export function InteractiveTerminal() {
             exit={{ opacity: 0, scale: 0.85, y: 16 }}
             transition={{ type: "spring", stiffness: 460, damping: 18, mass: 0.7 }}
             className="fixed inset-x-4 bottom-20 z-[70] mx-auto max-w-xl sm:right-5 sm:left-auto sm:w-[420px]"
+            style={kbInset > 0 ? { bottom: kbInset + 16 } : undefined}
           >
             {/* rgb(43,220,110) is --color-blue's literal value (#2bdc6e, which
                 renders green in this palette) — framer-motion's boxShadow
@@ -284,14 +305,14 @@ export function InteractiveTerminal() {
               </span>
               <button
                 onClick={() => setOpen(false)}
-                className="font-mono text-xs text-(--color-fg-faint) hover:text-(--color-red)"
+                className="flex h-8 w-8 items-center justify-center font-mono text-xs text-(--color-fg-faint) hover:text-(--color-red)"
                 aria-label="Close terminal"
               >
                 ✕
               </button>
             </div>
             <div
-              className="scrollbar-none h-64 cursor-text overflow-y-auto px-3 py-3 font-mono text-[12px] leading-relaxed"
+              className="scrollbar-none h-48 cursor-text overflow-y-auto px-3 py-3 font-mono text-[12px] leading-relaxed sm:h-64"
               onClick={() => inputRef.current?.focus()}
             >
               {lines.map((line, i) => (
@@ -355,8 +376,11 @@ export function InteractiveTerminal() {
                       }
                     }
                   }}
-                  className="flex-1 bg-transparent text-(--color-fg) caret-(--color-blue) outline-none"
+                  className="flex-1 bg-transparent text-base text-(--color-fg) caret-(--color-blue) outline-none sm:text-[12px]"
                   autoComplete="off"
+                  autoCapitalize="off"
+                  autoCorrect="off"
+                  enterKeyHint="go"
                   spellCheck={false}
                   aria-label="Terminal command input"
                 />
