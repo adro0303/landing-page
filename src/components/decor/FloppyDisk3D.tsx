@@ -77,45 +77,49 @@ function Extrusion({
         {children}
       </div>
       <div
-        className="absolute"
+        className="absolute border"
         style={{
           left: left - d / 2,
           top,
           width: d,
           height,
+          borderColor: color,
           background: mix(color, 18),
           transform: `rotateY(-90deg) translateX(${depth / 2}px)`,
         }}
       />
       <div
-        className="absolute"
+        className="absolute border"
         style={{
           left: left + width - d / 2,
           top,
           width: d,
           height,
+          borderColor: color,
           background: mix(color, 5),
           transform: `rotateY(90deg) translateX(${-depth / 2}px)`,
         }}
       />
       <div
-        className="absolute"
+        className="absolute border"
         style={{
           left,
           top: top - d / 2,
           width,
           height: d,
+          borderColor: color,
           background: mix(color, 30),
           transform: `rotateX(90deg) translateY(${depth / 2}px)`,
         }}
       />
       <div
-        className="absolute"
+        className="absolute border"
         style={{
           left,
           top: top + height - d / 2,
           width,
           height: d,
+          borderColor: color,
           background: mix(color, 4),
           transform: `rotateX(-90deg) translateY(${-depth / 2}px)`,
         }}
