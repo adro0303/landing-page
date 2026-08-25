@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useRef, useState, type ReactNode, type PointerEvent as ReactPointerEvent } from "react";
 
 /**
  * Pure CSS 3D floppy disk. No canvas/WebGL — a real 6-face box
@@ -34,6 +34,94 @@ const FRICTION_PER_FRAME = 0.85; // target-speed decay while the pointer is idle
 
 function mix(color: string, pct: number) {
   return `color-mix(in srgb, ${color} ${pct}%, var(--color-void))`;
+}
+
+/**
+ * A small rectangular detail that sits proud of (positive depth) or sunk
+ * into (negative depth) the face it's drawn on — a cap at `depth`, plus
+ * four thin walls connecting each edge of that cap back down to the face's
+ * own surface (depth 0), so it reads as a real protrusion/recess instead
+ * of a flat outline floating at an offset with nothing joining it to the
+ * base. Geometry derived the same way as the outer shell's own edges:
+ * `rotateY/X(±90deg) translate{X,Y}(depth/2)` places a wall spanning
+ * world Z from 0 to `depth` along one side of the [left,top,width,height]
+ * rectangle — translateZ moves it to the correct world X/Y, the paired
+ * translateX/Y (applied before the rotation) sets where its Z-span sits.
+ */
+function Extrusion({
+  left,
+  top,
+  width,
+  height,
+  depth,
+  color,
+  border = "border-2",
+  children,
+}: {
+  left: number;
+  top: number;
+  width: number;
+  height: number;
+  depth: number;
+  color: string;
+  border?: string;
+  children?: ReactNode;
+}) {
+  const d = Math.abs(depth);
+  return (
+    <>
+      <div
+        className={`absolute ${border}`}
+        style={{ left, top, width, height, borderColor: color, opacity: 0.85, transform: `translateZ(${depth}px)` }}
+      >
+        {children}
+      </div>
+      <div
+        className="absolute"
+        style={{
+          left: left - d / 2,
+          top,
+          width: d,
+          height,
+          background: mix(color, 18),
+          transform: `rotateY(-90deg) translateX(${depth / 2}px)`,
+        }}
+      />
+      <div
+        className="absolute"
+        style={{
+          left: left + width - d / 2,
+          top,
+          width: d,
+          height,
+          background: mix(color, 5),
+          transform: `rotateY(90deg) translateX(${-depth / 2}px)`,
+        }}
+      />
+      <div
+        className="absolute"
+        style={{
+          left,
+          top: top - d / 2,
+          width,
+          height: d,
+          background: mix(color, 30),
+          transform: `rotateX(90deg) translateY(${depth / 2}px)`,
+        }}
+      />
+      <div
+        className="absolute"
+        style={{
+          left,
+          top: top + height - d / 2,
+          width,
+          height: d,
+          background: mix(color, 4),
+          transform: `rotateX(-90deg) translateY(${-depth / 2}px)`,
+        }}
+      />
+    </>
+  );
 }
 
 export function FloppyDisk3D({
@@ -114,34 +202,36 @@ export function FloppyDisk3D({
   const brightness = pressed ? 1.55 : hovering ? 1.22 : 1;
   const stageFilter = `drop-shadow(0 0 10px color-mix(in srgb, ${color} 45%, transparent)) brightness(${brightness})`;
 
-  // Each detail sits at its own depth off the shell's own plane — the metal
-  // shutter is a separate piece that actually sits proud of the casing, the
-  // write-protect notch is a real cutout (recessed), and the label is a thin
-  // sticker (barely raised). Requires the face itself to be preserve-3d;
-  // without real depth these would be flat decals no matter how they're lit.
+  // Each detail sits at its own depth off the shell's own plane, connected
+  // to it by real walls (see Extrusion) — the metal shutter is a separate
+  // piece that actually sits proud of the casing, the write-protect notch
+  // is a real cutout (recessed), and the label is a thin sticker (barely
+  // raised). Requires the face itself to be preserve-3d; without it these
+  // would be flat decals no matter how they're lit.
   const shutterAndLabel = (
     <>
-      <div
-        className="absolute top-[8%] right-[14%] left-[14%] h-[46%] border-2"
-        style={{ borderColor: color, opacity: 0.9, transform: "translateZ(4px)" }}
-      >
+      <Extrusion left={SIZE * 0.14} top={SIZE * 0.08} width={SIZE * 0.72} height={SIZE * 0.46} depth={4} color={color}>
         <div
           className="absolute inset-x-[18%] top-1/2 h-px -translate-y-1/2"
           style={{ background: color, opacity: 0.7 }}
         />
-      </div>
-      <div
-        className="absolute top-[10%] left-[8%] h-[10%] w-[10%] border-2"
-        style={{ borderColor: color, opacity: 0.85, transform: "translateZ(-4px)" }}
-      />
-      <div
-        className="absolute right-[16%] bottom-[14%] left-[16%] flex h-[26%] flex-col items-center justify-center gap-1 border"
-        style={{ borderColor: color, opacity: 0.6, transform: "translateZ(1.5px)" }}
+      </Extrusion>
+      <Extrusion left={SIZE * 0.08} top={SIZE * 0.1} width={SIZE * 0.1} height={SIZE * 0.1} depth={-4} color={color} />
+      <Extrusion
+        left={SIZE * 0.16}
+        top={SIZE * (1 - 0.14 - 0.26)}
+        width={SIZE * 0.68}
+        height={SIZE * 0.26}
+        depth={1.5}
+        color={color}
+        border="border"
       >
-        <span className="font-mono text-[7px] tracking-[0.15em] sm:text-[8px]" style={{ color }}>
-          A:\
-        </span>
-      </div>
+        <div className="flex h-full items-center justify-center">
+          <span className="font-mono text-[7px] tracking-[0.15em] sm:text-[8px]" style={{ color }}>
+            A:\
+          </span>
+        </div>
+      </Extrusion>
     </>
   );
 
