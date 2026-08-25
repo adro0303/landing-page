@@ -27,17 +27,47 @@ function forward(pixels: number[]): number[] {
   return exps.map((v) => v / sumExp);
 }
 
-// downsamples the freehand canvas to the 8x8 grid the model was trained on —
-// drawImage's built-in scaling does the same box-filter blur a real digit
-// photo would get, which is why this reads better than clicking discrete cells
+// the training images are tightly cropped and centered on the digit — a
+// freehand canvas isn't, so predicting straight off the raw canvas feeds the
+// model a framing it's never seen, no matter how well it's trained. Find the
+// ink's bounding box first and downsample *that* (with headroom, like the
+// dataset's own margin) so the digit lands centered and similarly scaled.
 function downsample(canvas: HTMLCanvasElement): number[] {
+  const size = canvas.width;
+  const ctx = canvas.getContext("2d")!;
+  const full = ctx.getImageData(0, 0, size, size).data;
+
+  let minX = size;
+  let minY = size;
+  let maxX = 0;
+  let maxY = 0;
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const i = (y * size + x) * 4;
+      if (Math.max(full[i], full[i + 1], full[i + 2]) > 20) {
+        if (x < minX) minX = x;
+        if (x > maxX) maxX = x;
+        if (y < minY) minY = y;
+        if (y > maxY) maxY = y;
+      }
+    }
+  }
+  if (maxX < minX) return new Array(MODEL_SIZE * MODEL_SIZE).fill(0);
+
+  const cx = (minX + maxX) / 2;
+  const cy = (minY + maxY) / 2;
+  const cropSize = Math.max(maxX - minX, maxY - minY) * 1.4;
+
   const small = document.createElement("canvas");
   small.width = MODEL_SIZE;
   small.height = MODEL_SIZE;
-  const ctx = small.getContext("2d")!;
-  ctx.imageSmoothingQuality = "high";
-  ctx.drawImage(canvas, 0, 0, MODEL_SIZE, MODEL_SIZE);
-  const data = ctx.getImageData(0, 0, MODEL_SIZE, MODEL_SIZE).data;
+  const sctx = small.getContext("2d")!;
+  sctx.fillStyle = BG;
+  sctx.fillRect(0, 0, MODEL_SIZE, MODEL_SIZE);
+  sctx.imageSmoothingQuality = "high";
+  sctx.drawImage(canvas, cx - cropSize / 2, cy - cropSize / 2, cropSize, cropSize, 0, 0, MODEL_SIZE, MODEL_SIZE);
+
+  const data = sctx.getImageData(0, 0, MODEL_SIZE, MODEL_SIZE).data;
   // scale so a fully-drawn stroke pixel (green channel of STROKE, 220) reads
   // as ~1.0 — matching the 0..1 range the model was trained on, instead of
   // topping out at 220/255 and shifting every input away from training scale

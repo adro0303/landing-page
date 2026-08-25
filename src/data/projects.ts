@@ -359,7 +359,7 @@ export const projects: Project[] = [
     status: "Newest repo · extracted from this site's own terminal",
     stats: [
       { label: "Tools", value: "3" },
-      { label: "Digit model accuracy", value: "97.2%" },
+      { label: "Digit model accuracy", value: "97.8%" },
       { label: "API calls", value: "0" },
     ],
     href: "https://github.com/adro0303/ai-tools",
