@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { profile } from "@/data/profile";
+import { profile, useProfileText } from "@/data/profile";
+import { useLanguage } from "@/lib/i18n";
 import { TerminalWindow } from "@/components/layout/TerminalWindow";
 
 const initials = profile.name
@@ -9,6 +10,9 @@ const initials = profile.name
   .toUpperCase();
 
 export function IdCard() {
+  const text = useProfileText();
+  const { t } = useLanguage();
+
   return (
     <TerminalWindow title="cat ~/id.badge" accent="var(--color-cyan)">
       <div className="flex items-center gap-4">
@@ -43,11 +47,11 @@ export function IdCard() {
             {profile.name}{" "}
             <span className="text-(--color-fg-faint)">// {profile.handle}</span>
           </p>
-          <p className="mt-1 font-mono text-xs text-(--color-fg-dim)">{profile.role}</p>
+          <p className="mt-1 font-mono text-xs text-(--color-fg-dim)">{text.role}</p>
           <div className="mt-2 flex items-center gap-1.5">
             <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-(--color-green)" />
             <span className="font-mono text-[10px] tracking-[0.2em] text-(--color-green)">
-              ONLINE
+              {t("identity.online")}
             </span>
           </div>
         </div>

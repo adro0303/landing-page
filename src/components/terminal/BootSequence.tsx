@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
-import { profile } from "@/data/profile";
+import { profileText } from "@/data/profile";
 
 const LINES = [
   "ADRO_OS v2.6 — boot sequence initiated",
   "mounting /dev/github as adro0303 ... OK",
   "loading kernel modules: python, pytorch, scikit-learn ... OK",
-  `> ${profile.motto}`,
+  `> ${profileText.en.motto}`,
   "establishing uplink ... 200ms",
   "calibrating CRT phosphors ... OK",
   "starting interface_",

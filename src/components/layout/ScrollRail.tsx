@@ -1,7 +1,9 @@
 import { useEffect, useState } from "react";
 import { sections, type SectionId } from "@/lib/sections";
+import { useLanguage } from "@/lib/i18n";
 
 export function ScrollRail() {
+  const { t } = useLanguage();
   const [progress, setProgress] = useState(0);
   const [active, setActive] = useState<SectionId>("hero");
 
@@ -64,7 +66,7 @@ export function ScrollRail() {
                     : "border border-transparent bg-(--color-void)/80 text-(--color-fg-faint) opacity-0 group-hover:opacity-100"
                 }`}
               >
-                {s.label}
+                {t(`nav.${s.id}`)}
               </span>
               <span
                 className={`h-[9px] w-[9px] shrink-0 rotate-45 border transition-all duration-200 ${

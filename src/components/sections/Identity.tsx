@@ -1,7 +1,9 @@
 import { motion } from "framer-motion";
-import { profile } from "@/data/profile";
+import { useProfileText } from "@/data/profile";
+import { useLanguage } from "@/lib/i18n";
 import { TerminalWindow } from "@/components/layout/TerminalWindow";
 import { IdCard } from "@/components/sections/IdCard";
+import { FloppyDisk3D } from "@/components/decor/FloppyDisk3D";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 32 },
@@ -9,6 +11,9 @@ const fadeUp = {
 };
 
 export function Identity() {
+  const profile = useProfileText();
+  const { t } = useLanguage();
+
   return (
     <section id="identity" className="relative bg-(--color-void) px-6 py-28 sm:px-10 lg:px-20">
       <div className="mx-auto max-w-6xl">
@@ -20,7 +25,7 @@ export function Identity() {
           transition={{ duration: 0.5 }}
           className="mb-3 font-mono text-xs tracking-[0.35em] text-(--color-blue)"
         >
-          01 // IDENTITY
+          {t("identity.eyebrow")}
         </motion.p>
         <motion.h2
           initial="hidden"
@@ -103,6 +108,12 @@ export function Identity() {
                   </motion.li>
                 ))}
               </ul>
+            </TerminalWindow>
+            <TerminalWindow title="mount /dev/fd0" accent="var(--color-cyan)">
+              <FloppyDisk3D color="var(--color-cyan)" />
+              <p className="mt-3 text-center font-mono text-[11px] text-(--color-fg-faint)">
+                {t("identity.floppyCaption")}
+              </p>
             </TerminalWindow>
           </motion.div>
         </div>

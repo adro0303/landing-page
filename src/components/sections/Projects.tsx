@@ -1,18 +1,37 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { projects } from "@/data/projects";
+import { projects, type ProjectCategory } from "@/data/projects";
 import { ProjectCard } from "@/components/projects/ProjectCard";
 import { useDeviceCapability } from "@/lib/useDeviceCapability";
+import { useLanguage } from "@/lib/i18n";
 
 gsap.registerPlugin(ScrollTrigger);
 
+const CATEGORY_FILTERS: ("all" | ProjectCategory)[] = [
+  "all",
+  "systems",
+  "security",
+  "data-ai",
+  "automation",
+];
+
 export function Projects() {
   const capability = useDeviceCapability();
+  const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const [pinEnabled, setPinEnabled] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<"all" | ProjectCategory>("all");
+
+  const filteredProjects = useMemo(
+    () =>
+      activeCategory === "all"
+        ? projects
+        : projects.filter((p) => p.category === activeCategory),
+    [activeCategory],
+  );
 
   useEffect(() => {
     const compute = () =>
@@ -53,12 +72,18 @@ export function Projects() {
     document.fonts?.ready?.then(() => ScrollTrigger.refresh());
 
     return () => ctx.revert();
-  }, [pinEnabled]);
+    // filteredProjects.length changes the track's scrollWidth — the pin's
+    // travel distance has to be rebuilt from scratch, not just refreshed.
+  }, [pinEnabled, filteredProjects.length]);
+
+  useEffect(() => {
+    if (trackRef.current && !pinEnabled) trackRef.current.scrollTo({ left: 0 });
+  }, [activeCategory, pinEnabled]);
 
   return (
     <section id="projects" className="relative bg-(--color-void)">
       <div ref={containerRef} className="relative w-full overflow-hidden py-28">
-        <div className="mx-auto mb-12 max-w-6xl px-6 sm:px-10 lg:px-20">
+        <div className="mx-auto mb-10 max-w-6xl px-6 sm:px-10 lg:px-20">
           <motion.p
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -66,7 +91,7 @@ export function Projects() {
             transition={{ duration: 0.5 }}
             className="mb-3 font-mono text-xs tracking-[0.35em] text-(--color-blue)"
           >
-            03 // ACTIVE PROCESSES
+            {t("projects.eyebrow")}
           </motion.p>
           <motion.h2
             initial={{ opacity: 0, y: 24 }}
@@ -82,12 +107,39 @@ export function Projects() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="max-w-xl font-mono text-sm text-(--color-fg-dim)"
+            className="mb-6 max-w-xl font-mono text-sm text-(--color-fg-dim)"
           >
-            Six real repos, activated one at a time.{" "}
-            <span className="hidden lg:inline">Keep scrolling — this section moves sideways.</span>
-            <span className="lg:hidden">Swipe to explore.</span>
+            {t("projects.description")}{" "}
+            <span className="hidden lg:inline">{t("projects.scrollHintDesktop")}</span>
+            <span className="lg:hidden">{t("projects.scrollHintMobile")}</span>
           </motion.p>
+
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: "-80px" }}
+            transition={{ duration: 0.45, delay: 0.15 }}
+            className="flex flex-wrap gap-2"
+          >
+            {CATEGORY_FILTERS.map((cat) => {
+              const active = cat === activeCategory;
+              return (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setActiveCategory(cat)}
+                  aria-pressed={active}
+                  className={`rounded-sm border px-3 py-1.5 font-mono text-[11px] tracking-[0.15em] transition-colors ${
+                    active
+                      ? "border-(--color-blue) bg-(--color-blue)/10 text-(--color-blue)"
+                      : "border-(--color-line) text-(--color-fg-faint) hover:border-(--color-fg-dim) hover:text-(--color-fg-dim)"
+                  }`}
+                >
+                  [ {t(`projects.categories.${cat}`)} ]
+                </button>
+              );
+            })}
+          </motion.div>
         </div>
 
         <div
@@ -98,7 +150,7 @@ export function Projects() {
               : "scrollbar-none snap-x snap-mandatory overflow-x-auto pb-6"
           }`}
         >
-          {projects.map((project) => (
+          {filteredProjects.map((project) => (
             <div key={project.id} className={pinEnabled ? "" : "snap-center"}>
               <ProjectCard project={project} />
             </div>
@@ -112,7 +164,7 @@ export function Projects() {
               ls ~/archive
             </p>
             <p className="max-w-[80%] font-mono text-[11px] leading-relaxed text-(--color-fg-faint)">
-              {`// earlier coursework & experiments`}
+              {t("projects.archiveNote")}
             </p>
             <a
               href="https://github.com/adro0303?tab=repositories"
@@ -120,7 +172,7 @@ export function Projects() {
               rel="noopener noreferrer"
               className="font-mono text-sm text-(--color-blue) transition-colors hover:text-(--color-cyan)"
             >
-              view full GitHub →
+              {t("projects.viewGithub")}
             </a>
           </div>
         </div>

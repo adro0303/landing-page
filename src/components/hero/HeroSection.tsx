@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
-import { profile } from "@/data/profile";
+import { profile, useProfileText } from "@/data/profile";
 import { useDeviceCapability } from "@/lib/useDeviceCapability";
 import { useTypewriter } from "@/lib/useTypewriter";
+import { useLanguage } from "@/lib/i18n";
 import { HeroBackdrop } from "./HeroBackdrop";
 import { AsciiFigure } from "./AsciiFigure";
 
@@ -9,6 +10,8 @@ const NAME = "ADRIAN PLIEGO";
 
 export function HeroSection({ booted }: { booted: boolean }) {
   const capability = useDeviceCapability();
+  const text = useProfileText();
+  const { t } = useLanguage();
   const containerRef = useRef<HTMLDivElement>(null);
   const [inView, setInView] = useState(true);
   const [scanPct, setScanPct] = useState(0);
@@ -33,14 +36,17 @@ export function HeroSection({ booted }: { booted: boolean }) {
     return () => observer.disconnect();
   }, []);
 
-  const { output } = useTypewriter(profile.tagline, {
+  const { output } = useTypewriter(text.tagline, {
     speed: 34,
     startDelay: booted ? 250 : 2600,
     active: booted,
   });
 
   const active = inView;
-  const statusLine = scanPct > 2 ? `STATUS: SCANNING ${String(scanPct).padStart(2, "0")}%` : "STATUS: DORMANT";
+  const statusLine =
+    scanPct > 2
+      ? `${t("hero.scanning")} ${String(scanPct).padStart(2, "0")}%`
+      : t("hero.dormant");
 
   return (
     <section
@@ -64,7 +70,7 @@ export function HeroSection({ booted }: { booted: boolean }) {
         }}
       />
 
-      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between px-5 pt-5 sm:px-8 sm:pt-6">
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 flex items-start justify-between px-5 pt-5 pr-20 sm:px-8 sm:pt-6 sm:pr-24">
         <span className="font-mono text-[9px] tracking-[0.25em] text-(--color-phosphor-dim) sm:text-[10px]">
           ADRO_OS // TERMINAL.EXE
         </span>
@@ -102,7 +108,7 @@ export function HeroSection({ booted }: { booted: boolean }) {
           <span className="animate-blink">▌</span>
         </p>
         <p className="mt-2 max-w-md text-pretty font-mono text-[11px] text-(--color-phosphor-dim) sm:text-sm">
-          {profile.role} — {profile.status}
+          {text.role} — {text.status}
         </p>
       </div>
 
@@ -119,13 +125,13 @@ export function HeroSection({ booted }: { booted: boolean }) {
 
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex items-end justify-between gap-4 px-5 pb-4 sm:px-8 sm:pb-6">
         <span className="hidden font-mono text-[9px] tracking-[0.2em] text-(--color-phosphor-dim) sm:inline">
-          OBJECT.CLASS: MARBLE // GALLERIA.ACCADEMIA
+          {t("hero.objectClass")}
         </span>
         <a
           href="#identity"
           className="group pointer-events-auto flex flex-col items-center gap-2 font-mono text-[10px] tracking-[0.3em] text-(--color-phosphor-dim) transition-colors hover:text-(--color-phosphor)"
         >
-          <span>SCROLL TO CONTINUE</span>
+          <span>{t("hero.scroll")}</span>
           <span className="animate-blink text-(--color-phosphor)">▼</span>
         </a>
         <span className="hidden font-mono text-[9px] tracking-[0.2em] text-(--color-phosphor-dim) sm:inline">

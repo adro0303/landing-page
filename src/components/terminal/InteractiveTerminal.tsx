@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
-import { profile } from "@/data/profile";
-import { projects } from "@/data/projects";
+import { profile, useProfileText } from "@/data/profile";
+import { localizeProject, projects } from "@/data/projects";
+import { useLanguage } from "@/lib/i18n";
 import { PlasmaEffect } from "./PlasmaEffect";
 
 type Line = { text: string; tone?: "dim" | "accent" | "error" | "prompt" };
@@ -10,6 +11,8 @@ const WELCOME: Line[] = [
 ];
 
 export function InteractiveTerminal() {
+  const text = useProfileText();
+  const { lang } = useLanguage();
   const [open, setOpen] = useState(false);
   const [lines, setLines] = useState<Line[]>(WELCOME);
   const [value, setValue] = useState("");
@@ -62,7 +65,7 @@ export function InteractiveTerminal() {
         print("help · whoami · ls [projects] · cat motto.txt · open <project> · contact · plasma · clear · exit", "dim");
         break;
       case "whoami":
-        print(profile.headline);
+        print(text.headline);
         break;
       case "ls":
         if (arg === "projects" || arg === "") {
@@ -72,15 +75,16 @@ export function InteractiveTerminal() {
         }
         break;
       case "cat":
-        if (arg.includes("motto")) print(`"${profile.motto}"`, "accent");
-        else if (arg.includes("bio")) print(profile.bio);
+        if (arg.includes("motto")) print(`"${text.motto}"`, "accent");
+        else if (arg.includes("bio")) print(text.bio);
         else print(`cat: ${arg || "(missing operand)"}: no such file`, "error");
         break;
       case "open": {
         const match = projects.find((p) => p.id.includes(rest[0] ?? ""));
         document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
         if (match) {
-          print(`opening ${match.id} — ${match.tagline}`, "accent");
+          const localized = localizeProject(match, lang);
+          print(`opening ${localized.id} — ${localized.tagline}`, "accent");
           setOpen(false);
         } else {
           print(`open: '${rest[0] ?? ""}' not found — try 'ls projects'`, "error");

@@ -2,6 +2,7 @@ import type { CSSProperties } from "react";
 import { motion } from "framer-motion";
 import { stackCategories } from "@/data/stack";
 import { TechIcon } from "@/components/sections/TechIcon";
+import { useLanguage } from "@/lib/i18n";
 
 const ICON_SIZES = ["h-8 w-8", "h-12 w-12", "h-9 w-9", "h-7 w-7", "h-10 w-10", "h-8 w-8"];
 
@@ -30,6 +31,8 @@ function ToolConstellation({ items, color }: { items: string[]; color: string })
 }
 
 export function StackBlueprint() {
+  const { t, lang } = useLanguage();
+
   return (
     <section id="stack" className="relative overflow-hidden bg-(--color-void) px-6 py-28 sm:px-10 lg:px-20">
       <div className="bg-grid pointer-events-none absolute inset-0 opacity-40" />
@@ -41,7 +44,7 @@ export function StackBlueprint() {
           transition={{ duration: 0.5 }}
           className="mb-3 font-mono text-xs tracking-[0.35em] text-(--color-blue)"
         >
-          02 // SYSTEM STACK
+          {t("stack.eyebrow")}
         </motion.p>
         <motion.h2
           initial={{ opacity: 0, y: 24 }}
@@ -59,8 +62,7 @@ export function StackBlueprint() {
           transition={{ duration: 0.5, delay: 0.1 }}
           className="mb-16 max-w-xl font-mono text-sm text-(--color-fg-dim)"
         >
-          Modules currently loaded on the system bus — grouped by what they're for, not
-          alphabetized for show.
+          {t("stack.description")}
         </motion.p>
 
         <div className="relative">
@@ -95,7 +97,7 @@ export function StackBlueprint() {
                         className="mb-4 font-display text-2xl tracking-wide"
                         style={{ color: cat.color }}
                       >
-                        {cat.label}
+                        {lang === "es" ? cat.labelEs : cat.label}
                       </p>
                       <div className="flex flex-wrap gap-2">
                         {cat.items.map((item, itemIndex) => (

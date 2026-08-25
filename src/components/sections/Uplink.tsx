@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
-import { profile } from "@/data/profile";
+import { profile, useProfileText } from "@/data/profile";
+import { useLanguage } from "@/lib/i18n";
 import { TerminalWindow } from "@/components/layout/TerminalWindow";
 
 const ports = [
@@ -30,6 +31,9 @@ const ports = [
 ];
 
 export function Uplink() {
+  const text = useProfileText();
+  const { t } = useLanguage();
+
   return (
     <section id="uplink" className="relative bg-(--color-void) px-6 py-32 sm:px-10 lg:px-20">
       <div className="mx-auto max-w-6xl">
@@ -40,7 +44,7 @@ export function Uplink() {
           transition={{ duration: 0.5 }}
           className="mb-3 font-mono text-xs tracking-[0.35em] text-(--color-blue)"
         >
-          04 // UPLINK
+          {t("uplink.eyebrow")}
         </motion.p>
         <motion.h2
           initial={{ opacity: 0, y: 24 }}
@@ -67,7 +71,7 @@ export function Uplink() {
                     <span className="text-(--color-green)">$</span> file resume.pdf
                   </p>
                   <p className="mt-1 font-mono text-sm text-(--color-fg)">
-                    One-page CV — role, stack, and shipped work.
+                    {t("uplink.resumeCaption")}
                   </p>
                 </div>
                 <div className="flex shrink-0 gap-3">
@@ -77,14 +81,14 @@ export function Uplink() {
                     rel="noopener noreferrer"
                     className="border border-(--color-amber) px-4 py-2 font-mono text-xs tracking-[0.15em] text-(--color-amber) transition-colors hover:bg-(--color-amber)/10"
                   >
-                    VIEW CV
+                    {t("uplink.viewCv")}
                   </a>
                   <a
                     href={profile.resumeUrl}
                     download
                     className="border border-(--color-line) px-4 py-2 font-mono text-xs tracking-[0.15em] text-(--color-fg-dim) transition-colors hover:border-(--color-fg-dim) hover:text-(--color-fg)"
                   >
-                    DOWNLOAD ↓
+                    {t("uplink.downloadCv")}
                   </a>
                 </div>
               </div>
@@ -100,11 +104,9 @@ export function Uplink() {
         >
           <TerminalWindow title="uplink --establish">
             <p className="mb-10 font-mono text-base leading-relaxed text-(--color-fg-dim)">
-              <span className="text-(--color-green)">$</span> {profile.status}
+              <span className="text-(--color-green)">$</span> {text.status}
               <br />
-              <span className="text-(--color-fg-faint)">
-                // always up for talking about a weird technical idea.
-              </span>
+              <span className="text-(--color-fg-faint)">{t("uplink.talkNote")}</span>
             </p>
 
             <div className="grid gap-6 sm:grid-cols-3">
@@ -141,7 +143,7 @@ export function Uplink() {
                     className="font-mono text-xs opacity-0 transition-opacity group-hover:opacity-100"
                     style={{ color: port.color }}
                   >
-                    connect →
+                    {t("uplink.connect")}
                   </span>
                 </a>
               ))}
@@ -156,7 +158,14 @@ export function Uplink() {
           transition={{ duration: 0.6, delay: 0.2 }}
           className="mt-10 text-center font-mono text-[11px] tracking-[0.2em] text-(--color-fg-faint)"
         >
-          ADRO_OS — session end. press <span className="text-(--color-blue)">~</span> for a hidden shell.
+          {t("uplink.footer")
+            .split("~")
+            .map((part, i, arr) => (
+              <span key={i}>
+                {part}
+                {i < arr.length - 1 && <span className="text-(--color-blue)">~</span>}
+              </span>
+            ))}
         </motion.p>
       </div>
     </section>
