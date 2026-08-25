@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
-const COLS = 20;
-const ROWS = 11;
+// odd so every cell has a well-defined maze-cell parity (see generateMaze)
+const COLS = 31;
+const ROWS = 17;
 const START = 0;
 const END = ROWS * COLS - 1;
 
@@ -70,6 +71,48 @@ const ALGOS = {
 } as const;
 type AlgoName = keyof typeof ALGOS;
 
+// randomized recursive backtracker on the maze-cell grid (even rows/cols);
+// odd rows/cols are the walls carved between neighboring maze cells, so the
+// result is always a perfect maze — a path between START and END is guaranteed
+function generateMaze(): Set<number> {
+  const mCols = (COLS + 1) / 2;
+  const mRows = (ROWS + 1) / 2;
+  const gridIndex = (mr: number, mc: number) => mr * 2 * COLS + mc * 2;
+
+  const walls = new Set<number>();
+  for (let i = 0; i < ROWS * COLS; i++) walls.add(i);
+
+  const visited = new Set<number>([0]);
+  const stack: [number, number][] = [[0, 0]];
+  walls.delete(gridIndex(0, 0));
+
+  while (stack.length) {
+    const [mr, mc] = stack[stack.length - 1];
+    const unvisited = ([
+      [mr - 1, mc],
+      [mr + 1, mc],
+      [mr, mc - 1],
+      [mr, mc + 1],
+    ] as [number, number][]).filter(
+      ([r, c]) => r >= 0 && r < mRows && c >= 0 && c < mCols && !visited.has(r * mCols + c)
+    );
+    if (unvisited.length === 0) {
+      stack.pop();
+      continue;
+    }
+    const [nr, nc] = unvisited[Math.floor(Math.random() * unvisited.length)];
+    visited.add(nr * mCols + nc);
+    // the wall between (mr,mc) and (nr,nc) sits at the grid midpoint of the two
+    walls.delete((mr * 2 + (nr - mr)) * COLS + (mc * 2 + (nc - mc)));
+    walls.delete(gridIndex(nr, nc));
+    stack.push([nr, nc]);
+  }
+
+  walls.delete(START);
+  walls.delete(END);
+  return walls;
+}
+
 export function Pathfinder({ onClose }: { onClose: () => void }) {
   const [algo, setAlgo] = useState<AlgoName>("astar");
   const [walls, setWalls] = useState<Set<number>>(() => new Set());
@@ -134,13 +177,21 @@ export function Pathfinder({ onClose }: { onClose: () => void }) {
     setPath(null);
   }
 
+  function maze() {
+    setRunning(false);
+    setRan(false);
+    setWalls(generateMaze());
+    setVisited(new Set());
+    setPath(null);
+  }
+
   return (
     <div
       className="fixed inset-0 z-[200] flex items-center justify-center bg-(--color-void)/80 p-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg overflow-hidden rounded-sm border border-(--color-blue)/40 bg-(--color-panel) font-mono"
+        className="w-full max-w-xl overflow-hidden rounded-sm border border-(--color-blue)/40 bg-(--color-panel) font-mono"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between border-b border-(--color-line) bg-(--color-panel-raised) px-3 py-2">
@@ -210,6 +261,13 @@ export function Pathfinder({ onClose }: { onClose: () => void }) {
               clear walls
             </button>
             <button
+              onClick={maze}
+              disabled={running}
+              className="border border-(--color-line) px-2 py-1 hover:border-(--color-blue)"
+            >
+              maze
+            </button>
+            <button
               onClick={run}
               disabled={running}
               className="border border-(--color-blue) px-2 py-1 text-(--color-blue) hover:bg-(--color-blue)/10"
@@ -219,8 +277,8 @@ export function Pathfinder({ onClose }: { onClose: () => void }) {
           </div>
         </div>
         <div className="px-3 pb-2 text-[10px] text-(--color-fg-faint)">
-          {ran && !running && path === null ? "no path found — " : ""}draw walls, pick an algorithm, run · click
-          outside or Esc to close
+          {ran && !running && path === null ? "no path found — " : ""}draw walls or generate a maze, pick an
+          algorithm, run · click outside or Esc to close
         </div>
       </div>
     </div>
