@@ -10,19 +10,27 @@ import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } f
  * 1) per-face shading (a uniform wireframe has no light cue, so the eye
  *    parses it as a flat outline regardless of the transform math) — each
  *    face here has its own fill brightness as if lit from the upper-left.
- * 2) real proportions: THICK is a large fraction of SIZE, not a sliver.
+ * 2) real proportions — a floppy is genuinely thin, so THICK stays a small
+ *    fraction of SIZE rather than reading as a cube.
  *
- * Rotation is driven by rAF instead of a CSS @keyframes loop so hover can
- * smoothly ease the angular *speed* toward a target instead of snapping
- * any transform — nothing ever jumps between two states.
+ * Idle, it spins gently on its own. While hovered, rotation instead tracks
+ * the pointer's horizontal *velocity* (px/s → deg/s), not its position —
+ * drag right and it spins right roughly as fast as you're dragging, hold
+ * the pointer still anywhere (including dead center) and it drifts to a
+ * stop through friction, same as flicking a real disc. Everything is
+ * eased through one rAF-driven angle, so the rate of turn can change but
+ * the angle itself never jumps.
  */
 const SIZE = 118; // px, footprint of the disk
-const THICK = 46; // px, shell depth — a real fraction of SIZE, not a sliver
+const THICK = 5; // px, shell depth — a real floppy is genuinely thin
 const HALF = SIZE / 2;
 const HALF_THICK = THICK / 2;
-const BASE_SPEED = 40; // deg/s at rest
-const MAX_BOOST = 75; // deg/s added/subtracted at the pointer extremes
-const EASE_RATE = 2.5; // how quickly speed eases toward its target
+const IDLE_SPEED = 18; // deg/s ambient spin when nothing is interacting
+const MAX_SPEED = 640; // deg/s clamp for pointer-driven spin
+const VELOCITY_TO_SPEED = 0.3; // deg/s per px/s of pointer travel
+const EASE_RATE = 7; // how quickly angular speed eases toward its target
+const IDLE_TIMEOUT_MS = 100; // pointer holds still this long before friction kicks in
+const FRICTION_PER_FRAME = 0.85; // target-speed decay while the pointer is idle but still hovering
 
 function mix(color: string, pct: number) {
   return `color-mix(in srgb, ${color} ${pct}%, var(--color-void))`;
@@ -39,8 +47,11 @@ export function FloppyDisk3D({
 }) {
   const spinRef = useRef<HTMLDivElement>(null);
   const angleRef = useRef(0);
-  const speedRef = useRef(BASE_SPEED);
-  const targetSpeedRef = useRef(BASE_SPEED);
+  const speedRef = useRef(IDLE_SPEED);
+  const targetSpeedRef = useRef(IDLE_SPEED);
+  const hoveringRef = useRef(false);
+  const lastXRef = useRef<number | null>(null);
+  const lastMoveTimeRef = useRef(0);
   const [hovering, setHovering] = useState(false);
   const [pressed, setPressed] = useState(false);
 
@@ -56,6 +67,11 @@ export function FloppyDisk3D({
     function tick(now: number) {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
+      // pointer stopped moving but is still hovering — bleed speed off
+      // toward zero through "friction" instead of holding it forever
+      if (hoveringRef.current && now - lastMoveTimeRef.current > IDLE_TIMEOUT_MS) {
+        targetSpeedRef.current *= FRICTION_PER_FRAME;
+      }
       speedRef.current += (targetSpeedRef.current - speedRef.current) * Math.min(1, dt * EASE_RATE);
       angleRef.current += speedRef.current * dt;
       if (spinRef.current) spinRef.current.style.transform = `rotateY(${angleRef.current}deg)`;
@@ -65,12 +81,27 @@ export function FloppyDisk3D({
   }, []);
 
   const handlePointerMove = (e: ReactPointerEvent<HTMLElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    const dx = (e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2);
-    targetSpeedRef.current = BASE_SPEED + Math.max(-1, Math.min(1, dx)) * MAX_BOOST;
+    const now = performance.now();
+    if (lastXRef.current !== null) {
+      const dt = Math.max(0.001, (now - lastMoveTimeRef.current) / 1000);
+      const velocity = (e.clientX - lastXRef.current) / dt; // px/s
+      targetSpeedRef.current = Math.max(
+        -MAX_SPEED,
+        Math.min(MAX_SPEED, velocity * VELOCITY_TO_SPEED),
+      );
+    }
+    lastXRef.current = e.clientX;
+    lastMoveTimeRef.current = now;
+  };
+  const handlePointerEnter = () => {
+    hoveringRef.current = true;
+    lastXRef.current = null;
+    setHovering(true);
   };
   const handlePointerLeave = () => {
-    targetSpeedRef.current = BASE_SPEED;
+    hoveringRef.current = false;
+    lastXRef.current = null;
+    targetSpeedRef.current = IDLE_SPEED;
     setHovering(false);
     setPressed(false);
   };
@@ -116,7 +147,7 @@ export function FloppyDisk3D({
       type={onClick ? "button" : undefined}
       onClick={onClick}
       onPointerMove={handlePointerMove}
-      onPointerEnter={() => setHovering(true)}
+      onPointerEnter={handlePointerEnter}
       onPointerLeave={handlePointerLeave}
       onPointerDown={() => setPressed(true)}
       onPointerUp={() => setPressed(false)}
@@ -168,26 +199,25 @@ export function FloppyDisk3D({
             {shutterAndLabel}
           </div>
 
-          {/* left edge (mid-lit) */}
+          {/* left edge (mid-lit) — no border at this thickness, just fill:
+              a 2px border on a 5px-deep strip would be almost all border */}
           <div
-            className="absolute top-0 border-2"
+            className="absolute top-0"
             style={{
               left: HALF - HALF_THICK,
               width: THICK,
               height: SIZE,
-              borderColor: color,
-              background: mix(color, 20),
+              background: mix(color, 22),
               transform: `rotateY(-90deg) translateZ(${HALF}px)`,
             }}
           />
           {/* right edge (shadow side) */}
           <div
-            className="absolute top-0 border-2"
+            className="absolute top-0"
             style={{
               left: HALF - HALF_THICK,
               width: THICK,
               height: SIZE,
-              borderColor: color,
               background: mix(color, 6),
               transform: `rotateY(90deg) translateZ(${HALF}px)`,
             }}
@@ -195,24 +225,22 @@ export function FloppyDisk3D({
 
           {/* top edge (brightest — catches the light from above) */}
           <div
-            className="absolute left-0 border-2"
+            className="absolute left-0"
             style={{
               top: HALF - HALF_THICK,
               width: SIZE,
               height: THICK,
-              borderColor: color,
-              background: mix(color, 34),
+              background: mix(color, 38),
               transform: `rotateX(90deg) translateZ(${HALF}px)`,
             }}
           />
           {/* bottom edge (darkest) */}
           <div
-            className="absolute left-0 border-2"
+            className="absolute left-0"
             style={{
               top: HALF - HALF_THICK,
               width: SIZE,
               height: THICK,
-              borderColor: color,
               background: mix(color, 3),
               transform: `rotateX(-90deg) translateZ(${HALF}px)`,
             }}
