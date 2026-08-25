@@ -4,14 +4,17 @@ import { profile, useProfileText, type ProfileText } from "@/data/profile";
 import { localizeProject, projects } from "@/data/projects";
 import { useLanguage, type Lang } from "@/lib/i18n";
 import { OPEN_TERMINAL_EVENT, type OpenTerminalDetail } from "@/lib/terminalBus";
+import { DigitRecognizer } from "./DigitRecognizer";
 import { MatrixRain } from "./MatrixRain";
+import { Pathfinder } from "./Pathfinder";
 import { PlasmaEffect } from "./PlasmaEffect";
+import { SortRace } from "./SortRace";
 
 type Line = { text: string; tone?: "dim" | "accent" | "error" | "prompt" };
 
 const WELCOME: Line[] = [
   { text: "adro_os hidden shell — type 'help' to list commands, Tab to autocomplete.", tone: "dim" },
-  { text: "psst — try 'matrix' for something more visual.", tone: "accent" },
+  { text: "psst — try 'sort', 'pathfind', or 'digit' for real interactive tools.", tone: "accent" },
 ];
 
 // commands offered by Tab-completion (sudo stays a hidden easter egg, not listed)
@@ -27,6 +30,9 @@ const COMMANDS = [
   "ask",
   "meta",
   "matrix",
+  "sort",
+  "pathfind",
+  "digit",
   "contact",
   "plasma",
   "clear",
@@ -163,6 +169,9 @@ export function InteractiveTerminal() {
   const [value, setValue] = useState("");
   const [showPlasma, setShowPlasma] = useState(false);
   const [showMatrix, setShowMatrix] = useState(false);
+  const [showSort, setShowSort] = useState(false);
+  const [showPathfind, setShowPathfind] = useState(false);
+  const [showDigit, setShowDigit] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
   const [historyIdx, setHistoryIdx] = useState<number | null>(null);
   const [kbInset, setKbInset] = useState(0);
@@ -191,6 +200,14 @@ export function InteractiveTerminal() {
         setShowMatrix(false);
         return;
       }
+      if (showSort || showPathfind || showDigit) {
+        if (e.key === "Escape") {
+          setShowSort(false);
+          setShowPathfind(false);
+          setShowDigit(false);
+        }
+        return;
+      }
       const target = e.target as HTMLElement;
       const isTyping = target.tagName === "INPUT" || target.tagName === "TEXTAREA";
       if (e.key === "`" || e.key === "~") {
@@ -203,7 +220,7 @@ export function InteractiveTerminal() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open, showMatrix]);
+  }, [open, showMatrix, showSort, showPathfind, showDigit]);
 
   useEffect(() => {
     // skip autofocus on touch devices — popping the keyboard the instant the
@@ -260,6 +277,9 @@ export function InteractiveTerminal() {
         print("contact                — email / linkedin / github", "dim");
         print("meta                   — how this site was built", "dim");
         print("matrix                 — full-screen visual, worth trying", "accent");
+        print("sort                   — interactive sorting-algorithm race, worth trying", "accent");
+        print("pathfind               — draw walls, watch A*/Dijkstra solve the maze", "accent");
+        print("digit                  — draw a digit, a real neural net predicts it", "accent");
         print("plasma                 — screensaver, ^C to exit", "dim");
         print("clear · exit           — clear screen / close terminal", "dim");
         print("tip: Tab autocompletes, ↑/↓ browse command history", "accent");
@@ -274,6 +294,18 @@ export function InteractiveTerminal() {
       case "matrix":
         setShowMatrix(true);
         print("materializing — click / any key / Esc to exit", "dim");
+        break;
+      case "sort":
+        setShowSort(true);
+        print("opening sort_race.exe — pick an algorithm and hit run", "dim");
+        break;
+      case "pathfind":
+        setShowPathfind(true);
+        print("opening pathfinder.exe — draw walls, run A*/Dijkstra", "dim");
+        break;
+      case "digit":
+        setShowDigit(true);
+        print("opening digit_recognizer.exe — draw a digit, a tiny neural net guesses it", "dim");
         break;
       case "activity": {
         print("fetching recent public activity ...", "dim");
@@ -411,6 +443,9 @@ export function InteractiveTerminal() {
       </button>
 
       {showMatrix && <MatrixRain onDismiss={() => setShowMatrix(false)} />}
+      {showSort && <SortRace onClose={() => setShowSort(false)} />}
+      {showPathfind && <Pathfinder onClose={() => setShowPathfind(false)} />}
+      {showDigit && <DigitRecognizer onClose={() => setShowDigit(false)} />}
 
       <AnimatePresence>
         {open && (
@@ -535,7 +570,7 @@ export function InteractiveTerminal() {
               <div ref={endRef} />
             </div>
             <div className="border-t border-(--color-line) bg-(--color-panel-raised) px-3 py-1.5 font-mono text-[10px] text-(--color-fg-faint)">
-              help · try &apos;matrix&apos; · Tab autocomplete · ↑↓ history · Esc close
+              help · try &apos;sort&apos;, &apos;pathfind&apos;, &apos;digit&apos;, &apos;matrix&apos; · Tab autocomplete · Esc close
             </div>
             </motion.div>
           </motion.div>

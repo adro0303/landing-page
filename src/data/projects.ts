@@ -340,4 +340,42 @@ export const projects: Project[] = [
     },
     nodes: ["script (70 scenes)", "n8n orchestrator", "Kokoro TTS", "ComfyUI · Krea2 + LoRA", "video-worker (ffmpeg)", "YouTube upload"],
   },
+  {
+    id: "ai-tools",
+    index: 7,
+    kind: "node-graph",
+    category: "data-ai",
+    title: "ai-tools",
+    tagline:
+      "Three interactive, zero-cost demos extracted from this site's hidden terminal — sorting, pathfinding, and a tiny neural net",
+    problem:
+      "Static portfolio project cards don't prove you can build interactive, non-trivial UI — algorithms and a real trained model, not just describe them.",
+    built:
+      "Three self-contained React components: a sorting-algorithm race (bubble/selection/merge/quick as real generators), an A*/Dijkstra pathfinding visualizer, and a digit recognizer backed by a tiny MLP trained offline with NumPy on scikit-learn's digits dataset (97% test accuracy) — all running 100% client-side.",
+    why: "The digit recognizer's training script and weights ship in the repo, so the accuracy claim is checkable, not just asserted — same honest-reporting habit as the other projects.",
+    role: "Solo build of all three tools plus the offline training script.",
+    focus: "Interactive proof over static description.",
+    tech: ["TypeScript", "React", "NumPy", "scikit-learn"],
+    status: "Newest repo · extracted from this site's own terminal",
+    stats: [
+      { label: "Tools", value: "3" },
+      { label: "Digit model accuracy", value: "97.2%" },
+      { label: "API calls", value: "0" },
+    ],
+    href: "https://github.com/adro0303/ai-tools",
+    accent: "var(--color-cyan)",
+    es: {
+      tagline:
+        "Tres demos interactivas y gratuitas, extraídas de la terminal oculta de esta web — ordenación, pathfinding y una red neuronal diminuta",
+      problem:
+        "Las tarjetas de proyecto estáticas no demuestran que sepas construir UI interactiva no trivial — algoritmos y un modelo entrenado de verdad, no solo describirlos.",
+      built:
+        "Tres componentes de React autocontenidos: una carrera de algoritmos de ordenación (bubble/selection/merge/quick como generadores reales), un visualizador de pathfinding A*/Dijkstra, y un reconocedor de dígitos con un MLP diminuto entrenado offline con NumPy sobre el dataset de dígitos de scikit-learn (97% de precisión en test) — todo corriendo 100% en el cliente.",
+      why: "El script de entrenamiento y los pesos del reconocedor de dígitos van en el repo, así que la cifra de precisión se puede comprobar, no solo afirmar — la misma costumbre de reportar con honestidad que en los demás proyectos.",
+      role: "Desarrollo en solitario de las tres herramientas y el script de entrenamiento offline.",
+      focus: "Prueba interactiva por encima de la descripción estática.",
+      status: "Repo más reciente · extraído de la propia terminal de esta web",
+    },
+    nodes: ["sort_race.exe", "pathfinder.exe", "digit_recognizer.exe"],
+  },
 ];
