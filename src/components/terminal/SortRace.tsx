@@ -140,8 +140,32 @@ export function SortRace({ onClose }: { onClose: () => void }) {
   const [stats, setStats] = useState({ comparisons: 0, swaps: 0 });
   const [running, setRunning] = useState(false);
   const [done, setDone] = useState(false);
+  const [soundOn, setSoundOn] = useState(true);
   const stepsRef = useRef<Step[]>([]);
   const idxRef = useRef(0);
+  const audioRef = useRef<AudioContext | null>(null);
+
+  useEffect(() => {
+    return () => {
+      audioRef.current?.close();
+    };
+  }, []);
+
+  function beep(value: number) {
+    if (!soundOn) return;
+    audioRef.current ??= new AudioContext();
+    const ctx = audioRef.current;
+    if (ctx.state === "suspended") ctx.resume();
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "sine";
+    osc.frequency.value = 220 + (value / N) * 660;
+    gain.gain.setValueAtTime(0.15, ctx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.08);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start();
+    osc.stop(ctx.currentTime + 0.08);
+  }
 
   useEffect(() => {
     if (!running) return;
@@ -154,6 +178,7 @@ export function SortRace({ onClose }: { onClose: () => void }) {
         setValues(step.array);
         setActive(step.active);
         setStats({ comparisons: step.comparisons, swaps: step.swaps });
+        if (step.active) beep(step.array[step.active[0]]);
       }
       if (idxRef.current >= steps.length) {
         clearInterval(id);
@@ -163,7 +188,7 @@ export function SortRace({ onClose }: { onClose: () => void }) {
       }
     }, 16);
     return () => clearInterval(id);
-  }, [running]);
+  }, [running, soundOn]);
 
   function shuffle() {
     setRunning(false);
@@ -232,6 +257,14 @@ export function SortRace({ onClose }: { onClose: () => void }) {
             comparisons {stats.comparisons} · swaps {stats.swaps}
           </span>
           <div className="flex gap-2">
+            <button
+              onClick={() => setSoundOn((v) => !v)}
+              className={`border px-2 py-1 ${
+                soundOn ? "border-(--color-blue) text-(--color-blue)" : "border-(--color-line) text-(--color-fg-faint)"
+              }`}
+            >
+              sound {soundOn ? "on" : "off"}
+            </button>
             <button
               onClick={shuffle}
               disabled={running}

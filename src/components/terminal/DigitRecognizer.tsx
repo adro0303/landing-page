@@ -1,7 +1,13 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { digitWeights } from "@/data/digitWeights";
 
-const SIZE = 8;
+const CANVAS_SIZE = 224;
+const MODEL_SIZE = 8;
+// rgb(5,15,8)/rgb(43,220,110) are --color-void/--color-blue's literal values
+// — canvas needs concrete colors, same reason MatrixRain and the terminal's
+// glow animation can't use var() either.
+const BG = "#050f08";
+const STROKE = "#2bdc6e";
 
 function forward(pixels: number[]): number[] {
   const { W1, b1, W2, b2 } = digitWeights;
@@ -21,39 +27,79 @@ function forward(pixels: number[]): number[] {
   return exps.map((v) => v / sumExp);
 }
 
-function emptyGrid(): number[] {
-  return new Array(SIZE * SIZE).fill(0);
+// downsamples the freehand canvas to the 8x8 grid the model was trained on —
+// drawImage's built-in scaling does the same box-filter blur a real digit
+// photo would get, which is why this reads better than clicking discrete cells
+function downsample(canvas: HTMLCanvasElement): number[] {
+  const small = document.createElement("canvas");
+  small.width = MODEL_SIZE;
+  small.height = MODEL_SIZE;
+  const ctx = small.getContext("2d")!;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(canvas, 0, 0, MODEL_SIZE, MODEL_SIZE);
+  const data = ctx.getImageData(0, 0, MODEL_SIZE, MODEL_SIZE).data;
+  // scale so a fully-drawn stroke pixel (green channel of STROKE, 220) reads
+  // as ~1.0 — matching the 0..1 range the model was trained on, instead of
+  // topping out at 220/255 and shifting every input away from training scale
+  const pixels: number[] = [];
+  for (let i = 0; i < MODEL_SIZE * MODEL_SIZE; i++) {
+    pixels.push(Math.min(1, Math.max(data[i * 4], data[i * 4 + 1], data[i * 4 + 2]) / 220));
+  }
+  return pixels;
 }
 
 export function DigitRecognizer({ onClose }: { onClose: () => void }) {
-  const [pixels, setPixels] = useState<number[]>(emptyGrid);
-  const [drawing, setDrawing] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const drawingRef = useRef(false);
+  const lastPos = useRef<{ x: number; y: number } | null>(null);
+  const [hasDrawing, setHasDrawing] = useState(false);
   const [probs, setProbs] = useState<number[] | null>(null);
 
-  function paint(idx: number) {
-    setPixels((prev) => {
-      const next = [...prev];
-      const r = Math.floor(idx / SIZE);
-      const c = idx % SIZE;
-      const bump = (rr: number, cc: number, amt: number) => {
-        if (rr < 0 || rr >= SIZE || cc < 0 || cc >= SIZE) return;
-        const i = rr * SIZE + cc;
-        next[i] = Math.min(1, next[i] + amt);
-      };
-      bump(r, c, 1);
-      bump(r - 1, c, 0.35);
-      bump(r + 1, c, 0.35);
-      bump(r, c - 1, 0.35);
-      bump(r, c + 1, 0.35);
-      return next;
-    });
+  useEffect(() => {
+    const ctx = canvasRef.current?.getContext("2d");
+    if (!ctx) return;
+    ctx.fillStyle = BG;
+    ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+  }, []);
+
+  function posFromEvent(e: React.PointerEvent<HTMLCanvasElement>) {
+    const rect = e.currentTarget.getBoundingClientRect();
+    return {
+      x: ((e.clientX - rect.left) / rect.width) * CANVAS_SIZE,
+      y: ((e.clientY - rect.top) / rect.height) * CANVAS_SIZE,
+    };
+  }
+
+  function strokeTo(pos: { x: number; y: number }) {
+    const ctx = canvasRef.current?.getContext("2d");
+    if (!ctx) return;
+    ctx.strokeStyle = STROKE;
+    // roughly one model-pixel wide (224px canvas / 8px model grid) — thin
+    // strokes downsample to near-nothing and the model was never trained on those
+    ctx.lineWidth = CANVAS_SIZE / MODEL_SIZE;
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.beginPath();
+    const from = lastPos.current ?? pos;
+    ctx.moveTo(from.x, from.y);
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    lastPos.current = pos;
+  }
+
+  function clear() {
+    const ctx = canvasRef.current?.getContext("2d");
+    if (ctx) {
+      ctx.fillStyle = BG;
+      ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
+    }
+    setHasDrawing(false);
     setProbs(null);
   }
 
-  function paintAt(clientX: number, clientY: number) {
-    const el = document.elementFromPoint(clientX, clientY) as HTMLElement | null;
-    const idx = el?.dataset.idx;
-    if (idx !== undefined) paint(Number(idx));
+  function predict() {
+    if (!canvasRef.current) return;
+    setProbs(forward(downsample(canvasRef.current)));
   }
 
   const predicted = probs ? probs.indexOf(Math.max(...probs)) : null;
@@ -79,40 +125,37 @@ export function DigitRecognizer({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="flex flex-col items-center gap-3 px-4 py-4">
-          <div
-            className="grid aspect-square w-48 touch-none gap-[2px] border border-(--color-line) bg-(--color-void) p-1 select-none"
-            style={{ gridTemplateColumns: `repeat(${SIZE}, 1fr)` }}
+          <canvas
+            ref={canvasRef}
+            width={CANVAS_SIZE}
+            height={CANVAS_SIZE}
+            className="aspect-square w-56 touch-none border border-(--color-line) select-none"
             onPointerDown={(e) => {
-              setDrawing(true);
-              paintAt(e.clientX, e.clientY);
+              drawingRef.current = true;
+              lastPos.current = null;
+              strokeTo(posFromEvent(e));
+              setHasDrawing(true);
+              setProbs(null);
             }}
-            onPointerMove={(e) => drawing && paintAt(e.clientX, e.clientY)}
-            onPointerUp={() => setDrawing(false)}
-            onPointerLeave={() => setDrawing(false)}
-          >
-            {pixels.map((v, i) => (
-              <div
-                key={i}
-                data-idx={i}
-                className="aspect-square"
-                style={{ backgroundColor: `rgba(43,220,110,${v})` }}
-              />
-            ))}
-          </div>
+            onPointerMove={(e) => drawingRef.current && strokeTo(posFromEvent(e))}
+            onPointerUp={() => {
+              drawingRef.current = false;
+              lastPos.current = null;
+            }}
+            onPointerLeave={() => {
+              drawingRef.current = false;
+              lastPos.current = null;
+            }}
+          />
 
           <div className="flex gap-2 text-[11px]">
-            <button
-              onClick={() => {
-                setPixels(emptyGrid());
-                setProbs(null);
-              }}
-              className="border border-(--color-line) px-3 py-1 hover:border-(--color-blue)"
-            >
+            <button onClick={clear} className="border border-(--color-line) px-3 py-1 hover:border-(--color-blue)">
               clear
             </button>
             <button
-              onClick={() => setProbs(forward(pixels))}
-              className="border border-(--color-blue) px-3 py-1 text-(--color-blue) hover:bg-(--color-blue)/10"
+              onClick={predict}
+              disabled={!hasDrawing}
+              className="border border-(--color-blue) px-3 py-1 text-(--color-blue) hover:bg-(--color-blue)/10 disabled:opacity-40"
             >
               predict
             </button>

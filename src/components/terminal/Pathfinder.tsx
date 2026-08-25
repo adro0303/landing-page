@@ -32,13 +32,13 @@ function reconstruct(prev: Map<number, number>, end: number): number[] | null {
   return path.reverse();
 }
 
-function* search(walls: Set<number>, heuristic: (i: number) => number): Generator<PFStep> {
+function* search(walls: Set<number>, priority: (i: number, dist: Map<number, number>) => number): Generator<PFStep> {
   const dist = new Map<number, number>([[START, 0]]);
   const prev = new Map<number, number>();
   const visited = new Set<number>();
   const open = [START];
   while (open.length) {
-    open.sort((a, b) => (dist.get(a) ?? Infinity) + heuristic(a) - ((dist.get(b) ?? Infinity) + heuristic(b)));
+    open.sort((a, b) => priority(a, dist) - priority(b, dist));
     const cur = open.shift();
     if (cur === undefined || visited.has(cur)) continue;
     visited.add(cur);
@@ -66,8 +66,10 @@ function manhattan(i: number): number {
 }
 
 const ALGOS = {
-  astar: (walls: Set<number>) => search(walls, manhattan),
-  dijkstra: (walls: Set<number>) => search(walls, () => 0),
+  astar: (walls: Set<number>) => search(walls, (i, dist) => (dist.get(i) ?? Infinity) + manhattan(i)),
+  dijkstra: (walls: Set<number>) => search(walls, (i, dist) => dist.get(i) ?? Infinity),
+  // ignores accumulated cost entirely — faster to explore, but not guaranteed shortest
+  greedy: (walls: Set<number>) => search(walls, (i) => manhattan(i)),
 } as const;
 type AlgoName = keyof typeof ALGOS;
 
