@@ -167,14 +167,18 @@ export function InteractiveTerminal() {
             transition={{ type: "spring", stiffness: 460, damping: 18, mass: 0.7 }}
             className="fixed inset-x-4 bottom-20 z-[70] mx-auto max-w-xl sm:right-5 sm:left-auto sm:w-[420px]"
           >
+            {/* rgb(43,220,110) is --color-blue's literal value (#2bdc6e, which
+                renders green in this palette) — framer-motion's boxShadow
+                keyframes need a concrete color to interpolate, not a
+                var() it can't resolve mid-animation. */}
             <motion.div
               className="relative overflow-hidden rounded-sm border border-(--color-blue)/40 bg-(--color-void)/95 backdrop-blur-md"
-              initial={{ boxShadow: "0 0 0px rgba(88,166,255,0)" }}
+              initial={{ boxShadow: "0 0 0px rgba(43,220,110,0)" }}
               animate={{
                 boxShadow: [
-                  "0 0 0px rgba(88,166,255,0)",
-                  "0 0 70px rgba(88,166,255,0.75)",
-                  "0 0 40px rgba(88,166,255,0.15)",
+                  "0 0 0px rgba(43,220,110,0)",
+                  "0 0 70px rgba(43,220,110,0.75)",
+                  "0 0 40px rgba(43,220,110,0.15)",
                 ],
               }}
               transition={{ duration: 1, times: [0, 0.3, 1], ease: "easeOut" }}

@@ -1,4 +1,4 @@
-import { useEffect, useRef, type PointerEvent as ReactPointerEvent } from "react";
+import { useEffect, useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
 
 /**
  * Pure CSS 3D floppy disk. No canvas/WebGL — a real 6-face box
@@ -41,6 +41,8 @@ export function FloppyDisk3D({
   const angleRef = useRef(0);
   const speedRef = useRef(BASE_SPEED);
   const targetSpeedRef = useRef(BASE_SPEED);
+  const [hovering, setHovering] = useState(false);
+  const [pressed, setPressed] = useState(false);
 
   useEffect(() => {
     const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -69,9 +71,17 @@ export function FloppyDisk3D({
   };
   const handlePointerLeave = () => {
     targetSpeedRef.current = BASE_SPEED;
+    setHovering(false);
+    setPressed(false);
   };
 
-  const glow = `drop-shadow(0 0 10px color-mix(in srgb, ${color} 45%, transparent))`;
+  // The glow (and its hover/press brightness) lives on the Stage element,
+  // never on an element with transform-style: preserve-3d — CSS forces
+  // `transform-style` to `flat` on any element a `filter` applies to, which
+  // silently collapses 3D children onto one plane. Put filter here instead
+  // and the box underneath stays genuinely three-dimensional.
+  const brightness = pressed ? 1.55 : hovering ? 1.22 : 1;
+  const stageFilter = `drop-shadow(0 0 10px color-mix(in srgb, ${color} 45%, transparent)) brightness(${brightness})`;
 
   const shutterAndLabel = (
     <>
@@ -106,23 +116,23 @@ export function FloppyDisk3D({
       type={onClick ? "button" : undefined}
       onClick={onClick}
       onPointerMove={handlePointerMove}
+      onPointerEnter={() => setHovering(true)}
       onPointerLeave={handlePointerLeave}
+      onPointerDown={() => setPressed(true)}
+      onPointerUp={() => setPressed(false)}
       aria-label={onClick ? label : undefined}
       className={
         onClick
-          ? "group mx-auto flex w-full cursor-pointer flex-col items-center justify-center border-0 bg-transparent px-0 py-2 outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-(--color-cyan)"
-          : "group mx-auto flex flex-col items-center justify-center py-2"
+          ? "mx-auto flex w-full cursor-pointer flex-col items-center justify-center border-0 bg-transparent px-0 py-2 outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-(--color-cyan)"
+          : "mx-auto flex flex-col items-center justify-center py-2"
       }
-      style={{ perspective: "550px" }}
+      style={{ perspective: "550px", filter: stageFilter, transition: "filter 300ms ease" }}
     >
-      <div
-        className="transition-[filter] duration-300 group-hover:brightness-125 group-active:brightness-150"
-        style={{ transformStyle: "preserve-3d", transform: "rotateX(34deg) rotateZ(-6deg)" }}
-      >
+      <div style={{ transformStyle: "preserve-3d", transform: "rotateX(34deg) rotateZ(-6deg)" }}>
         <div
           ref={spinRef}
           className="relative"
-          style={{ width: SIZE, height: SIZE, transformStyle: "preserve-3d", filter: glow }}
+          style={{ width: SIZE, height: SIZE, transformStyle: "preserve-3d" }}
         >
           {/* front (brightest — facing the implied light) */}
           <div
