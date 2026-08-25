@@ -9,7 +9,7 @@ import { PlasmaEffect } from "./PlasmaEffect";
 type Line = { text: string; tone?: "dim" | "accent" | "error" | "prompt" };
 
 const WELCOME: Line[] = [
-  { text: "adro_os hidden shell — type 'help' to list commands.", tone: "dim" },
+  { text: "adro_os hidden shell — type 'help' to list commands, Tab to autocomplete.", tone: "dim" },
 ];
 
 // commands offered by Tab-completion (sudo stays a hidden easter egg, not listed)
@@ -120,10 +120,17 @@ export function InteractiveTerminal() {
 
     switch (head) {
       case "help":
-        print(
-          "help · whoami · ls [projects] · cat motto.txt · open <project> · github <project> · ask <question> · meta · contact · plasma · clear · exit",
-          "dim"
-        );
+        print("whoami            — who I am", "dim");
+        print("ls [projects]     — list projects", "dim");
+        print("open <project>    — jump to a project on the page", "dim");
+        print("github <project>  — live stars / language / last push from GitHub", "dim");
+        print("ask <question>    — local search over my profile (not AI)", "dim");
+        print("cat motto.txt     — print my motto", "dim");
+        print("contact           — email / linkedin / github", "dim");
+        print("meta              — how this site was built", "dim");
+        print("plasma            — screensaver, ^C to exit", "dim");
+        print("clear · exit      — clear screen / close terminal", "dim");
+        print("tip: Tab autocompletes, ↑/↓ browse command history", "accent");
         break;
       case "whoami":
         print(text.headline);
@@ -355,6 +362,9 @@ export function InteractiveTerminal() {
                 />
               </form>
               <div ref={endRef} />
+            </div>
+            <div className="border-t border-(--color-line) bg-(--color-panel-raised) px-3 py-1.5 font-mono text-[10px] text-(--color-fg-faint)">
+              help · Tab autocomplete · ↑↓ history · Esc close
             </div>
             </motion.div>
           </motion.div>
