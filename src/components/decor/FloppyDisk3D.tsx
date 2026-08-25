@@ -1,20 +1,28 @@
+import { useEffect, useRef, type PointerEvent as ReactPointerEvent } from "react";
+
 /**
- * Pure CSS 3D floppy disk, spinning on its vertical axis. No canvas/WebGL —
- * a real 6-face box (front/back/top/bottom/left/right) built from
- * `transform-style: preserve-3d`, matching this site's hand-built (not
- * off-the-shelf) approach to visuals elsewhere in the repo.
+ * Pure CSS 3D floppy disk. No canvas/WebGL — a real 6-face box
+ * (front/back/top/bottom/left/right) built from `transform-style:
+ * preserve-3d`, matching this site's hand-built approach to visuals
+ * elsewhere in the repo.
  *
- * A wireframe box with uniform faces reads as a flat outline no matter how
- * correct the geometry is — the eye parses depth from shading, not from
- * transform math. Each face here gets its own fill brightness as if lit
- * from the upper-left (front/top brightest, back/bottom darkest), plus a
- * soft grounding shadow beneath, which is what actually sells "object"
- * over "outline".
+ * Two things make a CSS box actually read as a box instead of a card:
+ * 1) per-face shading (a uniform wireframe has no light cue, so the eye
+ *    parses it as a flat outline regardless of the transform math) — each
+ *    face here has its own fill brightness as if lit from the upper-left.
+ * 2) real proportions: THICK is a large fraction of SIZE, not a sliver.
+ *
+ * Rotation is driven by rAF instead of a CSS @keyframes loop so hover can
+ * smoothly ease the angular *speed* toward a target instead of snapping
+ * any transform — nothing ever jumps between two states.
  */
-const SIZE = 132; // px, footprint of the disk
-const THICK = 30; // px, shell depth
+const SIZE = 118; // px, footprint of the disk
+const THICK = 46; // px, shell depth — a real fraction of SIZE, not a sliver
 const HALF = SIZE / 2;
 const HALF_THICK = THICK / 2;
+const BASE_SPEED = 40; // deg/s at rest
+const MAX_BOOST = 75; // deg/s added/subtracted at the pointer extremes
+const EASE_RATE = 2.5; // how quickly speed eases toward its target
 
 function mix(color: string, pct: number) {
   return `color-mix(in srgb, ${color} ${pct}%, var(--color-void))`;
@@ -29,6 +37,40 @@ export function FloppyDisk3D({
   onClick?: () => void;
   label?: string;
 }) {
+  const spinRef = useRef<HTMLDivElement>(null);
+  const angleRef = useRef(0);
+  const speedRef = useRef(BASE_SPEED);
+  const targetSpeedRef = useRef(BASE_SPEED);
+
+  useEffect(() => {
+    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reducedMotion) {
+      if (spinRef.current) spinRef.current.style.transform = "rotateY(24deg)";
+      return;
+    }
+
+    let raf = requestAnimationFrame(tick);
+    let last = performance.now();
+    function tick(now: number) {
+      const dt = Math.min(0.05, (now - last) / 1000);
+      last = now;
+      speedRef.current += (targetSpeedRef.current - speedRef.current) * Math.min(1, dt * EASE_RATE);
+      angleRef.current += speedRef.current * dt;
+      if (spinRef.current) spinRef.current.style.transform = `rotateY(${angleRef.current}deg)`;
+      raf = requestAnimationFrame(tick);
+    }
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  const handlePointerMove = (e: ReactPointerEvent<HTMLElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const dx = (e.clientX - (rect.left + rect.width / 2)) / (rect.width / 2);
+    targetSpeedRef.current = BASE_SPEED + Math.max(-1, Math.min(1, dx)) * MAX_BOOST;
+  };
+  const handlePointerLeave = () => {
+    targetSpeedRef.current = BASE_SPEED;
+  };
+
   const glow = `drop-shadow(0 0 10px color-mix(in srgb, ${color} 45%, transparent))`;
 
   const shutterAndLabel = (
@@ -63,20 +105,23 @@ export function FloppyDisk3D({
     <Stage
       type={onClick ? "button" : undefined}
       onClick={onClick}
+      onPointerMove={handlePointerMove}
+      onPointerLeave={handlePointerLeave}
       aria-label={onClick ? label : undefined}
       className={
         onClick
-          ? "group mx-auto flex w-full cursor-pointer flex-col items-center justify-center border-0 bg-transparent px-0 py-2 transition-transform duration-300 hover:scale-105 focus-visible:scale-105 focus-visible:outline-none"
+          ? "group mx-auto flex w-full cursor-pointer flex-col items-center justify-center border-0 bg-transparent px-0 py-2 outline-none focus-visible:outline focus-visible:outline-1 focus-visible:outline-offset-4 focus-visible:outline-(--color-cyan)"
           : "group mx-auto flex flex-col items-center justify-center py-2"
       }
       style={{ perspective: "550px" }}
     >
       <div
-        className="transition-[filter] duration-300 group-hover:brightness-125"
-        style={{ transformStyle: "preserve-3d", transform: "rotateX(30deg) rotateZ(-6deg)" }}
+        className="transition-[filter] duration-300 group-hover:brightness-125 group-active:brightness-150"
+        style={{ transformStyle: "preserve-3d", transform: "rotateX(34deg) rotateZ(-6deg)" }}
       >
         <div
-          className="floppy-spin relative"
+          ref={spinRef}
+          className="relative"
           style={{ width: SIZE, height: SIZE, transformStyle: "preserve-3d", filter: glow }}
         >
           {/* front (brightest — facing the implied light) */}
@@ -90,7 +135,13 @@ export function FloppyDisk3D({
             }}
           >
             {shutterAndLabel}
-            <div className="sheen absolute inset-0" style={{ background: "linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.35) 50%, transparent 65%)" }} />
+            <div
+              className="sheen absolute inset-0"
+              style={{
+                background:
+                  "linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.35) 50%, transparent 65%)",
+              }}
+            />
           </div>
 
           {/* back (darkest) */}
@@ -166,13 +217,6 @@ export function FloppyDisk3D({
       />
 
       <style>{`
-        .floppy-spin {
-          animation: floppy-spin-y 9s linear infinite;
-        }
-        @keyframes floppy-spin-y {
-          from { transform: rotateY(0deg); }
-          to { transform: rotateY(360deg); }
-        }
         .sheen {
           animation: floppy-sheen 9s linear infinite;
         }

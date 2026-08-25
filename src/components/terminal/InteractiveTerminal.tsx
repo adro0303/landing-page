@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { profile, useProfileText } from "@/data/profile";
 import { localizeProject, projects } from "@/data/projects";
 import { useLanguage } from "@/lib/i18n";
@@ -156,9 +157,35 @@ export function InteractiveTerminal() {
         &gt;_
       </button>
 
-      {open && (
-        <div className="fixed inset-x-4 bottom-20 z-[70] mx-auto max-w-xl sm:right-5 sm:left-auto sm:w-[420px]">
-          <div className="overflow-hidden rounded-sm border border-(--color-blue)/40 bg-(--color-void)/95 shadow-[0_0_40px_rgba(88,166,255,0.15)] backdrop-blur-md">
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            key="hidden-terminal"
+            initial={{ opacity: 0, scale: 0.6, y: 40 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.85, y: 16 }}
+            transition={{ type: "spring", stiffness: 460, damping: 18, mass: 0.7 }}
+            className="fixed inset-x-4 bottom-20 z-[70] mx-auto max-w-xl sm:right-5 sm:left-auto sm:w-[420px]"
+          >
+            <motion.div
+              className="relative overflow-hidden rounded-sm border border-(--color-blue)/40 bg-(--color-void)/95 backdrop-blur-md"
+              initial={{ boxShadow: "0 0 0px rgba(88,166,255,0)" }}
+              animate={{
+                boxShadow: [
+                  "0 0 0px rgba(88,166,255,0)",
+                  "0 0 70px rgba(88,166,255,0.75)",
+                  "0 0 40px rgba(88,166,255,0.15)",
+                ],
+              }}
+              transition={{ duration: 1, times: [0, 0.3, 1], ease: "easeOut" }}
+            >
+              {/* bright flash on open — the cue that something just happened */}
+              <motion.div
+                className="pointer-events-none absolute inset-0 z-20 bg-(--color-cyan)"
+                initial={{ opacity: 0.65 }}
+                animate={{ opacity: 0 }}
+                transition={{ duration: 0.45, ease: "easeOut" }}
+              />
             <div className="flex items-center justify-between border-b border-(--color-line) bg-(--color-panel-raised) px-3 py-2">
               <span className="font-mono text-[11px] tracking-wide text-(--color-fg-dim)">
                 guest@adro-os: ~
@@ -233,9 +260,10 @@ export function InteractiveTerminal() {
               </form>
               <div ref={endRef} />
             </div>
-          </div>
-        </div>
-      )}
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </>
   );
 }
