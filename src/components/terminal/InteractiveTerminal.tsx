@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { profile, useProfileText } from "@/data/profile";
+import { profile, useProfileText, type ProfileText } from "@/data/profile";
 import { localizeProject, projects } from "@/data/projects";
-import { useLanguage } from "@/lib/i18n";
+import { useLanguage, type Lang } from "@/lib/i18n";
 import { OPEN_TERMINAL_EVENT, type OpenTerminalDetail } from "@/lib/terminalBus";
 import { PlasmaEffect } from "./PlasmaEffect";
 
@@ -11,6 +11,47 @@ type Line = { text: string; tone?: "dim" | "accent" | "error" | "prompt" };
 const WELCOME: Line[] = [
   { text: "adro_os hidden shell — type 'help' to list commands.", tone: "dim" },
 ];
+
+// commands offered by Tab-completion (sudo stays a hidden easter egg, not listed)
+const COMMANDS = ["help", "whoami", "ls", "cat", "open", "github", "ask", "meta", "contact", "plasma", "clear", "exit"];
+
+type GhRepo = { stargazers_count: number; language: string | null; pushed_at: string };
+
+async function fetchGithubRepo(repoPath: string): Promise<GhRepo> {
+  const cacheKey = `gh:${repoPath}`;
+  const cached = sessionStorage.getItem(cacheKey);
+  if (cached) return JSON.parse(cached) as GhRepo;
+  const res = await fetch(`https://api.github.com/repos/${repoPath}`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = (await res.json()) as GhRepo;
+  sessionStorage.setItem(cacheKey, JSON.stringify(data));
+  return data;
+}
+
+// local keyword search over profile.ts / projects.ts — not an LLM, no API calls
+function answerAsk(query: string, text: ProfileText, lang: Lang): string[] {
+  const q = query.toLowerCase();
+  if (/(strongest|best) project/.test(q)) {
+    const p = localizeProject(projects[0], lang);
+    return [`${p.title} — ${p.tagline}`, `why: ${p.why}`];
+  }
+  if (/stack|tech|language/.test(q)) {
+    return [Array.from(new Set(projects.flatMap((p) => p.tech))).join(", ")];
+  }
+  if (/open to work|hiring|available|job/.test(q)) {
+    return [text.status];
+  }
+  if (/who|about you|yourself/.test(q)) {
+    return [text.headline, text.bio];
+  }
+  if (/contact|email|reach/.test(q)) {
+    return [profile.links.email, profile.links.linkedin, profile.links.github];
+  }
+  return [
+    "no local match — this is keyword search over profile.ts / projects.ts, not an LLM.",
+    "try: 'ask stack', 'ask best project', 'ask open to work', 'ask about you', 'ask contact'",
+  ];
+}
 
 export function InteractiveTerminal() {
   const text = useProfileText();
@@ -67,7 +108,7 @@ export function InteractiveTerminal() {
     setLines((prev) => [...prev, { text, tone }]);
   }
 
-  function run(raw: string) {
+  async function run(raw: string) {
     const cmd = raw.trim();
     if (!cmd) return;
     print(`guest@adro-os:~$ ${cmd}`, "prompt");
@@ -79,7 +120,10 @@ export function InteractiveTerminal() {
 
     switch (head) {
       case "help":
-        print("help · whoami · ls [projects] · cat motto.txt · open <project> · contact · plasma · clear · exit", "dim");
+        print(
+          "help · whoami · ls [projects] · cat motto.txt · open <project> · github <project> · ask <question> · meta · contact · plasma · clear · exit",
+          "dim"
+        );
         break;
       case "whoami":
         print(text.headline);
@@ -108,6 +152,43 @@ export function InteractiveTerminal() {
         }
         break;
       }
+      case "github": {
+        const match = projects.find((p) => p.id.includes(rest[0] ?? ""));
+        if (!match) {
+          print(`github: '${rest[0] ?? ""}' not found — try 'ls projects'`, "error");
+          break;
+        }
+        const repoPath = match.href.replace("https://github.com/", "");
+        print(`fetching github.com/${repoPath} ...`, "dim");
+        try {
+          const repo = await fetchGithubRepo(repoPath);
+          print(
+            `★ ${repo.stargazers_count} stars · ${repo.language ?? "n/a"} · last push ${repo.pushed_at.slice(0, 10)}`,
+            "accent"
+          );
+        } catch (err) {
+          print(
+            `github: fetch failed (${err instanceof Error ? err.message : "network error"}) — unauthenticated GitHub API is capped at ~60 req/hr`,
+            "error"
+          );
+        }
+        break;
+      }
+      case "ask": {
+        if (!arg) {
+          print("ask: usage — ask <question> (e.g. 'ask stack', 'ask best project', 'ask open to work')", "error");
+          break;
+        }
+        answerAsk(arg, text, lang).forEach((l) => print(l, "accent"));
+        break;
+      }
+      case "meta":
+      case "story":
+        print("built with Claude Code — an agentic coding CLI — through an iterative session:", "dim");
+        print("the i18n toggle, mobile nav, the CSS-3D floppy disk, even this hidden terminal.", "dim");
+        print("no template, no site generator — just prompts and real commits.", "dim");
+        print(`repo: ${profile.links.github}`, "accent");
+        break;
       case "contact":
         print(profile.links.email, "accent");
         print(profile.links.linkedin, "accent");
@@ -254,6 +335,17 @@ export function InteractiveTerminal() {
                       }
                     } else if (e.key === "c" && e.ctrlKey && showPlasma) {
                       setShowPlasma(false);
+                    } else if (e.key === "Tab") {
+                      e.preventDefault();
+                      const parts = value.split(" ");
+                      if (parts.length === 1) {
+                        const matches = COMMANDS.filter((c) => c.startsWith(parts[0].toLowerCase()));
+                        if (matches.length === 1) setValue(matches[0]);
+                      } else if (parts[0].toLowerCase() === "open" || parts[0].toLowerCase() === "github") {
+                        const prefix = parts[parts.length - 1].toLowerCase();
+                        const matches = projects.map((p) => p.id).filter((id) => id.startsWith(prefix));
+                        if (matches.length === 1) setValue(`${parts[0].toLowerCase()} ${matches[0]}`);
+                      }
                     }
                   }}
                   className="flex-1 bg-transparent text-(--color-fg) caret-(--color-blue) outline-none"
