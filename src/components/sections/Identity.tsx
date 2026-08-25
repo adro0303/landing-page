@@ -81,6 +81,13 @@ export function Identity() {
                 </div>
               </div>
             </TerminalWindow>
+
+            <TerminalWindow title="mount /dev/fd0" accent="var(--color-cyan)" className="mt-6">
+              <FloppyDisk3D color="var(--color-cyan)" />
+              <p className="mt-3 text-center font-mono text-[11px] text-(--color-fg-faint)">
+                {t("identity.floppyCaption")}
+              </p>
+            </TerminalWindow>
           </motion.div>
 
           <motion.div
@@ -108,12 +115,6 @@ export function Identity() {
                   </motion.li>
                 ))}
               </ul>
-            </TerminalWindow>
-            <TerminalWindow title="mount /dev/fd0" accent="var(--color-cyan)">
-              <FloppyDisk3D color="var(--color-cyan)" />
-              <p className="mt-3 text-center font-mono text-[11px] text-(--color-fg-faint)">
-                {t("identity.floppyCaption")}
-              </p>
             </TerminalWindow>
           </motion.div>
         </div>
