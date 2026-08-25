@@ -114,11 +114,16 @@ export function FloppyDisk3D({
   const brightness = pressed ? 1.55 : hovering ? 1.22 : 1;
   const stageFilter = `drop-shadow(0 0 10px color-mix(in srgb, ${color} 45%, transparent)) brightness(${brightness})`;
 
+  // Each detail sits at its own depth off the shell's own plane — the metal
+  // shutter is a separate piece that actually sits proud of the casing, the
+  // write-protect notch is a real cutout (recessed), and the label is a thin
+  // sticker (barely raised). Requires the face itself to be preserve-3d;
+  // without real depth these would be flat decals no matter how they're lit.
   const shutterAndLabel = (
     <>
       <div
         className="absolute top-[8%] right-[14%] left-[14%] h-[46%] border-2"
-        style={{ borderColor: color, opacity: 0.9 }}
+        style={{ borderColor: color, opacity: 0.9, transform: "translateZ(4px)" }}
       >
         <div
           className="absolute inset-x-[18%] top-1/2 h-px -translate-y-1/2"
@@ -127,11 +132,11 @@ export function FloppyDisk3D({
       </div>
       <div
         className="absolute top-[10%] left-[8%] h-[10%] w-[10%] border-2"
-        style={{ borderColor: color, opacity: 0.85 }}
+        style={{ borderColor: color, opacity: 0.85, transform: "translateZ(-4px)" }}
       />
       <div
         className="absolute right-[16%] bottom-[14%] left-[16%] flex h-[26%] flex-col items-center justify-center gap-1 border"
-        style={{ borderColor: color, opacity: 0.6 }}
+        style={{ borderColor: color, opacity: 0.6, transform: "translateZ(1.5px)" }}
       >
         <span className="font-mono text-[7px] tracking-[0.15em] sm:text-[8px]" style={{ color }}>
           A:\
@@ -165,24 +170,36 @@ export function FloppyDisk3D({
           className="relative"
           style={{ width: SIZE, height: SIZE, transformStyle: "preserve-3d" }}
         >
-          {/* front (brightest — facing the implied light) */}
+          {/* front (brightest — facing the implied light). preserve-3d so
+              the shutter/notch/label children can sit proud of or sunk
+              into this plane instead of being flat decals; the gradient
+              + sheen move into their own clipped, flat inner layer since
+              `overflow` other than visible forces transform-style: flat,
+              same trap as `filter` did before. */}
           <div
-            className="absolute inset-0 overflow-hidden border-2"
+            className="absolute inset-0 border-2"
             style={{
               borderColor: color,
-              background: `linear-gradient(135deg, ${mix(color, 30)} 0%, ${mix(color, 14)} 60%, ${mix(color, 8)} 100%)`,
               transform: `translateZ(${HALF_THICK}px)`,
               backfaceVisibility: "hidden",
+              transformStyle: "preserve-3d",
             }}
           >
-            {shutterAndLabel}
             <div
-              className="sheen absolute inset-0"
+              className="absolute inset-0 overflow-hidden"
               style={{
-                background:
-                  "linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.35) 50%, transparent 65%)",
+                background: `linear-gradient(135deg, ${mix(color, 30)} 0%, ${mix(color, 14)} 60%, ${mix(color, 8)} 100%)`,
               }}
-            />
+            >
+              <div
+                className="sheen absolute inset-0"
+                style={{
+                  background:
+                    "linear-gradient(115deg, transparent 35%, rgba(255,255,255,0.35) 50%, transparent 65%)",
+                }}
+              />
+            </div>
+            {shutterAndLabel}
           </div>
 
           {/* back (darkest) */}
@@ -194,30 +211,34 @@ export function FloppyDisk3D({
               opacity: 0.85,
               transform: `rotateY(180deg) translateZ(${HALF_THICK}px)`,
               backfaceVisibility: "hidden",
+              transformStyle: "preserve-3d",
             }}
           >
             {shutterAndLabel}
           </div>
 
-          {/* left edge (mid-lit) — no border at this thickness, just fill:
-              a 2px border on a 5px-deep strip would be almost all border */}
+          {/* left edge (mid-lit) — a hairline border so the box's silhouette
+              stays visually continuous across the seam with front/back,
+              not just a flat-filled strip with no outline of its own */}
           <div
-            className="absolute top-0"
+            className="absolute top-0 border"
             style={{
               left: HALF - HALF_THICK,
               width: THICK,
               height: SIZE,
+              borderColor: color,
               background: mix(color, 22),
               transform: `rotateY(-90deg) translateZ(${HALF}px)`,
             }}
           />
           {/* right edge (shadow side) */}
           <div
-            className="absolute top-0"
+            className="absolute top-0 border"
             style={{
               left: HALF - HALF_THICK,
               width: THICK,
               height: SIZE,
+              borderColor: color,
               background: mix(color, 6),
               transform: `rotateY(90deg) translateZ(${HALF}px)`,
             }}
@@ -225,22 +246,24 @@ export function FloppyDisk3D({
 
           {/* top edge (brightest — catches the light from above) */}
           <div
-            className="absolute left-0"
+            className="absolute left-0 border"
             style={{
               top: HALF - HALF_THICK,
               width: SIZE,
               height: THICK,
+              borderColor: color,
               background: mix(color, 38),
               transform: `rotateX(90deg) translateZ(${HALF}px)`,
             }}
           />
           {/* bottom edge (darkest) */}
           <div
-            className="absolute left-0"
+            className="absolute left-0 border"
             style={{
               top: HALF - HALF_THICK,
               width: SIZE,
               height: THICK,
+              borderColor: color,
               background: mix(color, 3),
               transform: `rotateX(-90deg) translateZ(${HALF}px)`,
             }}
