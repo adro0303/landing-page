@@ -36,6 +36,11 @@ const dict = {
       en: "backup.img — 1.44MB // still readable",
       es: "backup.img — 1.44MB // todavía se lee",
     },
+    floppyHint: { en: "click to mount", es: "clic para montar" },
+    floppyLabel: {
+      en: "Mount floppy disk — opens the hidden shell",
+      es: "Montar disquete — abre la shell oculta",
+    },
   },
   stack: {
     eyebrow: { en: "02 // SYSTEM STACK", es: "02 // STACK DEL SISTEMA" },

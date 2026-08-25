@@ -4,6 +4,7 @@ import { useLanguage } from "@/lib/i18n";
 import { TerminalWindow } from "@/components/layout/TerminalWindow";
 import { IdCard } from "@/components/sections/IdCard";
 import { FloppyDisk3D } from "@/components/decor/FloppyDisk3D";
+import { openHiddenTerminal } from "@/lib/terminalBus";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 32 },
@@ -83,9 +84,16 @@ export function Identity() {
             </TerminalWindow>
 
             <TerminalWindow title="mount /dev/fd0" accent="var(--color-cyan)" className="mt-6">
-              <FloppyDisk3D color="var(--color-cyan)" />
+              <FloppyDisk3D
+                color="var(--color-cyan)"
+                onClick={() => openHiddenTerminal("floppy")}
+                label={t("identity.floppyLabel")}
+              />
               <p className="mt-3 text-center font-mono text-[11px] text-(--color-fg-faint)">
                 {t("identity.floppyCaption")}
+              </p>
+              <p className="mt-1 text-center font-mono text-[10px] tracking-[0.15em] text-(--color-cyan)/70">
+                [ {t("identity.floppyHint")} ]
               </p>
             </TerminalWindow>
           </motion.div>

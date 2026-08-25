@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { profile, useProfileText } from "@/data/profile";
 import { localizeProject, projects } from "@/data/projects";
 import { useLanguage } from "@/lib/i18n";
+import { OPEN_TERMINAL_EVENT, type OpenTerminalDetail } from "@/lib/terminalBus";
 import { PlasmaEffect } from "./PlasmaEffect";
 
 type Line = { text: string; tone?: "dim" | "accent" | "error" | "prompt" };
@@ -41,6 +42,21 @@ export function InteractiveTerminal() {
   useEffect(() => {
     if (open) setTimeout(() => inputRef.current?.focus(), 60);
   }, [open]);
+
+  useEffect(() => {
+    const onOpenRequest = (e: Event) => {
+      const detail = (e as CustomEvent<OpenTerminalDetail>).detail;
+      setOpen(true);
+      if (detail?.source === "floppy") {
+        setLines((prev) => [
+          ...prev,
+          { text: "floppy mounted as A:\\ — type 'help' to list commands.", tone: "accent" },
+        ]);
+      }
+    };
+    window.addEventListener(OPEN_TERMINAL_EVENT, onOpenRequest);
+    return () => window.removeEventListener(OPEN_TERMINAL_EVENT, onOpenRequest);
+  }, []);
 
   useEffect(() => {
     endRef.current?.scrollIntoView({ block: "end" });
