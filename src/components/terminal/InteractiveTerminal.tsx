@@ -4,16 +4,34 @@ import { profile, useProfileText, type ProfileText } from "@/data/profile";
 import { localizeProject, projects } from "@/data/projects";
 import { useLanguage, type Lang } from "@/lib/i18n";
 import { OPEN_TERMINAL_EVENT, type OpenTerminalDetail } from "@/lib/terminalBus";
+import { MatrixRain } from "./MatrixRain";
 import { PlasmaEffect } from "./PlasmaEffect";
 
 type Line = { text: string; tone?: "dim" | "accent" | "error" | "prompt" };
 
 const WELCOME: Line[] = [
   { text: "adro_os hidden shell — type 'help' to list commands, Tab to autocomplete.", tone: "dim" },
+  { text: "psst — try 'matrix' for something more visual.", tone: "accent" },
 ];
 
 // commands offered by Tab-completion (sudo stays a hidden easter egg, not listed)
-const COMMANDS = ["help", "whoami", "ls", "cat", "open", "github", "ask", "meta", "contact", "plasma", "clear", "exit"];
+const COMMANDS = [
+  "help",
+  "whoami",
+  "neofetch",
+  "ls",
+  "cat",
+  "open",
+  "github",
+  "activity",
+  "ask",
+  "meta",
+  "matrix",
+  "contact",
+  "plasma",
+  "clear",
+  "exit",
+];
 
 type GhRepo = { stargazers_count: number; language: string | null; pushed_at: string };
 
@@ -26,6 +44,90 @@ async function fetchGithubRepo(repoPath: string): Promise<GhRepo> {
   const data = (await res.json()) as GhRepo;
   sessionStorage.setItem(cacheKey, JSON.stringify(data));
   return data;
+}
+
+async function fetchReadmeLines(repoPath: string): Promise<string[]> {
+  const cacheKey = `gh-readme:${repoPath}`;
+  const cached = sessionStorage.getItem(cacheKey);
+  if (cached) return JSON.parse(cached) as string[];
+  const res = await fetch(`https://api.github.com/repos/${repoPath}/readme`, {
+    headers: { Accept: "application/vnd.github.raw" },
+  });
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const raw = await res.text();
+  const lines = raw
+    .split("\n")
+    .map((l) => l.trim())
+    .filter((l) => l && !l.startsWith("[![") && !l.startsWith("<img") && !l.startsWith("<p align"))
+    .slice(0, 12);
+  lines.push("…(truncated — full README on GitHub)");
+  sessionStorage.setItem(cacheKey, JSON.stringify(lines));
+  return lines;
+}
+
+type GhEvent = {
+  type: string;
+  repo: { name: string };
+  created_at: string;
+  payload?: { commits?: unknown[]; ref_type?: string; action?: string };
+};
+
+async function fetchGithubActivity(): Promise<GhEvent[]> {
+  const cacheKey = "gh-activity";
+  const cached = sessionStorage.getItem(cacheKey);
+  if (cached) return JSON.parse(cached) as GhEvent[];
+  const res = await fetch(`https://api.github.com/users/${profile.handle}/events/public`);
+  if (!res.ok) throw new Error(`HTTP ${res.status}`);
+  const data = (await res.json()) as GhEvent[];
+  sessionStorage.setItem(cacheKey, JSON.stringify(data));
+  return data;
+}
+
+function timeAgo(iso: string): string {
+  const mins = Math.floor((Date.now() - new Date(iso).getTime()) / 60000);
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.floor(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.floor(hours / 24)}d ago`;
+}
+
+function describeEvent(e: GhEvent): string {
+  const repo = e.repo.name.replace(`${profile.handle}/`, "");
+  switch (e.type) {
+    case "PushEvent": {
+      const n = e.payload?.commits?.length ?? 0;
+      return `pushed ${n} commit${n === 1 ? "" : "s"} to ${repo}`;
+    }
+    case "CreateEvent":
+      return `created ${e.payload?.ref_type ?? "ref"} in ${repo}`;
+    case "PullRequestEvent":
+      return `${e.payload?.action ?? "updated"} PR in ${repo}`;
+    case "IssuesEvent":
+      return `${e.payload?.action ?? "updated"} issue in ${repo}`;
+    case "WatchEvent":
+      return `starred ${repo}`;
+    default:
+      return `${e.type.replace("Event", "").toLowerCase()} in ${repo}`;
+  }
+}
+
+function buildNeofetch(text: ProfileText): string[] {
+  const techs = Array.from(new Set(projects.flatMap((p) => p.tech)));
+  const row = (k: string, v: string) => `${k.padEnd(9)}${v}`;
+  const lines = [
+    "adro_os",
+    "─────────────────────────────",
+    row("name", profile.name),
+    row("role", text.role),
+    row("edu", text.education),
+    row("stack", techs.join(", ")),
+    row("projects", `${projects.length} shipped — ${profile.links.github}`),
+    row("status", text.status),
+    "",
+    "focus:",
+  ];
+  text.focus.forEach((f) => lines.push(`  · ${f}`));
+  return lines;
 }
 
 // local keyword search over profile.ts / projects.ts — not an LLM, no API calls
@@ -60,6 +162,7 @@ export function InteractiveTerminal() {
   const [lines, setLines] = useState<Line[]>(WELCOME);
   const [value, setValue] = useState("");
   const [showPlasma, setShowPlasma] = useState(false);
+  const [showMatrix, setShowMatrix] = useState(false);
   const [history, setHistory] = useState<string[]>([]);
   const [historyIdx, setHistoryIdx] = useState<number | null>(null);
   const [kbInset, setKbInset] = useState(0);
@@ -83,6 +186,11 @@ export function InteractiveTerminal() {
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
+      if (showMatrix) {
+        e.preventDefault();
+        setShowMatrix(false);
+        return;
+      }
       const target = e.target as HTMLElement;
       const isTyping = target.tagName === "INPUT" || target.tagName === "TEXTAREA";
       if (e.key === "`" || e.key === "~") {
@@ -95,7 +203,7 @@ export function InteractiveTerminal() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [open]);
+  }, [open, showMatrix]);
 
   useEffect(() => {
     // skip autofocus on touch devices — popping the keyboard the instant the
@@ -140,21 +248,47 @@ export function InteractiveTerminal() {
 
     switch (head) {
       case "help":
-        print("whoami            — who I am", "dim");
-        print("ls [projects]     — list projects", "dim");
-        print("open <project>    — jump to a project on the page", "dim");
-        print("github <project>  — live stars / language / last push from GitHub", "dim");
-        print("ask <question>    — local search over my profile (not AI)", "dim");
-        print("cat motto.txt     — print my motto", "dim");
-        print("contact           — email / linkedin / github", "dim");
-        print("meta              — how this site was built", "dim");
-        print("plasma            — screensaver, ^C to exit", "dim");
-        print("clear · exit      — clear screen / close terminal", "dim");
+        print("whoami [--full]        — who I am (--full for the whole profile)", "dim");
+        print("neofetch               — same as whoami --full", "dim");
+        print("ls [projects]          — list projects", "dim");
+        print("open <project>         — jump to a project on the page", "dim");
+        print("open <project> --readme — pull the project's real README from GitHub", "dim");
+        print("github <project>       — live stars / language / last push from GitHub", "dim");
+        print("activity               — my recent public GitHub activity, live", "dim");
+        print("ask <question>         — local search over my profile (not AI)", "dim");
+        print("cat motto.txt          — print my motto", "dim");
+        print("contact                — email / linkedin / github", "dim");
+        print("meta                   — how this site was built", "dim");
+        print("matrix                 — full-screen visual, worth trying", "accent");
+        print("plasma                 — screensaver, ^C to exit", "dim");
+        print("clear · exit           — clear screen / close terminal", "dim");
         print("tip: Tab autocompletes, ↑/↓ browse command history", "accent");
         break;
       case "whoami":
-        print(text.headline);
+        if (arg === "--full") buildNeofetch(text).forEach((l) => print(l, "dim"));
+        else print(text.headline);
         break;
+      case "neofetch":
+        buildNeofetch(text).forEach((l) => print(l, "dim"));
+        break;
+      case "matrix":
+        setShowMatrix(true);
+        print("materializing — click / any key / Esc to exit", "dim");
+        break;
+      case "activity": {
+        print("fetching recent public activity ...", "dim");
+        try {
+          const events = await fetchGithubActivity();
+          if (events.length === 0) {
+            print("no recent public activity.", "dim");
+          } else {
+            events.slice(0, 6).forEach((e) => print(`${timeAgo(e.created_at)}  ${describeEvent(e)}`, "accent"));
+          }
+        } catch (err) {
+          print(`activity: fetch failed (${err instanceof Error ? err.message : "network error"})`, "error");
+        }
+        break;
+      }
       case "ls":
         if (arg === "projects" || arg === "") {
           projects.forEach((p) => print(`  ${p.id}`, "accent"));
@@ -168,15 +302,26 @@ export function InteractiveTerminal() {
         else print(`cat: ${arg || "(missing operand)"}: no such file`, "error");
         break;
       case "open": {
-        const match = projects.find((p) => p.id.includes(rest[0] ?? ""));
-        document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
-        if (match) {
-          const localized = localizeProject(match, lang);
-          print(`opening ${localized.id} — ${localized.tagline}`, "accent");
-          setOpen(false);
-        } else {
-          print(`open: '${rest[0] ?? ""}' not found — try 'ls projects'`, "error");
+        const idArg = rest.find((r) => !r.startsWith("--")) ?? "";
+        const match = projects.find((p) => p.id.includes(idArg));
+        if (!match) {
+          print(`open: '${idArg}' not found — try 'ls projects'`, "error");
+          break;
         }
+        if (rest.includes("--readme")) {
+          const repoPath = match.href.replace("https://github.com/", "");
+          print(`fetching README from github.com/${repoPath} ...`, "dim");
+          try {
+            (await fetchReadmeLines(repoPath)).forEach((l) => print(l, "dim"));
+          } catch (err) {
+            print(`open: readme fetch failed (${err instanceof Error ? err.message : "network error"})`, "error");
+          }
+          break;
+        }
+        document.getElementById("projects")?.scrollIntoView({ behavior: "smooth" });
+        const localized = localizeProject(match, lang);
+        print(`opening ${localized.id} — ${localized.tagline}`, "accent");
+        setOpen(false);
         break;
       }
       case "github": {
@@ -264,6 +409,8 @@ export function InteractiveTerminal() {
       >
         &gt;_
       </button>
+
+      {showMatrix && <MatrixRain onDismiss={() => setShowMatrix(false)} />}
 
       <AnimatePresence>
         {open && (
@@ -388,7 +535,7 @@ export function InteractiveTerminal() {
               <div ref={endRef} />
             </div>
             <div className="border-t border-(--color-line) bg-(--color-panel-raised) px-3 py-1.5 font-mono text-[10px] text-(--color-fg-faint)">
-              help · Tab autocomplete · ↑↓ history · Esc close
+              help · try &apos;matrix&apos; · Tab autocomplete · ↑↓ history · Esc close
             </div>
             </motion.div>
           </motion.div>
