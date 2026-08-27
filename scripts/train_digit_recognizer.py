@@ -35,11 +35,15 @@ def shift(img, dx, dy):
 
 
 def dilate(img):
+    # cross-shaped (4-connected), not a full 3x3 square: a square dilation
+    # seals a diagonal 1px gap shut, which turns an open digit like 3 into a
+    # closed loop that reads as 8 — measurably worse on the held-out 3s than
+    # this gentler shape, for the same stroke-thickening benefit elsewhere
     padded = np.pad(img, 1, constant_values=0)
     out = np.zeros_like(img)
     for i in range(8):
         for j in range(8):
-            out[i, j] = padded[i : i + 3, j : j + 3].max()
+            out[i, j] = max(padded[i, j + 1], padded[i + 1, j], padded[i + 1, j + 1], padded[i + 1, j + 2], padded[i + 2, j + 1])
     return out
 
 
@@ -52,7 +56,24 @@ def erode(img):
     return out
 
 
-def augment(X, y):
+def block_fours():
+    # load_digits only has cursive 4s (diagonal stroke into a full right
+    # vertical) — no "block" 4s drawn as two straight parallel verticals
+    # joined by a crossbar. Downsampled to 8x8 that shape's bounding box
+    # reads as a 9 (loop + tail), so hand it a few explicit examples.
+    # left stroke stops at the crossbar (only the right stroke runs full
+    # height) — filling both columns full-height draws a letter H, not a 4.
+    templates = []
+    for lcol, rcol, bar_row in [(1, 5, 4), (2, 5, 3), (1, 4, 4), (2, 6, 5)]:
+        img = np.zeros((8, 8))
+        img[: bar_row + 1, lcol] = 16
+        img[:, rcol] = 16
+        img[bar_row, lcol : rcol + 1] = 16
+        templates.append(img)
+    return np.array(templates).reshape(-1, 64), np.full(len(templates), 4)
+
+
+def augment(X, y, include_erode=True):
     imgs = X.reshape(-1, 8, 8)
     # cross product of pen-thickness (freehand strokes vary a lot more than
     # the dataset's own scans) and off-center shift covers the actual gap:
@@ -60,7 +81,9 @@ def augment(X, y):
     # double-dilate was here too, but at 8x8 it seals shut any digit with an
     # enclosed loop (0, 6, 8, 9) into a solid blob — training on a "0" that
     # no longer has a hole teaches the network the wrong prototype for it
-    thicknesses = [imgs, np.array([dilate(im) for im in imgs]), np.array([erode(im) for im in imgs])]
+    thicknesses = [imgs, np.array([dilate(im) for im in imgs])]
+    if include_erode:
+        thicknesses.append(np.array([erode(im) for im in imgs]))
     offsets = [(0, 0), (-1, 0), (1, 0), (0, -1), (0, 1)]
     variants = []
     labels = []
@@ -84,7 +107,13 @@ X_train2, X_val, y_train2, y_val = train_test_split(
     X_trainfull, y_trainfull, test_size=0.15, random_state=0, stratify=y_trainfull
 )
 
-X_train, y_train = augment(X_train2, y_train2)
+bf_X, bf_y = block_fours()
+# no erode for these: they're already 1px-wide synthetic lines, so eroding
+# them wipes the digit to blank — poisoning training with blank-but-labeled-4
+X_train_real, y_train_real = augment(X_train2, y_train2)
+X_train_bf, y_train_bf = augment(bf_X, bf_y, include_erode=False)
+X_train = np.concatenate([X_train_real, X_train_bf])
+y_train = np.concatenate([y_train_real, y_train_bf])
 X_train, X_val, X_test = X_train / 16.0, X_val / 16.0, X_test / 16.0
 
 n_in, n_hidden, n_out = 64, 128, 10
