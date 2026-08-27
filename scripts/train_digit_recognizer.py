@@ -54,15 +54,20 @@ def erode(img):
 
 def augment(X, y):
     imgs = X.reshape(-1, 8, 8)
-    variants = [imgs]
-    labels = [y]
-    for dx, dy in [(-1, 0), (1, 0), (0, -1), (0, 1)]:
-        variants.append(np.array([shift(im, dx, dy) for im in imgs]))
-        labels.append(y)
-    variants.append(np.array([dilate(im) for im in imgs]))
-    labels.append(y)
-    variants.append(np.array([erode(im) for im in imgs]))
-    labels.append(y)
+    # cross product of pen-thickness (freehand strokes vary a lot more than
+    # the dataset's own scans) and off-center shift covers the actual gap:
+    # a canvas drawing is thicker/off-center, not just noisier
+    # double-dilate was here too, but at 8x8 it seals shut any digit with an
+    # enclosed loop (0, 6, 8, 9) into a solid blob — training on a "0" that
+    # no longer has a hole teaches the network the wrong prototype for it
+    thicknesses = [imgs, np.array([dilate(im) for im in imgs]), np.array([erode(im) for im in imgs])]
+    offsets = [(0, 0), (-1, 0), (1, 0), (0, -1), (0, 1)]
+    variants = []
+    labels = []
+    for base in thicknesses:
+        for dx, dy in offsets:
+            variants.append(np.array([shift(im, dx, dy) for im in base]))
+            labels.append(y)
     return np.concatenate(variants).reshape(-1, 64), np.concatenate(labels)
 
 
@@ -82,7 +87,7 @@ X_train2, X_val, y_train2, y_val = train_test_split(
 X_train, y_train = augment(X_train2, y_train2)
 X_train, X_val, X_test = X_train / 16.0, X_val / 16.0, X_test / 16.0
 
-n_in, n_hidden, n_out = 64, 64, 10
+n_in, n_hidden, n_out = 64, 128, 10
 
 
 def one_hot(y, n):
