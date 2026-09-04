@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import { motion } from "framer-motion";
-import { stackCategories } from "@/data/stack";
+import { stackCategories, stackProof } from "@/data/stack";
 import { TechIcon } from "@/components/sections/TechIcon";
 import { useLanguage } from "@/lib/i18n";
 
@@ -108,6 +108,7 @@ export function StackBlueprint() {
                             viewport={{ once: true, margin: "-60px" }}
                             transition={{ duration: 0.35, delay: 0.15 + itemIndex * 0.05 }}
                             whileHover={{ y: -2 }}
+                            title={stackProof[item]?.[lang]}
                             className="group/badge flex items-center gap-2 rounded-sm border border-(--color-line) px-3 py-2 font-mono text-xs text-(--color-fg) transition-colors hover:border-(--accent)"
                             style={{ "--accent": cat.color } as CSSProperties}
                           >
