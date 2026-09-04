@@ -26,6 +26,7 @@ export type ProfileText = {
   role: string;
   tagline: string;
   headline: string;
+  summary: string;
   bio: string;
   education: string;
   motto: string;
@@ -40,6 +41,8 @@ export const profileText: Record<Lang, ProfileText> = {
     tagline: "Backend systems · ML pipelines · automation",
     headline:
       "Junior Software / AI Developer who'd rather ship a rough prototype than read one more tutorial.",
+    summary:
+      "AI & Software Engineer with 1+ year of professional experience building production AI features and backend systems — currently leading a 4-person engineering team. Native Spanish, C1 English, open to backend, AI/ML and Python roles, remote or hybrid.",
     bio: "I build backend systems, ML pipelines, and small tools that solve one problem well — then push them until they actually work, not just until the demo does.",
     education: "BSc Artificial Intelligence — Coventry University (Upper Second Class Honours)",
     motto: "ship it, see what breaks, fix it for real",
@@ -64,6 +67,8 @@ export const profileText: Record<Lang, ProfileText> = {
     tagline: "Sistemas backend · pipelines de ML · automatización",
     headline:
       "Desarrollador junior de Software / IA que prefiere lanzar un prototipo tosco antes que leerse un tutorial más.",
+    summary:
+      "Ingeniero de Software e IA con más de un año de experiencia profesional construyendo funcionalidades de IA en producción y sistemas backend — actualmente lidero un equipo de 4 personas. Español nativo, inglés C1, abierto a puestos de backend, IA/ML y Python, en remoto o híbrido.",
     bio: "Construyo sistemas backend, pipelines de ML y herramientas pequeñas que resuelven un problema bien — y las pulo hasta que funcionan de verdad, no solo hasta que funciona la demo.",
     education: "Grado en Inteligencia Artificial — Coventry University (Upper Second Class Honours)",
     motto: "lánzalo, mira qué se rompe, arréglalo de verdad",

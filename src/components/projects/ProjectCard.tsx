@@ -7,8 +7,10 @@ import { SecurityViz } from "./SecurityViz";
 import { QuantViz } from "./QuantViz";
 import { NodeGraphViz } from "./NodeGraphViz";
 import { HubViz } from "./HubViz";
+import { AiToolsLaunchpad } from "./AiToolsLaunchpad";
 
 function Visual({ project }: { project: Project }) {
+  if (project.id === "ai-tools") return <AiToolsLaunchpad accent={project.accent} />;
   switch (project.kind) {
     case "pipeline":
       return <PipelineViz project={project} />;

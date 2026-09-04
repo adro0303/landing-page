@@ -11,6 +11,7 @@ const dict = {
   nav: {
     hero: { en: "BOOT", es: "INICIO" },
     identity: { en: "IDENTITY", es: "IDENTIDAD" },
+    experience: { en: "EXPERIENCE", es: "EXPERIENCIA" },
     stack: { en: "STACK", es: "STACK" },
     projects: { en: "PROJECTS", es: "PROYECTOS" },
     uplink: { en: "UPLINK", es: "CONTACTO" },
@@ -42,15 +43,22 @@ const dict = {
       es: "Montar disquete — abre la shell oculta",
     },
   },
+  experience: {
+    eyebrow: { en: "02 // EXPERIENCE", es: "02 // EXPERIENCIA" },
+    description: {
+      en: "Real jobs, real teams — not just side projects.",
+      es: "Trabajos reales, equipos reales — no solo proyectos personales.",
+    },
+  },
   stack: {
-    eyebrow: { en: "02 // SYSTEM STACK", es: "02 // STACK DEL SISTEMA" },
+    eyebrow: { en: "03 // SYSTEM STACK", es: "03 // STACK DEL SISTEMA" },
     description: {
       en: "Modules currently loaded on the system bus — grouped by what they're for, not alphabetized for show.",
       es: "Módulos cargados actualmente en el sistema — agrupados por para qué sirven, no alfabetizados para lucir.",
     },
   },
   projects: {
-    eyebrow: { en: "03 // ACTIVE PROCESSES", es: "03 // PROCESOS ACTIVOS" },
+    eyebrow: { en: "04 // ACTIVE PROCESSES", es: "04 // PROCESOS ACTIVOS" },
     description: {
       en: "Six real repos, activated one at a time.",
       es: "Seis repos reales, activados uno a la vez.",
@@ -71,6 +79,11 @@ const dict = {
     collapse: { en: "[ − collapse ]", es: "[ − cerrar ]" },
     buildNotes: { en: "build_notes", es: "notas_de_build" },
     viewSource: { en: "view source →", es: "ver código →" },
+    tryIt: { en: "try it →", es: "probar →" },
+    aiToolsNote: {
+      en: "runs entirely in your browser — no server, no account, no API calls.",
+      es: "corre entero en tu navegador — sin servidor, sin cuenta, sin llamadas a APIs.",
+    },
     problem: { en: "problem — ", es: "problema — " },
     built: { en: "built — ", es: "construido — " },
     why: { en: "why it matters — ", es: "por qué importa — " },
@@ -82,8 +95,17 @@ const dict = {
       automation: { en: "AUTOMATION", es: "AUTOMATIZACIÓN" },
     },
   },
+  toolsLauncher: {
+    button: { en: "Try the AI tools", es: "Probar herramientas IA" },
+    title: { en: "Interactive demos", es: "Demos interactivas" },
+    subtitle: {
+      en: "No install, no account — click one and try it right now.",
+      es: "Sin instalar nada, sin cuenta — haz clic y pruébala ahora mismo.",
+    },
+    close: { en: "close", es: "cerrar" },
+  },
   uplink: {
-    eyebrow: { en: "04 // UPLINK", es: "04 // ENLACE" },
+    eyebrow: { en: "05 // UPLINK", es: "05 // ENLACE" },
     resumeCaption: {
       en: "One-page CV — role, stack, and shipped work.",
       es: "CV de una página — rol, stack y trabajo entregado.",

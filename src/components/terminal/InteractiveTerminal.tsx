@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { profile, useProfileText, type ProfileText } from "@/data/profile";
 import { localizeProject, projects } from "@/data/projects";
 import { useLanguage, type Lang } from "@/lib/i18n";
-import { OPEN_TERMINAL_EVENT, type OpenTerminalDetail } from "@/lib/terminalBus";
+import { OPEN_TERMINAL_EVENT, OPEN_TOOL_EVENT, type OpenTerminalDetail, type ToolName } from "@/lib/terminalBus";
 import { DigitRecognizer } from "./DigitRecognizer";
 import { MatrixRain } from "./MatrixRain";
 import { Pathfinder } from "./Pathfinder";
@@ -243,6 +243,17 @@ export function InteractiveTerminal() {
     };
     window.addEventListener(OPEN_TERMINAL_EVENT, onOpenRequest);
     return () => window.removeEventListener(OPEN_TERMINAL_EVENT, onOpenRequest);
+  }, []);
+
+  useEffect(() => {
+    const onOpenTool = (e: Event) => {
+      const tool = (e as CustomEvent<ToolName>).detail;
+      if (tool === "sort") setShowSort(true);
+      else if (tool === "pathfind") setShowPathfind(true);
+      else if (tool === "digit") setShowDigit(true);
+    };
+    window.addEventListener(OPEN_TOOL_EVENT, onOpenTool);
+    return () => window.removeEventListener(OPEN_TOOL_EVENT, onOpenTool);
   }, []);
 
   useEffect(() => {

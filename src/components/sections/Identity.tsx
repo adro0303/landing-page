@@ -39,6 +39,17 @@ export function Identity() {
           whoami
         </motion.h2>
 
+        <motion.p
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-80px" }}
+          variants={fadeUp}
+          transition={{ duration: 0.55, delay: 0.08 }}
+          className="mb-12 max-w-3xl text-pretty font-display text-2xl leading-snug text-(--color-fg) sm:text-3xl"
+        >
+          {profile.summary}
+        </motion.p>
+
         <div className="grid gap-6 lg:grid-cols-5">
           <motion.div
             initial="hidden"
