@@ -22,8 +22,8 @@ const dict = {
     close: { en: "[ ✕ close ]", es: "[ ✕ cerrar ]" },
   },
   hero: {
-    navProjects: { en: "Projects", es: "Proyectos" },
-    navContact: { en: "Contact", es: "Contactos" },
+    navProjects: { en: "See my work", es: "Ver mi trabajo" },
+    navContact: { en: "Contact me", es: "Contáctame" },
     scroll: { en: "SCROLL TO CONTINUE", es: "DESPLÁZATE PARA CONTINUAR" },
     dormant: { en: "STATUS: DORMANT", es: "ESTADO: INACTIVO" },
     scanning: { en: "STATUS: SCANNING", es: "ESTADO: ESCANEANDO" },
