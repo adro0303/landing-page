@@ -12,7 +12,7 @@ export const profile = {
   resumeUrl: "/resume.pdf" as string | null,
   archiveRepos: [
     "ab20app",
-    "abCPLUS",
+    "HospitalManager",
     "Fibonacci",
     "mainjuego.java",
     "HAF",
@@ -52,7 +52,7 @@ export const profileText: Record<Lang, ProfileText> = {
       "One command that runs the whole pipeline beats ten manual steps in a README.",
       "Walk-forward validation isn't optional when the whole point is \"did this actually generalize.\"",
       "If a project has a Limitations section, I wrote it myself before anyone had to ask.",
-      "SOLID and OOP aren't classroom theory — abCPLUS's Paciente/Medico/Cita split is why adding a feature didn't mean rewriting three others.",
+      "SOLID and OOP aren't classroom theory — HospitalManager's Paciente/Medico/Cita split is why adding a feature didn't mean rewriting three others.",
       "Agile in practice: small commits, working software over documentation, re-plan when the backlog says the priority changed.",
     ],
     focus: [
@@ -78,7 +78,7 @@ export const profileText: Record<Lang, ProfileText> = {
       "Un solo comando que corre todo el pipeline vale más que diez pasos manuales en un README.",
       'La validación walk-forward no es opcional cuando el objetivo es saber si esto realmente generaliza.',
       "Si un proyecto tiene una sección de Limitaciones, la escribí yo antes de que nadie preguntara.",
-      "SOLID y POO no son teoría de clase — la separación Paciente/Medico/Cita de abCPLUS es la razón por la que añadir una función no implicó reescribir otras tres.",
+      "SOLID y POO no son teoría de clase — la separación Paciente/Medico/Cita de HospitalManager es la razón por la que añadir una función no implicó reescribir otras tres.",
       "Agile en la práctica: commits pequeños, software funcionando antes que documentación, replanificar cuando el backlog dice que cambió la prioridad.",
     ],
     focus: [
