@@ -110,6 +110,20 @@ export function HeroSection({ booted }: { booted: boolean }) {
         <p className="mt-2 max-w-md text-pretty font-mono text-[11px] text-(--color-phosphor-dim) sm:text-sm">
           {text.role} — {text.status}
         </p>
+        <nav className="mt-5 flex items-center gap-3">
+          <a
+            href="#projects"
+            className="rounded-sm border border-(--color-phosphor-dim)/50 px-3.5 py-1.5 font-mono text-[11px] tracking-[0.15em] text-(--color-phosphor-dim) transition-colors hover:border-(--color-phosphor) hover:text-(--color-phosphor) sm:text-xs"
+          >
+            {t("hero.navProjects")} ↓
+          </a>
+          <a
+            href="#uplink"
+            className="rounded-sm border border-(--color-phosphor-dim)/50 px-3.5 py-1.5 font-mono text-[11px] tracking-[0.15em] text-(--color-phosphor-dim) transition-colors hover:border-(--color-phosphor) hover:text-(--color-phosphor) sm:text-xs"
+          >
+            {t("hero.navContact")} ↓
+          </a>
+        </nav>
       </div>
 
       <div className="relative z-10 mt-2 min-h-0 flex-1 px-4 pb-2 sm:mt-3">
