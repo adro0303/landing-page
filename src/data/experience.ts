@@ -37,26 +37,6 @@ export const experienceEntries: ExperienceEntry[] = [
     tech: ["Python", "TypeScript", "NestJS", "Prisma", "PostgreSQL", "Docker", "GitHub Actions"],
   },
   {
-    id: "generali",
-    company: "Generali Seguros",
-    color: "var(--color-amber)",
-    period: "Jun 2024 — Oct 2024",
-    location: { en: "Madrid, Spain", es: "Madrid, España" },
-    role: {
-      en: "Insurance Sales Representative",
-      es: "Representante Comercial de Seguros",
-    },
-    bullets: {
-      en: [
-        "Consultative sales: understood client needs and explained complex products in plain language — the same skill I use to talk to non-technical stakeholders about software.",
-      ],
-      es: [
-        "Venta consultiva: entendía las necesidades del cliente y explicaba productos complejos en lenguaje sencillo — la misma habilidad que uso para hablar de software con perfiles no técnicos.",
-      ],
-    },
-    tech: [],
-  },
-  {
     id: "mais",
     company: "Mais Informática",
     color: "var(--color-cyan)",
@@ -72,6 +52,26 @@ export const experienceEntries: ExperienceEntry[] = [
       ],
       es: [
         "Reparación de equipos, instalación de Windows/Linux, configuración de redes y soporte a usuarios; contribuí código a una herramienta interna.",
+      ],
+    },
+    tech: [],
+  },
+  {
+    id: "generali",
+    company: "Generali Seguros",
+    color: "var(--color-amber)",
+    period: "Jun 2024 — Oct 2024",
+    location: { en: "Madrid, Spain", es: "Madrid, España" },
+    role: {
+      en: "Insurance Sales Representative",
+      es: "Representante Comercial de Seguros",
+    },
+    bullets: {
+      en: [
+        "Consultative sales: understood client needs and explained complex products in plain language — the same skill I use to talk to non-technical stakeholders about software.",
+      ],
+      es: [
+        "Venta consultiva: entendía las necesidades del cliente y explicaba productos complejos en lenguaje sencillo — la misma habilidad que uso para hablar de software con perfiles no técnicos.",
       ],
     },
     tech: [],

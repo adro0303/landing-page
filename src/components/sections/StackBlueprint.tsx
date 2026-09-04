@@ -99,25 +99,30 @@ export function StackBlueprint() {
                       >
                         {lang === "es" ? cat.labelEs : cat.label}
                       </p>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex flex-col gap-3">
                         {cat.items.map((item, itemIndex) => (
-                          <motion.span
+                          <motion.div
                             key={item}
-                            initial={{ opacity: 0, y: 8, scale: 0.94 }}
-                            whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                            initial={{ opacity: 0, y: 8 }}
+                            whileInView={{ opacity: 1, y: 0 }}
                             viewport={{ once: true, margin: "-60px" }}
                             transition={{ duration: 0.35, delay: 0.15 + itemIndex * 0.05 }}
-                            whileHover={{ y: -2 }}
-                            title={stackProof[item]?.[lang]}
-                            className="group/badge flex items-center gap-2 rounded-sm border border-(--color-line) px-3 py-2 font-mono text-xs text-(--color-fg) transition-colors hover:border-(--accent)"
-                            style={{ "--accent": cat.color } as CSSProperties}
+                            className="grid grid-cols-[1.25rem_1fr] items-start gap-x-3 gap-y-0.5 border-b border-(--color-line)/40 pb-3 last:border-0 last:pb-0"
                           >
                             <TechIcon
                               item={item}
-                              className="h-5 w-5 shrink-0 text-(--color-fg-faint) transition-colors group-hover/badge:text-(--accent)"
+                              className="mt-0.5 h-5 w-5 shrink-0"
+                              style={{ color: cat.color }}
                             />
-                            {item}
-                          </motion.span>
+                            <div className="min-w-0">
+                              <p className="font-mono text-xs text-(--color-fg)">{item}</p>
+                              {stackProof[item] && (
+                                <p className="mt-0.5 font-mono text-[11px] leading-snug text-(--color-fg-dim)">
+                                  {stackProof[item][lang]}
+                                </p>
+                              )}
+                            </div>
+                          </motion.div>
                         ))}
                       </div>
                     </div>

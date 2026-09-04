@@ -1,6 +1,15 @@
+import type { CSSProperties } from "react";
 import { techIcons } from "@/data/techIcons";
 
-export function TechIcon({ item, className }: { item: string; className?: string }) {
+export function TechIcon({
+  item,
+  className,
+  style,
+}: {
+  item: string;
+  className?: string;
+  style?: CSSProperties;
+}) {
   const icon = techIcons[item];
 
   if (!icon) {
@@ -8,6 +17,7 @@ export function TechIcon({ item, className }: { item: string; className?: string
       <svg
         viewBox="0 0 24 24"
         className={className}
+        style={style}
         fill="none"
         stroke="currentColor"
         strokeWidth="1.8"
@@ -21,7 +31,7 @@ export function TechIcon({ item, className }: { item: string; className?: string
   }
 
   return (
-    <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden="true">
+    <svg viewBox="0 0 24 24" className={className} style={style} fill="currentColor" aria-hidden="true">
       <path d={icon.path} />
     </svg>
   );
