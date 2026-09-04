@@ -1,7 +1,7 @@
 import { useState } from "react";
 import type { ControlPanelProject } from "@/data/projects";
 
-function Toggle({ label, state }: { label: string; state: "on" | "off" | "guarded" }) {
+export function Toggle({ label, state }: { label: string; state: "on" | "off" | "guarded" }) {
   const [flipped, setFlipped] = useState(false);
 
   if (state === "guarded") {

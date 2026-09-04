@@ -37,6 +37,12 @@ export type ControlPanelProject = BaseProject & {
   switches: { label: string; state: "on" | "off" | "guarded" }[];
 };
 
+export type DeviceProject = BaseProject & {
+  kind: "device";
+  link: { via: string };
+  switches: { label: string; state: "on" | "off" | "guarded" }[];
+};
+
 export type SecurityProject = BaseProject & {
   kind: "security";
   logLines: { text: string; flagged?: boolean }[];
@@ -66,6 +72,7 @@ export type HubProject = BaseProject & {
 export type Project =
   | PipelineProject
   | ControlPanelProject
+  | DeviceProject
   | SecurityProject
   | QuantProject
   | NodeGraphProject
@@ -314,7 +321,7 @@ export const projects: Project[] = [
   {
     id: "pocket-server",
     index: 6,
-    kind: "control-panel",
+    kind: "device",
     category: "automation",
     title: "pocket-server",
     tagline: "An old Android phone, de-Googled and rooted, into a 24/7 home server — no Raspberry Pi, no cloud bill",
@@ -346,6 +353,7 @@ export const projects: Project[] = [
       focus: "Cero coste de nube y cero puertos expuestos, con un humano siempre en el bucle.",
       status: "Repo más reciente · creado el 04-09-2026",
     },
+    link: { via: "Tailscale VPN" },
     switches: [
       { label: "WATCHDOG", state: "on" },
       { label: "EMAIL_SEND", state: "guarded" },

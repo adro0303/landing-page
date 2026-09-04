@@ -3,6 +3,7 @@ import { localizeProject, type Project } from "@/data/projects";
 import { useLanguage } from "@/lib/i18n";
 import { PipelineViz } from "./PipelineViz";
 import { ControlPanelViz } from "./ControlPanelViz";
+import { DeviceLinkViz } from "./DeviceLinkViz";
 import { SecurityViz } from "./SecurityViz";
 import { QuantViz } from "./QuantViz";
 import { NodeGraphViz } from "./NodeGraphViz";
@@ -16,6 +17,8 @@ function Visual({ project }: { project: Project }) {
       return <PipelineViz project={project} />;
     case "control-panel":
       return <ControlPanelViz project={project} />;
+    case "device":
+      return <DeviceLinkViz project={project} />;
     case "security":
       return <SecurityViz project={project} />;
     case "quant":
