@@ -2,7 +2,6 @@ import { useState } from "react";
 import { localizeProject, type Project } from "@/data/projects";
 import { useLanguage } from "@/lib/i18n";
 import { PipelineViz } from "./PipelineViz";
-import { ControlPanelViz } from "./ControlPanelViz";
 import { DeviceLinkViz } from "./DeviceLinkViz";
 import { SecurityViz } from "./SecurityViz";
 import { QuantViz } from "./QuantViz";
@@ -15,8 +14,6 @@ function Visual({ project }: { project: Project }) {
   switch (project.kind) {
     case "pipeline":
       return <PipelineViz project={project} />;
-    case "control-panel":
-      return <ControlPanelViz project={project} />;
     case "device":
       return <DeviceLinkViz project={project} />;
     case "security":

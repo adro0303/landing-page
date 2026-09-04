@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import type { DeviceProject } from "@/data/projects";
-import { Toggle } from "./ControlPanelViz";
+import { FlowTrack } from "./FlowTrack";
 
 function PhoneIcon({ className, style }: { className?: string; style?: CSSProperties }) {
   return (
@@ -79,10 +79,8 @@ export function DeviceLinkViz({ project }: { project: DeviceProject }) {
         <LaptopIcon className="h-8 w-8 shrink-0 text-(--color-fg-dim)" />
       </div>
 
-      <div className="mt-6 flex items-center justify-around border-t border-(--color-line) pt-5">
-        {project.switches.map((s) => (
-          <Toggle key={s.label} label={s.label} state={s.state} />
-        ))}
+      <div className="mt-4 border-t border-(--color-line) pt-2">
+        <FlowTrack nodes={project.nodes} accent={project.accent} />
       </div>
     </div>
   );

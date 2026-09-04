@@ -32,15 +32,10 @@ export type PipelineProject = BaseProject & {
   stages: string[];
 };
 
-export type ControlPanelProject = BaseProject & {
-  kind: "control-panel";
-  switches: { label: string; state: "on" | "off" | "guarded" }[];
-};
-
 export type DeviceProject = BaseProject & {
   kind: "device";
   link: { via: string };
-  switches: { label: string; state: "on" | "off" | "guarded" }[];
+  nodes: string[];
 };
 
 export type SecurityProject = BaseProject & {
@@ -71,7 +66,6 @@ export type HubProject = BaseProject & {
 
 export type Project =
   | PipelineProject
-  | ControlPanelProject
   | DeviceProject
   | SecurityProject
   | QuantProject
@@ -128,53 +122,8 @@ export const projects: Project[] = [
     ],
   },
   {
-    id: "simply-apply-firefox-autofill",
-    index: 2,
-    kind: "security",
-    category: "security",
-    title: "SimplyApply + Firefox autofill",
-    tagline: "Fork of an open-source résumé tailoring tool — added a Firefox extension and fixed a fabrication-guardrail security gap",
-    problem:
-      "The upstream tool's no-fabrication guardrail checked work history, education, and skills against your base résumé — but not name, email, phone, or URLs.",
-    built:
-      "A Manifest V3 Firefox extension that autofills ATS pages (Greenhouse/Lever/Workday) from a local backend, a new cover-letter endpoint with the same fail-closed guardrail as résumé tailoring, plus a fix so the fabrication check covers contact fields too, and an auth token requirement on every extension-facing endpoint.",
-    why: "A security review I ran found that gap: a rogue browser extension or a poisoned job posting could have silently rewritten contact info or backend LLM settings. Same instinct as AI-LogAnomalyDetectionSystem — don't trust a plausible-looking output without checking it.",
-    role: "Built the extension and new endpoints on top of an existing open-source fork; found and fixed the guardrail/auth gap myself.",
-    focus: "Fail-closed guardrails — a false positive is annoying, a false negative costs you an offer.",
-    tech: ["Python", "FastAPI", "TypeScript", "Firefox WebExtension", "SQLite"],
-    status: "Fork (AGPL-3.0) · original pipeline by artbyjazi/simply-apply",
-    stats: [
-      { label: "Guardrail coverage", value: "contact + work + edu + skills" },
-      { label: "Fabrication tolerance", value: "0" },
-      { label: "Auth added", value: "X-SimplyApply-Token" },
-    ],
-    href: "https://github.com/adro0303/simply-apply-firefox-autofill",
-    accent: "var(--color-magenta)",
-    es: {
-      tagline: "Fork de una herramienta open-source de adaptación de CVs — añadí una extensión de Firefox y arreglé un fallo de seguridad en el guardrail anti-invención",
-      problem:
-        "El guardrail anti-invención original comprobaba experiencia, estudios y habilidades contra tu CV base — pero no el nombre, email, teléfono ni URLs de contacto.",
-      built:
-        "Una extensión de Firefox (Manifest V3) que autocompleta páginas de ATS (Greenhouse/Lever/Workday) desde un backend local, un nuevo endpoint de carta de presentación con el mismo diseño fail-closed que la adaptación de CV, más un fix para que la comprobación anti-invención cubra también los datos de contacto, y un token de autenticación obligatorio en cada endpoint de la extensión.",
-      why: "Una revisión de seguridad que hice encontró ese hueco: una extensión de navegador maliciosa o una oferta de empleo envenenada podían reescribir en silencio los datos de contacto o la configuración del LLM del backend. El mismo instinto que en AI-LogAnomalyDetectionSystem — no fiarse de una salida que parece correcta sin comprobarla.",
-      role: "Construí la extensión y los nuevos endpoints sobre un fork open-source existente; encontré y arreglé yo mismo el fallo de guardrail/autenticación.",
-      focus: "Guardrails fail-closed — un falso positivo es molesto, un falso negativo te cuesta una oferta.",
-      status: "Fork (AGPL-3.0) · pipeline original de artbyjazi/simply-apply",
-    },
-    logLines: [
-      { text: "guardrail: employer 'Authect' ✓ matches base résumé" },
-      { text: "guardrail: skill 'PostgreSQL' ✓ present in base résumé" },
-      { text: "guardrail: metric '40%' not found in base résumé", flagged: true },
-      { text: "guardrail: basics.email 'attacker@evil.com' not found in base résumé", flagged: true },
-      { text: "extension: POST /api/apply/8f2c/cover-letter — token verified" },
-      { text: "extension: POST /api/jobs/adhoc — missing X-SimplyApply-Token", flagged: true },
-      { text: "tailor: résumé regenerated, 0 fabrications, 1 retry" },
-      { text: "output: resume.pdf + resume.docx written" },
-    ],
-  },
-  {
     id: "quant-lab",
-    index: 3,
+    index: 2,
     kind: "quant",
     category: "data-ai",
     title: "Quant Research Lab",
@@ -244,7 +193,7 @@ export const projects: Project[] = [
   },
   {
     id: "ai-tools",
-    index: 4,
+    index: 3,
     kind: "node-graph",
     category: "data-ai",
     title: "ai-tools",
@@ -281,42 +230,74 @@ export const projects: Project[] = [
     nodes: ["sort_race.exe", "pathfinder.exe", "digit_recognizer.exe"],
   },
   {
-    id: "auto_applyer",
-    index: 5,
-    kind: "control-panel",
-    category: "automation",
-    title: "auto_applyer",
-    tagline: "Local-first job-outreach automation that refuses to become a spam bot",
-    problem: "Manual outreach doesn't scale, but full automation is how you burn your reputation.",
+    id: "overclaude",
+    index: 4,
+    kind: "hub",
+    category: "systems",
+    title: "overclaude",
+    tagline: "Curates and wires up add-ons for Claude Code — without opening a single inbound port",
+    problem: "Every 'always-on' integration for an AI coding agent is also attack surface you didn't ask for.",
     built:
-      "A CLI + Streamlit dashboard covering lead import, draft generation, manual approval, dry-run checks, rate-limited SMTP sending, and delivery reports.",
-    why: 'Live sending requires AUTO_SEND_ENABLED=true and typing "SEND LIVE" — product thinking applied to a personal scripting problem.',
-    role: "Full-stack build: CLI, dashboard, and guardrails.",
-    focus: "Automation that still requires a human 'go'.",
-    tech: ["Python", "Streamlit", "SMTP", "CLI design"],
-    status: "Local-only · EN / ES dashboard UI",
+      "A curation layer for Claude Code add-ons: a codebase knowledge graph, on-demand internet access, remote control from mobile / Telegram, and custom notification hooks — all pull-based, nothing listening.",
+    why: "The support-nudge feature ships opt-in and off by default — the whole design optimizes for zero inbound exposure over convenience.",
+    role: "Solo design and build of the curation layer.",
+    focus: "Zero inbound exposure over convenience.",
+    tech: ["TypeScript", "MCP", "Telegram Bot API", "Node.js"],
+    status: "Solo build · created 2026-08-19",
     stats: [
-      { label: "Confirmation", value: 'types "SEND LIVE"' },
-      { label: "UI languages", value: "EN / ES" },
-      { label: "Send mode", value: "rate-limited" },
+      { label: "Inbound ports", value: "0" },
+      { label: "Support nudge", value: "off by default" },
+      { label: "Remote control", value: "mobile / Telegram" },
     ],
-    href: "https://github.com/adro0303/auto_applyer",
+    href: "https://github.com/adro0303/overclaude",
     accent: "var(--color-green)",
     es: {
-      tagline: "Automatización local de búsqueda de empleo que se niega a convertirse en un bot de spam",
-      problem: "El contacto manual no escala, pero la automatización total es la forma de quemar tu reputación.",
+      tagline: "Selecciona y conecta add-ons para Claude Code — sin abrir un solo puerto entrante",
+      problem: "Cada integración 'siempre activa' para un agente de código con IA es también superficie de ataque que no pediste.",
       built:
-        "Un CLI + dashboard en Streamlit que cubre importación de leads, generación de borradores, aprobación manual, comprobaciones en modo simulado, envío por SMTP con límite de tasa, e informes de entrega.",
-      why: 'El envío real requiere AUTO_SEND_ENABLED=true y escribir "SEND LIVE" — pensamiento de producto aplicado a un problema personal de scripting.',
-      role: "Desarrollo full-stack: CLI, dashboard y barreras de seguridad.",
-      focus: "Automatización que igual requiere un \"adelante\" humano.",
-      status: "Solo local · interfaz de dashboard EN / ES",
+        "Una capa de curación para add-ons de Claude Code: un grafo de conocimiento del código, acceso a internet bajo demanda, control remoto desde móvil / Telegram, y hooks de notificación personalizados — todo por pull, nada escuchando.",
+      why: "El aviso de soporte se activa opt-in y viene desactivado por defecto — todo el diseño prioriza cero exposición entrante sobre la comodidad.",
+      role: "Diseño y desarrollo en solitario de la capa de curación.",
+      focus: "Cero exposición entrante por encima de la comodidad.",
+      status: "Desarrollo en solitario · creado el 19-08-2026",
     },
-    switches: [
-      { label: "DRY_RUN", state: "on" },
-      { label: "AUTO_SEND_ENABLED", state: "off" },
-      { label: "SEND LIVE", state: "guarded" },
+    modules: ["knowledge graph", "on-demand internet", "remote control", "notification hooks"],
+  },
+  {
+    id: "simply-apply-firefox-autofill",
+    index: 5,
+    kind: "node-graph",
+    category: "security",
+    title: "SimplyApply + Firefox autofill",
+    tagline: "Fork of an open-source résumé tailoring tool — added a Firefox extension and fixed a fabrication-guardrail security gap",
+    problem:
+      "The upstream tool's no-fabrication guardrail checked work history, education, and skills against your base résumé — but not name, email, phone, or URLs.",
+    built:
+      "A Manifest V3 Firefox extension that autofills ATS pages (Greenhouse/Lever/Workday) from a local backend, a new cover-letter endpoint with the same fail-closed guardrail as résumé tailoring, plus a fix so the fabrication check covers contact fields too, and an auth token requirement on every extension-facing endpoint.",
+    why: "A security review I ran found that gap: a rogue browser extension or a poisoned job posting could have silently rewritten contact info or backend LLM settings. Same instinct as AI-LogAnomalyDetectionSystem — don't trust a plausible-looking output without checking it.",
+    role: "Built the extension and new endpoints on top of an existing open-source fork; found and fixed the guardrail/auth gap myself.",
+    focus: "Fail-closed guardrails — a false positive is annoying, a false negative costs you an offer.",
+    tech: ["Python", "FastAPI", "TypeScript", "Firefox WebExtension", "SQLite"],
+    status: "Fork (AGPL-3.0) · original pipeline by artbyjazi/simply-apply",
+    stats: [
+      { label: "Guardrail coverage", value: "contact + work + edu + skills" },
+      { label: "Fabrication tolerance", value: "0" },
+      { label: "Auth added", value: "X-SimplyApply-Token" },
     ],
+    href: "https://github.com/adro0303/simply-apply-firefox-autofill",
+    accent: "var(--color-amber)",
+    es: {
+      tagline: "Fork de una herramienta open-source de adaptación de CVs — añadí una extensión de Firefox y arreglé un fallo de seguridad en el guardrail anti-invención",
+      problem:
+        "El guardrail anti-invención original comprobaba experiencia, estudios y habilidades contra tu CV base — pero no el nombre, email, teléfono ni URLs de contacto.",
+      built:
+        "Una extensión de Firefox (Manifest V3) que autocompleta páginas de ATS (Greenhouse/Lever/Workday) desde un backend local, un nuevo endpoint de carta de presentación con el mismo diseño fail-closed que la adaptación de CV, más un fix para que la comprobación anti-invención cubra también los datos de contacto, y un token de autenticación obligatorio en cada endpoint de la extensión.",
+      why: "Una revisión de seguridad que hice encontró ese hueco: una extensión de navegador maliciosa o una oferta de empleo envenenada podían reescribir en silencio los datos de contacto o la configuración del LLM del backend. El mismo instinto que en AI-LogAnomalyDetectionSystem — no fiarse de una salida que parece correcta sin comprobarla.",
+      role: "Construí la extensión y los nuevos endpoints sobre un fork open-source existente; encontré y arreglé yo mismo el fallo de guardrail/autenticación.",
+      focus: "Guardrails fail-closed — un falso positivo es molesto, un falso negativo te cuesta una oferta.",
+      status: "Fork (AGPL-3.0) · pipeline original de artbyjazi/simply-apply",
+    },
+    nodes: ["job posting", "tailor()", "no-fabrication check", "docx + pdf", "apply"],
   },
   {
     id: "pocket-server",
@@ -329,7 +310,7 @@ export const projects: Project[] = [
       "Reaching a laptop remotely — waking it, checking email, watching markets — normally means buying and paying for always-on hardware.",
     built:
       "A spare phone running Termux + a local LLM, reachable only over a private Tailscale VPN — it sends Wake-on-LAN packets, drafts email replies, and reports through private Telegram bots, with a watchdog that checks its own health every 5 minutes.",
-    why: "Every risky action — shutting down a machine, sending an email — needs an explicit human confirmation first, the same safety-first instinct as auto_applyer, applied to hardware instead of outreach.",
+    why: "Every risky action needs an explicit human confirmation first: the watchdog pings and drafts on its own, but nothing that shuts down a machine or sends an email fires without a person saying go.",
     role: "Solo build: rooting, VPN setup, local LLM integration, and the confirmation guardrails.",
     focus: "Zero cloud cost and zero exposed ports, with a human always in the loop.",
     tech: ["Android", "Termux", "Python", "local LLM", "Tailscale", "Telegram"],
@@ -348,17 +329,13 @@ export const projects: Project[] = [
         "Acceder a un portátil en remoto — despertarlo, revisar el correo, vigilar mercados — normalmente implica comprar y pagar hardware siempre encendido.",
       built:
         "Un móvil de repuesto con Termux + un LLM local, accesible solo a través de una VPN privada con Tailscale — envía paquetes Wake-on-LAN, redacta respuestas de email y reporta por bots privados de Telegram, con un watchdog que revisa su propia salud cada 5 minutos.",
-      why: "Cada acción de riesgo — apagar una máquina, enviar un email — necesita confirmación humana explícita antes, el mismo instinto de seguridad que auto_applyer, aplicado esta vez al hardware en vez del outreach.",
+      why: "Cada acción de riesgo necesita confirmación humana explícita antes: el watchdog comprueba y redacta por su cuenta, pero nada que apague una máquina o envíe un email se dispara sin que una persona diga adelante.",
       role: "Desarrollo en solitario: rooteo, configuración de VPN, integración del LLM local y las barreras de confirmación.",
       focus: "Cero coste de nube y cero puertos expuestos, con un humano siempre en el bucle.",
       status: "Repo más reciente · creado el 04-09-2026",
     },
     link: { via: "Tailscale VPN" },
-    switches: [
-      { label: "WATCHDOG", state: "on" },
-      { label: "EMAIL_SEND", state: "guarded" },
-      { label: "REMOTE_SHUTDOWN", state: "guarded" },
-    ],
+    nodes: ["watchdog ping", "check inbox/market", "draft · LLM", "human confirm", "send / WoL"],
   },
   {
     id: "youtube-ai-pipeline",
@@ -437,39 +414,5 @@ export const projects: Project[] = [
       "[artifact] my-app-unsigned.ipa (14d TTL)",
       "[done] no Mac · no $99/yr account",
     ],
-  },
-  {
-    id: "overclaude",
-    index: 9,
-    kind: "hub",
-    category: "systems",
-    title: "overclaude",
-    tagline: "Curates and wires up add-ons for Claude Code — without opening a single inbound port",
-    problem: "Every 'always-on' integration for an AI coding agent is also attack surface you didn't ask for.",
-    built:
-      "A curation layer for Claude Code add-ons: a codebase knowledge graph, on-demand internet access, remote control from mobile / Telegram, and custom notification hooks — all pull-based, nothing listening.",
-    why: "The support-nudge feature ships opt-in and off by default — the whole design optimizes for zero inbound exposure over convenience.",
-    role: "Solo design and build of the curation layer.",
-    focus: "Zero inbound exposure over convenience.",
-    tech: ["TypeScript", "MCP", "Telegram Bot API", "Node.js"],
-    status: "Solo build · created 2026-08-19",
-    stats: [
-      { label: "Inbound ports", value: "0" },
-      { label: "Support nudge", value: "off by default" },
-      { label: "Remote control", value: "mobile / Telegram" },
-    ],
-    href: "https://github.com/adro0303/overclaude",
-    accent: "var(--color-green)",
-    es: {
-      tagline: "Selecciona y conecta add-ons para Claude Code — sin abrir un solo puerto entrante",
-      problem: "Cada integración 'siempre activa' para un agente de código con IA es también superficie de ataque que no pediste.",
-      built:
-        "Una capa de curación para add-ons de Claude Code: un grafo de conocimiento del código, acceso a internet bajo demanda, control remoto desde móvil / Telegram, y hooks de notificación personalizados — todo por pull, nada escuchando.",
-      why: "El aviso de soporte se activa opt-in y viene desactivado por defecto — todo el diseño prioriza cero exposición entrante sobre la comodidad.",
-      role: "Diseño y desarrollo en solitario de la capa de curación.",
-      focus: "Cero exposición entrante por encima de la comodidad.",
-      status: "Desarrollo en solitario · creado el 19-08-2026",
-    },
-    modules: ["knowledge graph", "on-demand internet", "remote control", "notification hooks"],
   },
 ];
