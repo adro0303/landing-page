@@ -1,6 +1,6 @@
 import type { CSSProperties } from "react";
 import { motion } from "framer-motion";
-import { stackCategories, stackProof } from "@/data/stack";
+import { stackCategories, stackExperience } from "@/data/stack";
 import { TechIcon } from "@/components/sections/TechIcon";
 import { useLanguage } from "@/lib/i18n";
 
@@ -99,30 +99,27 @@ export function StackBlueprint() {
                       >
                         {lang === "es" ? cat.labelEs : cat.label}
                       </p>
-                      <div className="flex flex-col gap-3">
+                      <div className="flex flex-wrap gap-2">
                         {cat.items.map((item, itemIndex) => (
-                          <motion.div
+                          <motion.span
                             key={item}
-                            initial={{ opacity: 0, y: 8 }}
-                            whileInView={{ opacity: 1, y: 0 }}
+                            initial={{ opacity: 0, y: 8, scale: 0.94 }}
+                            whileInView={{ opacity: 1, y: 0, scale: 1 }}
                             viewport={{ once: true, margin: "-60px" }}
                             transition={{ duration: 0.35, delay: 0.15 + itemIndex * 0.05 }}
-                            className="grid grid-cols-[1.25rem_1fr] items-start gap-x-3 gap-y-0.5 border-b border-(--color-line)/40 pb-3 last:border-0 last:pb-0"
+                            whileHover={{ y: -2 }}
+                            className="group/badge flex items-center gap-2 rounded-sm border border-(--color-line) px-3 py-2 font-mono text-xs text-(--color-fg) transition-colors hover:border-(--accent)"
+                            style={{ "--accent": cat.color } as CSSProperties}
                           >
                             <TechIcon
                               item={item}
-                              className="mt-0.5 h-5 w-5 shrink-0"
-                              style={{ color: cat.color }}
+                              className="h-5 w-5 shrink-0 text-(--color-fg-faint) transition-colors group-hover/badge:text-(--accent)"
                             />
-                            <div className="min-w-0">
-                              <p className="font-mono text-xs text-(--color-fg)">{item}</p>
-                              {stackProof[item] && (
-                                <p className="mt-0.5 font-mono text-[11px] leading-snug text-(--color-fg-dim)">
-                                  {stackProof[item][lang]}
-                                </p>
-                              )}
-                            </div>
-                          </motion.div>
+                            {item}
+                            {stackExperience[item] && (
+                              <span className="text-(--color-fg-dim)">· {stackExperience[item][lang]}</span>
+                            )}
+                          </motion.span>
                         ))}
                       </div>
                     </div>
