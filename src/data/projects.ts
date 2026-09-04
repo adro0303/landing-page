@@ -35,12 +35,19 @@ export type PipelineProject = BaseProject & {
 export type DeviceProject = BaseProject & {
   kind: "device";
   link: { via: string };
-  nodes: string[];
+  heartbeat: string;
+  guarded: string[];
 };
 
 export type SecurityProject = BaseProject & {
   kind: "security";
   logLines: { text: string; flagged?: boolean }[];
+};
+
+export type GuardrailProject = BaseProject & {
+  kind: "guardrail";
+  stages: string[];
+  retryLabel: string;
 };
 
 export type QuantProject = BaseProject & {
@@ -68,6 +75,7 @@ export type Project =
   | PipelineProject
   | DeviceProject
   | SecurityProject
+  | GuardrailProject
   | QuantProject
   | NodeGraphProject
   | HubProject;
@@ -266,7 +274,7 @@ export const projects: Project[] = [
   {
     id: "simply-apply-firefox-autofill",
     index: 5,
-    kind: "node-graph",
+    kind: "guardrail",
     category: "security",
     title: "SimplyApply + Firefox autofill",
     tagline: "Fork of an open-source résumé tailoring tool — added a Firefox extension and fixed a fabrication-guardrail security gap",
@@ -297,7 +305,8 @@ export const projects: Project[] = [
       focus: "Guardrails fail-closed — un falso positivo es molesto, un falso negativo te cuesta una oferta.",
       status: "Fork (AGPL-3.0) · pipeline original de artbyjazi/simply-apply",
     },
-    nodes: ["job posting", "tailor()", "no-fabrication check", "docx + pdf", "apply"],
+    stages: ["job posting", "tailor()", "guardrail check", "docx+pdf · apply"],
+    retryLabel: "retry ×1 on fail",
   },
   {
     id: "pocket-server",
@@ -335,7 +344,8 @@ export const projects: Project[] = [
       status: "Repo más reciente · creado el 04-09-2026",
     },
     link: { via: "Tailscale VPN" },
-    nodes: ["watchdog ping", "check inbox/market", "draft · LLM", "human confirm", "send / WoL"],
+    heartbeat: "watchdog · every 5 min",
+    guarded: ["EMAIL_SEND", "REMOTE_SHUTDOWN"],
   },
   {
     id: "youtube-ai-pipeline",

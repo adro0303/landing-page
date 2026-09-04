@@ -1,6 +1,5 @@
 import type { CSSProperties } from "react";
 import type { DeviceProject } from "@/data/projects";
-import { FlowTrack } from "./FlowTrack";
 
 function PhoneIcon({ className, style }: { className?: string; style?: CSSProperties }) {
   return (
@@ -55,6 +54,44 @@ function LockIcon({ className }: { className?: string }) {
   );
 }
 
+function Heartbeat({ label, accent }: { label: string; accent: string }) {
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div className="relative flex h-9 w-9 shrink-0 items-center justify-center">
+        <span
+          className="absolute h-full w-full animate-[ping_2.4s_ease-out_infinite] rounded-full"
+          style={{ background: accent, opacity: 0.25 }}
+        />
+        <span
+          className="absolute h-2/3 w-2/3 animate-[ping_2.4s_ease-out_infinite] rounded-full"
+          style={{ background: accent, opacity: 0.3, animationDelay: "0.4s" }}
+        />
+        <span
+          className="relative h-2.5 w-2.5 rounded-full"
+          style={{ background: accent, boxShadow: `0 0 8px ${accent}` }}
+        />
+      </div>
+      <span className="text-center font-mono text-[9px] tracking-[0.1em] text-(--color-fg-dim)">{label}</span>
+    </div>
+  );
+}
+
+function GuardGate({ label }: { label: string }) {
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div className="relative h-9 w-14 shrink-0" style={{ perspective: "160px" }}>
+        <div className="animate-flap-guard absolute inset-x-0 top-0 z-10 h-[18px] origin-top rounded-t-sm border border-(--color-red)/60 bg-(--color-panel-raised)" />
+        <div className="absolute inset-x-0 bottom-0 h-[22px] rounded-sm border border-(--color-red)/50 bg-(--color-red)/10" />
+        <div
+          className="absolute inset-x-1.5 bottom-1 h-3 animate-pulse rounded-[2px] bg-(--color-red)/70"
+          style={{ boxShadow: "0 0 8px var(--color-red)" }}
+        />
+      </div>
+      <span className="text-center font-mono text-[9px] tracking-[0.1em] text-(--color-red)/80">{label}</span>
+    </div>
+  );
+}
+
 export function DeviceLinkViz({ project }: { project: DeviceProject }) {
   return (
     <div className="rounded-sm border border-(--color-line) bg-(--color-panel-raised)/60 px-5 py-6">
@@ -79,8 +116,11 @@ export function DeviceLinkViz({ project }: { project: DeviceProject }) {
         <LaptopIcon className="h-8 w-8 shrink-0 text-(--color-fg-dim)" />
       </div>
 
-      <div className="mt-4 border-t border-(--color-line) pt-2">
-        <FlowTrack nodes={project.nodes} accent={project.accent} />
+      <div className="mt-5 flex items-start justify-around border-t border-(--color-line) pt-5">
+        <Heartbeat label={project.heartbeat} accent={project.accent} />
+        {project.guarded.map((label) => (
+          <GuardGate key={label} label={label} />
+        ))}
       </div>
     </div>
   );

@@ -41,6 +41,7 @@
   --animate-marquee-y: marquee-y 16s linear infinite;
   --animate-flow: flow 3.2s linear infinite;
   --animate-orbit-pulse: orbit-pulse 2.6s ease-in-out infinite;
+  --animate-flap-guard: flap-guard 4.5s ease-in-out infinite;
 }
 
 @keyframes blink {
@@ -154,6 +155,20 @@
   100% {
     left: 100%;
     opacity: 0;
+  }
+}
+
+@keyframes flap-guard {
+  0%,
+  38% {
+    transform: rotateX(0deg);
+  }
+  50%,
+  82% {
+    transform: rotateX(115deg);
+  }
+  100% {
+    transform: rotateX(0deg);
   }
 }
 

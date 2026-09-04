@@ -7,6 +7,7 @@ import { SecurityViz } from "./SecurityViz";
 import { QuantViz } from "./QuantViz";
 import { NodeGraphViz } from "./NodeGraphViz";
 import { HubViz } from "./HubViz";
+import { GuardrailFlowViz } from "./GuardrailFlowViz";
 import { AiToolsLaunchpad } from "./AiToolsLaunchpad";
 
 function Visual({ project }: { project: Project }) {
@@ -24,6 +25,8 @@ function Visual({ project }: { project: Project }) {
       return <NodeGraphViz project={project} />;
     case "hub":
       return <HubViz project={project} />;
+    case "guardrail":
+      return <GuardrailFlowViz project={project} />;
   }
 }
 
