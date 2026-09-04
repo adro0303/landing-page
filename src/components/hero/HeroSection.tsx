@@ -115,13 +115,13 @@ export function HeroSection({ booted }: { booted: boolean }) {
             href="#projects"
             className="rounded-sm bg-(--color-phosphor) px-4 py-2 font-mono text-[11px] font-bold tracking-[0.15em] text-(--color-phosphor-black) shadow-[0_0_18px_var(--color-phosphor)] transition-colors hover:bg-(--color-phosphor-bright) sm:text-xs"
           >
-            👀 {t("hero.navProjects")}
+            {t("hero.navProjects")} →
           </a>
           <a
             href="#uplink"
             className="rounded-sm bg-(--color-phosphor) px-4 py-2 font-mono text-[11px] font-bold tracking-[0.15em] text-(--color-phosphor-black) shadow-[0_0_18px_var(--color-phosphor)] transition-colors hover:bg-(--color-phosphor-bright) sm:text-xs"
           >
-            ✉ {t("hero.navContact")}
+            {t("hero.navContact")} →
           </a>
         </nav>
       </div>
