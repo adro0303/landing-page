@@ -113,13 +113,13 @@ export function HeroSection({ booted }: { booted: boolean }) {
         <nav className="mt-5 flex items-center gap-3">
           <a
             href="#projects"
-            className="rounded-sm border border-(--color-phosphor-dim)/50 px-3.5 py-1.5 font-mono text-[11px] tracking-[0.15em] text-(--color-phosphor-dim) transition-colors hover:border-(--color-phosphor) hover:text-(--color-phosphor) sm:text-xs"
+            className="rounded-sm bg-(--color-phosphor) px-4 py-2 font-mono text-[11px] font-bold tracking-[0.15em] text-(--color-phosphor-black) shadow-[0_0_18px_var(--color-phosphor)] transition-colors hover:bg-(--color-phosphor-bright) sm:text-xs"
           >
             {t("hero.navProjects")} ↓
           </a>
           <a
             href="#uplink"
-            className="rounded-sm border border-(--color-phosphor-dim)/50 px-3.5 py-1.5 font-mono text-[11px] tracking-[0.15em] text-(--color-phosphor-dim) transition-colors hover:border-(--color-phosphor) hover:text-(--color-phosphor) sm:text-xs"
+            className="rounded-sm bg-(--color-phosphor) px-4 py-2 font-mono text-[11px] font-bold tracking-[0.15em] text-(--color-phosphor-black) shadow-[0_0_18px_var(--color-phosphor)] transition-colors hover:bg-(--color-phosphor-bright) sm:text-xs"
           >
             {t("hero.navContact")} ↓
           </a>
