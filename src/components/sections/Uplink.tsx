@@ -83,20 +83,43 @@ export function Uplink() {
                   >
                     {t("uplink.viewCv")}
                   </a>
-                  <a
-                    href={profile.resumeUrls.es}
-                    download
-                    className="border border-(--color-line) px-4 py-2 font-mono text-xs tracking-[0.15em] text-(--color-fg-dim) transition-colors hover:border-(--color-fg-dim) hover:text-(--color-fg)"
-                  >
-                    {t("uplink.downloadCv")} (ES) ↓
-                  </a>
-                  <a
-                    href={profile.resumeUrls.en}
-                    download
-                    className="border border-(--color-line) px-4 py-2 font-mono text-xs tracking-[0.15em] text-(--color-fg-dim) transition-colors hover:border-(--color-fg-dim) hover:text-(--color-fg)"
-                  >
-                    {t("uplink.downloadCv")} (EN) ↓
-                  </a>
+                  {lang === "en" ? (
+                    <a
+                      href={profile.resumeUrls.en}
+                      download
+                      className="border border-(--color-line) px-4 py-2 font-mono text-xs tracking-[0.15em] text-(--color-fg-dim) transition-colors hover:border-(--color-fg-dim) hover:text-(--color-fg)"
+                    >
+                      {t("uplink.downloadCv")} ↓
+                    </a>
+                  ) : (
+                    <details className="group relative">
+                      <summary className="list-none border border-(--color-line) px-4 py-2 font-mono text-xs tracking-[0.15em] text-(--color-fg-dim) transition-colors [&::-webkit-details-marker]:hidden hover:border-(--color-fg-dim) hover:text-(--color-fg)">
+                        {t("uplink.downloadCv")} ↓
+                      </summary>
+                      <div className="absolute right-0 z-10 mt-2 flex min-w-full flex-col border border-(--color-line) bg-(--color-panel)">
+                        <a
+                          href={profile.resumeUrls.en}
+                          download
+                          onClick={(e) =>
+                            e.currentTarget.closest("details")?.removeAttribute("open")
+                          }
+                          className="whitespace-nowrap px-4 py-2 font-mono text-xs tracking-[0.15em] text-(--color-fg-dim) transition-colors hover:bg-(--color-panel-raised) hover:text-(--color-fg)"
+                        >
+                          English
+                        </a>
+                        <a
+                          href={profile.resumeUrls.es}
+                          download
+                          onClick={(e) =>
+                            e.currentTarget.closest("details")?.removeAttribute("open")
+                          }
+                          className="whitespace-nowrap border-t border-(--color-line) px-4 py-2 font-mono text-xs tracking-[0.15em] text-(--color-fg-dim) transition-colors hover:bg-(--color-panel-raised) hover:text-(--color-fg)"
+                        >
+                          Español
+                        </a>
+                      </div>
+                    </details>
+                  )}
                 </div>
               </div>
             </TerminalWindow>
