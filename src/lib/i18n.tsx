@@ -114,7 +114,10 @@ const dict = {
     },
     viewCv: { en: "VIEW CV", es: "VER CV" },
     downloadCv: { en: "DOWNLOAD", es: "DESCARGAR" },
-    pickLanguage: { en: "Choose a language", es: "Elige un idioma" },
+    pickLanguage: {
+      en: "Download CV — choose a language",
+      es: "Descargar CV — elige un idioma",
+    },
     talkNote: {
       en: "// always up for talking about a weird technical idea.",
       es: "// siempre dispuesto a hablar de una idea técnica rara.",

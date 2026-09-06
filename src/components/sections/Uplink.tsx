@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { profile, useProfileText } from "@/data/profile";
 import { useLanguage } from "@/lib/i18n";
@@ -35,7 +35,6 @@ export function Uplink() {
   const text = useProfileText();
   const { t, lang } = useLanguage();
   const [cvPickerOpen, setCvPickerOpen] = useState(false);
-  const englishOptionRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
     if (!cvPickerOpen) return;
@@ -43,11 +42,7 @@ export function Uplink() {
       if (e.key === "Escape") setCvPickerOpen(false);
     };
     window.addEventListener("keydown", onKey);
-    const frame = requestAnimationFrame(() => englishOptionRef.current?.focus());
-    return () => {
-      window.removeEventListener("keydown", onKey);
-      cancelAnimationFrame(frame);
-    };
+    return () => window.removeEventListener("keydown", onKey);
   }, [cvPickerOpen]);
 
   return (
@@ -231,11 +226,10 @@ export function Uplink() {
               </div>
               <div className="flex flex-col gap-4 p-8">
                 <a
-                  ref={englishOptionRef}
                   href={profile.resumeUrls.en}
                   download
                   onClick={() => setCvPickerOpen(false)}
-                  className="border border-(--color-line) px-8 py-6 text-center font-mono text-2xl text-(--color-fg-dim) outline-none transition-colors hover:border-(--color-amber) hover:bg-(--color-amber) hover:text-(--color-void) focus:border-(--color-amber) focus:bg-(--color-amber) focus:text-(--color-void)"
+                  className="border border-(--color-line) px-8 py-6 text-center font-mono text-2xl text-(--color-fg-dim) transition-colors hover:border-(--color-amber) hover:bg-(--color-amber) hover:text-(--color-void) focus-visible:border-(--color-amber) focus-visible:bg-(--color-amber) focus-visible:text-(--color-void)"
                 >
                   English ↓
                 </a>
@@ -243,7 +237,7 @@ export function Uplink() {
                   href={profile.resumeUrls.es}
                   download
                   onClick={() => setCvPickerOpen(false)}
-                  className="border border-(--color-line) px-8 py-6 text-center font-mono text-2xl text-(--color-fg-dim) outline-none transition-colors hover:border-(--color-amber) hover:bg-(--color-amber) hover:text-(--color-void) focus:border-(--color-amber) focus:bg-(--color-amber) focus:text-(--color-void)"
+                  className="border border-(--color-line) px-8 py-6 text-center font-mono text-2xl text-(--color-fg-dim) transition-colors hover:border-(--color-amber) hover:bg-(--color-amber) hover:text-(--color-void) focus-visible:border-(--color-amber) focus-visible:bg-(--color-amber) focus-visible:text-(--color-void)"
                 >
                   Español ↓
                 </a>
