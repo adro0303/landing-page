@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { profile, useProfileText } from "@/data/profile";
 import { useLanguage } from "@/lib/i18n";
@@ -35,6 +35,7 @@ export function Uplink() {
   const text = useProfileText();
   const { t, lang } = useLanguage();
   const [cvPickerOpen, setCvPickerOpen] = useState(false);
+  const englishOptionRef = useRef<HTMLAnchorElement>(null);
 
   useEffect(() => {
     if (!cvPickerOpen) return;
@@ -42,7 +43,11 @@ export function Uplink() {
       if (e.key === "Escape") setCvPickerOpen(false);
     };
     window.addEventListener("keydown", onKey);
-    return () => window.removeEventListener("keydown", onKey);
+    const frame = requestAnimationFrame(() => englishOptionRef.current?.focus());
+    return () => {
+      window.removeEventListener("keydown", onKey);
+      cancelAnimationFrame(frame);
+    };
   }, [cvPickerOpen]);
 
   return (
@@ -210,27 +215,27 @@ export function Uplink() {
               exit={{ opacity: 0, scale: 0.9, y: 12 }}
               transition={{ type: "spring", stiffness: 460, damping: 22, mass: 0.7 }}
               onClick={(e) => e.stopPropagation()}
-              className="w-[300px] overflow-hidden rounded-sm border border-(--color-amber)/40 bg-(--color-void)/95"
+              className="w-[90vw] max-w-[700px] overflow-hidden rounded-sm border border-(--color-amber)/40 bg-(--color-void)/95"
             >
-              <div className="flex items-center justify-between gap-4 border-b border-(--color-line) bg-(--color-panel-raised) px-4 py-3">
-                <p className="font-mono text-xs tracking-[0.15em] text-(--color-fg)">
+              <div className="flex items-center justify-between gap-4 border-b border-(--color-line) bg-(--color-panel-raised) px-8 py-6">
+                <p className="font-mono text-lg tracking-[0.15em] text-(--color-fg)">
                   {t("uplink.pickLanguage")}
                 </p>
                 <button
                   onClick={() => setCvPickerOpen(false)}
-                  className="shrink-0 font-mono text-xs text-(--color-fg-faint) hover:text-(--color-red)"
+                  className="shrink-0 font-mono text-xl text-(--color-fg-faint) hover:text-(--color-red)"
                   aria-label={t("toolsLauncher.close")}
                 >
                   ✕
                 </button>
               </div>
-              <div className="flex flex-col p-3">
+              <div className="flex flex-col gap-4 p-8">
                 <a
+                  ref={englishOptionRef}
                   href={profile.resumeUrls.en}
                   download
-                  autoFocus
                   onClick={() => setCvPickerOpen(false)}
-                  className="border border-(--color-line) px-4 py-3 text-center font-mono text-sm text-(--color-fg-dim) outline-none transition-colors hover:border-(--color-amber) hover:bg-(--color-amber) hover:text-(--color-void) focus:border-(--color-amber) focus:bg-(--color-amber) focus:text-(--color-void)"
+                  className="border border-(--color-line) px-8 py-6 text-center font-mono text-2xl text-(--color-fg-dim) outline-none transition-colors hover:border-(--color-amber) hover:bg-(--color-amber) hover:text-(--color-void) focus:border-(--color-amber) focus:bg-(--color-amber) focus:text-(--color-void)"
                 >
                   English ↓
                 </a>
@@ -238,7 +243,7 @@ export function Uplink() {
                   href={profile.resumeUrls.es}
                   download
                   onClick={() => setCvPickerOpen(false)}
-                  className="mt-2 border border-(--color-line) px-4 py-3 text-center font-mono text-sm text-(--color-fg-dim) outline-none transition-colors hover:border-(--color-amber) hover:bg-(--color-amber) hover:text-(--color-void) focus:border-(--color-amber) focus:bg-(--color-amber) focus:text-(--color-void)"
+                  className="border border-(--color-line) px-8 py-6 text-center font-mono text-2xl text-(--color-fg-dim) outline-none transition-colors hover:border-(--color-amber) hover:bg-(--color-amber) hover:text-(--color-void) focus:border-(--color-amber) focus:bg-(--color-amber) focus:text-(--color-void)"
                 >
                   Español ↓
                 </a>
