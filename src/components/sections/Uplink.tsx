@@ -32,7 +32,7 @@ const ports = [
 
 export function Uplink() {
   const text = useProfileText();
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   return (
     <section id="uplink" className="relative bg-(--color-void) px-6 py-32 sm:px-10 lg:px-20">
@@ -56,7 +56,7 @@ export function Uplink() {
           connect()
         </motion.h2>
 
-        {profile.resumeUrl && (
+        {profile.resumeUrls && (
           <motion.div
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -74,9 +74,9 @@ export function Uplink() {
                     {t("uplink.resumeCaption")}
                   </p>
                 </div>
-                <div className="flex shrink-0 gap-3">
+                <div className="flex shrink-0 flex-wrap gap-3">
                   <a
-                    href={profile.resumeUrl}
+                    href={profile.resumeUrls[lang]}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="border border-(--color-amber) px-4 py-2 font-mono text-xs tracking-[0.15em] text-(--color-amber) transition-colors hover:bg-(--color-amber)/10"
@@ -84,11 +84,18 @@ export function Uplink() {
                     {t("uplink.viewCv")}
                   </a>
                   <a
-                    href={profile.resumeUrl}
+                    href={profile.resumeUrls.es}
                     download
                     className="border border-(--color-line) px-4 py-2 font-mono text-xs tracking-[0.15em] text-(--color-fg-dim) transition-colors hover:border-(--color-fg-dim) hover:text-(--color-fg)"
                   >
-                    {t("uplink.downloadCv")}
+                    {t("uplink.downloadCv")} (ES) ↓
+                  </a>
+                  <a
+                    href={profile.resumeUrls.en}
+                    download
+                    className="border border-(--color-line) px-4 py-2 font-mono text-xs tracking-[0.15em] text-(--color-fg-dim) transition-colors hover:border-(--color-fg-dim) hover:text-(--color-fg)"
+                  >
+                    {t("uplink.downloadCv")} (EN) ↓
                   </a>
                 </div>
               </div>

@@ -9,7 +9,10 @@ export const profile = {
     email: "adroplpe@gmail.com",
   },
   photoUrl: "/photo.png" as string | null,
-  resumeUrl: "/resume.pdf" as string | null,
+  resumeUrls: {
+    en: "/Adrian_Pliego_CV_EN.pdf",
+    es: "/Adrian_Pliego_CV_ES.pdf",
+  } as Record<Lang, string> | null,
   archiveRepos: [
     "ab20app",
     "HospitalManager",

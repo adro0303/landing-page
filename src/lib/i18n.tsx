@@ -113,7 +113,7 @@ const dict = {
       es: "CV de una página — rol, stack y trabajo entregado.",
     },
     viewCv: { en: "VIEW CV", es: "VER CV" },
-    downloadCv: { en: "DOWNLOAD ↓", es: "DESCARGAR ↓" },
+    downloadCv: { en: "DOWNLOAD", es: "DESCARGAR" },
     talkNote: {
       en: "// always up for talking about a weird technical idea.",
       es: "// siempre dispuesto a hablar de una idea técnica rara.",
