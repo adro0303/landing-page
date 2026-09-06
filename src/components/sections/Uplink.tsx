@@ -228,18 +228,19 @@ export function Uplink() {
                 <a
                   href={profile.resumeUrls.en}
                   download
+                  autoFocus
                   onClick={() => setCvPickerOpen(false)}
-                  className="border border-(--color-line) px-4 py-3 text-center font-mono text-sm text-(--color-fg-dim) transition-colors hover:border-(--color-amber) hover:text-(--color-fg)"
+                  className="border border-(--color-line) px-4 py-3 text-center font-mono text-sm text-(--color-fg-dim) outline-none transition-colors hover:border-(--color-amber) hover:bg-(--color-amber) hover:text-(--color-void) focus:border-(--color-amber) focus:bg-(--color-amber) focus:text-(--color-void)"
                 >
-                  English
+                  English ↓
                 </a>
                 <a
                   href={profile.resumeUrls.es}
                   download
                   onClick={() => setCvPickerOpen(false)}
-                  className="mt-2 border border-(--color-line) px-4 py-3 text-center font-mono text-sm text-(--color-fg-dim) transition-colors hover:border-(--color-amber) hover:text-(--color-fg)"
+                  className="mt-2 border border-(--color-line) px-4 py-3 text-center font-mono text-sm text-(--color-fg-dim) outline-none transition-colors hover:border-(--color-amber) hover:bg-(--color-amber) hover:text-(--color-void) focus:border-(--color-amber) focus:bg-(--color-amber) focus:text-(--color-void)"
                 >
-                  Español
+                  Español ↓
                 </a>
               </div>
             </motion.div>
