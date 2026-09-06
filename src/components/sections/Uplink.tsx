@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { profile, useProfileText } from "@/data/profile";
 import { useLanguage } from "@/lib/i18n";
 import { TerminalWindow } from "@/components/layout/TerminalWindow";
@@ -33,6 +34,16 @@ const ports = [
 export function Uplink() {
   const text = useProfileText();
   const { t, lang } = useLanguage();
+  const [cvPickerOpen, setCvPickerOpen] = useState(false);
+
+  useEffect(() => {
+    if (!cvPickerOpen) return;
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setCvPickerOpen(false);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [cvPickerOpen]);
 
   return (
     <section id="uplink" className="relative bg-(--color-void) px-6 py-32 sm:px-10 lg:px-20">
@@ -92,33 +103,14 @@ export function Uplink() {
                       {t("uplink.downloadCv")} ↓
                     </a>
                   ) : (
-                    <details className="group relative">
-                      <summary className="list-none border border-(--color-line) px-4 py-2 font-mono text-xs tracking-[0.15em] text-(--color-fg-dim) transition-colors [&::-webkit-details-marker]:hidden hover:border-(--color-fg-dim) hover:text-(--color-fg)">
-                        {t("uplink.downloadCv")} ↓
-                      </summary>
-                      <div className="absolute right-0 z-10 mt-2 flex min-w-full flex-col border border-(--color-line) bg-(--color-panel)">
-                        <a
-                          href={profile.resumeUrls.en}
-                          download
-                          onClick={(e) =>
-                            e.currentTarget.closest("details")?.removeAttribute("open")
-                          }
-                          className="whitespace-nowrap px-4 py-2 font-mono text-xs tracking-[0.15em] text-(--color-fg-dim) transition-colors hover:bg-(--color-panel-raised) hover:text-(--color-fg)"
-                        >
-                          English
-                        </a>
-                        <a
-                          href={profile.resumeUrls.es}
-                          download
-                          onClick={(e) =>
-                            e.currentTarget.closest("details")?.removeAttribute("open")
-                          }
-                          className="whitespace-nowrap border-t border-(--color-line) px-4 py-2 font-mono text-xs tracking-[0.15em] text-(--color-fg-dim) transition-colors hover:bg-(--color-panel-raised) hover:text-(--color-fg)"
-                        >
-                          Español
-                        </a>
-                      </div>
-                    </details>
+                    <button
+                      type="button"
+                      onClick={() => setCvPickerOpen(true)}
+                      aria-haspopup="dialog"
+                      className="border border-(--color-line) px-4 py-2 font-mono text-xs tracking-[0.15em] text-(--color-fg-dim) transition-colors hover:border-(--color-fg-dim) hover:text-(--color-fg)"
+                    >
+                      {t("uplink.downloadCv")} ↓
+                    </button>
                   )}
                 </div>
               </div>
@@ -198,6 +190,62 @@ export function Uplink() {
             ))}
         </motion.p>
       </div>
+
+      <AnimatePresence>
+        {cvPickerOpen && profile.resumeUrls && (
+          <motion.div
+            key="cv-picker-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[80] flex items-center justify-center bg-(--color-void)/80 backdrop-blur-sm"
+            onClick={() => setCvPickerOpen(false)}
+          >
+            <motion.div
+              key="cv-picker-panel"
+              role="dialog"
+              aria-modal="true"
+              initial={{ opacity: 0, scale: 0.9, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 12 }}
+              transition={{ type: "spring", stiffness: 460, damping: 22, mass: 0.7 }}
+              onClick={(e) => e.stopPropagation()}
+              className="w-[300px] overflow-hidden rounded-sm border border-(--color-amber)/40 bg-(--color-void)/95"
+            >
+              <div className="flex items-center justify-between gap-4 border-b border-(--color-line) bg-(--color-panel-raised) px-4 py-3">
+                <p className="font-mono text-xs tracking-[0.15em] text-(--color-fg)">
+                  {t("uplink.pickLanguage")}
+                </p>
+                <button
+                  onClick={() => setCvPickerOpen(false)}
+                  className="shrink-0 font-mono text-xs text-(--color-fg-faint) hover:text-(--color-red)"
+                  aria-label={t("toolsLauncher.close")}
+                >
+                  ✕
+                </button>
+              </div>
+              <div className="flex flex-col p-3">
+                <a
+                  href={profile.resumeUrls.en}
+                  download
+                  onClick={() => setCvPickerOpen(false)}
+                  className="border border-(--color-line) px-4 py-3 text-center font-mono text-sm text-(--color-fg-dim) transition-colors hover:border-(--color-amber) hover:text-(--color-fg)"
+                >
+                  English
+                </a>
+                <a
+                  href={profile.resumeUrls.es}
+                  download
+                  onClick={() => setCvPickerOpen(false)}
+                  className="mt-2 border border-(--color-line) px-4 py-3 text-center font-mono text-sm text-(--color-fg-dim) transition-colors hover:border-(--color-amber) hover:text-(--color-fg)"
+                >
+                  Español
+                </a>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }
