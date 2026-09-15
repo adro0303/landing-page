@@ -35,12 +35,12 @@ export function TopBar() {
           {t("topbar.brand")}
         </a>
 
-        <nav className="hidden items-center gap-6 lg:flex">
+        <nav className="hidden items-center gap-3 xl:flex">
           {sections.map((s) => (
             <a
               key={s.id}
               href={`#${s.id}`}
-              className="font-mono text-[10px] tracking-[0.25em] text-(--color-fg-faint) transition-colors hover:text-(--color-blue)"
+              className="shrink-0 font-mono text-[9.5px] tracking-[0.15em] whitespace-nowrap text-(--color-fg-faint) transition-colors hover:text-(--color-blue)"
             >
               [ {t(`nav.${s.id}`)} ]
             </a>
@@ -50,7 +50,7 @@ export function TopBar() {
         <button
           type="button"
           onClick={() => setMenuOpen((v) => !v)}
-          className="font-mono text-[11px] tracking-wide text-(--color-fg-dim) transition-colors hover:text-(--color-blue) lg:hidden"
+          className="font-mono text-[11px] tracking-wide text-(--color-fg-dim) transition-colors hover:text-(--color-blue) xl:hidden"
           aria-expanded={menuOpen}
           aria-label={menuOpen ? t("topbar.close") : t("topbar.menu")}
         >
@@ -59,7 +59,7 @@ export function TopBar() {
       </header>
 
       <div
-        className={`fixed inset-x-0 top-[41px] z-[90] origin-top border-b border-(--color-line) bg-(--color-void)/95 backdrop-blur-sm transition-all duration-200 lg:hidden ${
+        className={`fixed inset-x-0 top-[41px] z-[90] origin-top border-b border-(--color-line) bg-(--color-void)/95 backdrop-blur-sm transition-all duration-200 xl:hidden ${
           visible && menuOpen
             ? "pointer-events-auto scale-y-100 opacity-100"
             : "pointer-events-none scale-y-0 opacity-0"

@@ -100,7 +100,10 @@ export function HeroSection({ booted }: { booted: boolean }) {
             ),
           )}
         </h1>
-        <p className="mt-2 font-mono text-xs tracking-[0.3em] text-(--color-phosphor-dim) sm:text-sm">
+        <p className="mt-1 font-mono text-sm text-(--color-phosphor-bright) sm:text-base">
+          {t("hero.fullName")}
+        </p>
+        <p className="mt-1 font-mono text-xs tracking-[0.3em] text-(--color-phosphor-dim) sm:text-sm">
           [ id: {profile.handle} ]
         </p>
         <p className="mt-3 min-h-6 font-mono text-sm text-(--color-phosphor-bright) sm:h-6 sm:text-base">
@@ -110,6 +113,22 @@ export function HeroSection({ booted }: { booted: boolean }) {
         <p className="mt-2 max-w-md text-pretty font-mono text-[11px] text-(--color-phosphor-dim) sm:text-sm">
           {text.role} — {text.status}
         </p>
+        <p className="mt-3 max-w-lg text-balance font-display text-xl leading-snug text-(--color-phosphor-hot) sm:text-2xl">
+          {t("hero.pitch")}
+        </p>
+        <p className="mt-1 font-mono text-[11px] tracking-[0.15em] text-(--color-phosphor-dim) sm:text-xs">
+          {t("hero.pitchTags")}
+        </p>
+        <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+          {(["credBsc", "credIelts", "credLocation", "credOpen"] as const).map((key) => (
+            <span
+              key={key}
+              className="rounded-sm border border-(--color-phosphor-dim)/50 px-2.5 py-1 font-mono text-[10px] tracking-[0.05em] text-(--color-phosphor-dim) sm:text-[11px]"
+            >
+              {t(`hero.${key}`)}
+            </span>
+          ))}
+        </div>
         <nav className="mt-5 flex items-center gap-3">
           <a
             href="#projects"

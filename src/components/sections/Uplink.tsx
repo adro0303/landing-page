@@ -4,6 +4,8 @@ import { profile, useProfileText } from "@/data/profile";
 import { useLanguage } from "@/lib/i18n";
 import { TerminalWindow } from "@/components/layout/TerminalWindow";
 
+const PROOF_ITEMS = ["degree", "ielts", "production", "leadership", "github"] as const;
+
 const ports = [
   {
     label: "GITHUB",
@@ -62,10 +64,41 @@ export function Uplink() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-80px" }}
           transition={{ duration: 0.55, delay: 0.05 }}
-          className="mb-14 font-display text-5xl text-(--color-fg) sm:text-6xl lg:text-7xl"
+          className="mb-4 font-display text-5xl text-(--color-fg) sm:text-6xl lg:text-7xl"
         >
           connect()
         </motion.h2>
+        <motion.p
+          initial={{ opacity: 0, y: 24 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.5, delay: 0.08 }}
+          className="mb-10 max-w-xl font-mono text-base text-(--color-fg-dim) sm:text-lg"
+        >
+          {t("uplink.headline")}
+        </motion.p>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-80px" }}
+          transition={{ duration: 0.5, delay: 0.1 }}
+          className="mb-10"
+        >
+          <p className="mb-3 font-mono text-[11px] tracking-[0.2em] text-(--color-fg-faint)">
+            {t("proof.title")}
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {PROOF_ITEMS.map((key) => (
+              <span
+                key={key}
+                className="rounded-sm border border-(--color-line) bg-(--color-panel)/70 px-3 py-1.5 font-mono text-[11px] text-(--color-fg-dim)"
+              >
+                {t(`proof.items.${key}`)}
+              </span>
+            ))}
+          </div>
+        </motion.div>
 
         {profile.resumeUrls && (
           <motion.div

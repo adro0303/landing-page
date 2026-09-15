@@ -31,7 +31,7 @@ function Visual({ project }: { project: Project }) {
 }
 
 export function ProjectCard({ project: rawProject }: { project: Project }) {
-  const [notesOpen, setNotesOpen] = useState(false);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const { lang, t } = useLanguage();
   const project = localizeProject(rawProject, lang);
 
@@ -58,64 +58,39 @@ export function ProjectCard({ project: rawProject }: { project: Project }) {
         />
       </div>
 
-      <div className="flex flex-1 flex-col gap-1.5 px-5 py-2">
+      <div className="flex flex-1 flex-col gap-2 px-5 py-2.5">
         <p className="font-mono text-[13px] leading-snug text-(--color-fg) sm:text-sm">
           {project.tagline}
         </p>
 
         <Visual project={project} />
 
-        <div className="grid grid-cols-2 gap-4 border-y border-(--color-line) py-1">
-          <div>
-            <p className="font-mono text-[9px] tracking-[0.25em] text-(--color-fg-faint)">
-              {t("projects.role")}
-            </p>
-            <p className="mt-1 font-mono text-[11px] leading-snug text-(--color-fg-dim)">
-              {project.role}
-            </p>
-          </div>
-          <div>
-            <p className="font-mono text-[9px] tracking-[0.25em] text-(--color-fg-faint)">
-              {t("projects.focus")}
-            </p>
-            <p className="mt-1 font-mono text-[11px] leading-snug text-(--color-fg-dim)">
-              {project.focus}
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-3 gap-2">
-          {project.stats.map((s) => (
-            <div key={s.label} className="border-l-2 border-(--color-line) pl-2">
-              <p className="truncate font-mono text-[8.5px] tracking-wide text-(--color-fg-faint)">
-                {s.label}
-              </p>
-              <p className="truncate font-mono text-[11px] text-(--color-fg)">{s.value}</p>
-            </div>
-          ))}
-        </div>
+        <p className="font-mono text-[12px] leading-snug text-(--color-fg-dim)">
+          <span className="text-(--color-fg-faint)">{t("projects.problem")}</span>
+          {project.problem}
+        </p>
+        <p className="font-mono text-[12px] leading-snug text-(--color-fg-dim)">
+          <span style={{ color: project.accent }}>{t("projects.why")}</span>
+          {project.why}
+        </p>
 
         <button
           type="button"
-          onClick={() => setNotesOpen(true)}
-          className="flex w-fit items-center gap-1.5 self-start rounded-sm border border-(--color-cyan)/55 bg-(--color-cyan)/10 px-3 py-1 font-mono text-[11px] tracking-wide text-(--color-cyan) transition-all select-none hover:gap-2.5"
+          onClick={() => setDetailsOpen((v) => !v)}
+          aria-expanded={detailsOpen}
+          className="mt-auto flex w-fit items-center gap-1.5 self-start rounded-sm border border-(--color-cyan)/55 bg-(--color-cyan)/10 px-3 py-1 font-mono text-[11px] tracking-wide text-(--color-cyan) transition-all select-none hover:gap-2.5"
         >
-          {t("projects.expandNotes")}
-          <svg viewBox="0 0 24 24" className="h-3 w-3 shrink-0" fill="none" stroke="currentColor" strokeWidth={2.5}>
+          {t("projects.technicalDetails")}
+          <svg
+            viewBox="0 0 24 24"
+            className={`h-3 w-3 shrink-0 transition-transform ${detailsOpen ? "rotate-180" : ""}`}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth={2.5}
+          >
             <path d="M6 9l6 6 6-6" strokeLinecap="round" strokeLinejoin="round" />
           </svg>
         </button>
-
-        <div className="mt-auto flex flex-wrap gap-1.5">
-          {project.tech.map((tech) => (
-            <span
-              key={tech}
-              className="rounded-sm border border-(--color-line) px-2 py-0.5 font-mono text-[10px] text-(--color-fg-dim)"
-            >
-              {tech}
-            </span>
-          ))}
-        </div>
       </div>
 
       <div className="flex items-center justify-between gap-3 border-t border-(--color-line) bg-(--color-panel-raised)/70 px-5 py-1.5">
@@ -132,7 +107,7 @@ export function ProjectCard({ project: rawProject }: { project: Project }) {
         </a>
       </div>
 
-      {notesOpen && (
+      {detailsOpen && (
         <div className="absolute inset-0 z-20 flex flex-col rounded-sm bg-(--color-panel)">
           <div className="flex items-center justify-between gap-4 border-b border-(--color-line) bg-(--color-panel-raised)/70 px-5 py-4">
             <p className="truncate font-mono text-[11px] tracking-[0.25em] text-(--color-fg-dim)">
@@ -140,7 +115,7 @@ export function ProjectCard({ project: rawProject }: { project: Project }) {
             </p>
             <button
               type="button"
-              onClick={() => setNotesOpen(false)}
+              onClick={() => setDetailsOpen(false)}
               className="shrink-0 cursor-pointer font-mono text-[11px] tracking-wide whitespace-nowrap text-(--color-fg-dim) transition-colors hover:text-(--color-fg)"
             >
               {t("projects.collapse")}
@@ -148,17 +123,47 @@ export function ProjectCard({ project: rawProject }: { project: Project }) {
           </div>
           <div className="flex-1 space-y-4 overflow-y-auto px-5 py-5 font-mono text-[12px] leading-relaxed text-(--color-fg-dim)">
             <p>
-              <span className="text-(--color-fg-faint)">{t("projects.problem")}</span>
-              {project.problem}
-            </p>
-            <p>
               <span className="text-(--color-fg-faint)">{t("projects.built")}</span>
               {project.built}
             </p>
-            <p className="italic">
-              <span className="not-italic text-(--color-fg-faint)">{t("projects.why")}</span>
-              {project.why}
-            </p>
+            <div className="grid grid-cols-2 gap-4 border-y border-(--color-line) py-3">
+              <div>
+                <p className="font-mono text-[9px] tracking-[0.25em] text-(--color-fg-faint)">
+                  {t("projects.role")}
+                </p>
+                <p className="mt-1 font-mono text-[11px] leading-relaxed text-(--color-fg-dim)">
+                  {project.role}
+                </p>
+              </div>
+              <div>
+                <p className="font-mono text-[9px] tracking-[0.25em] text-(--color-fg-faint)">
+                  {t("projects.focus")}
+                </p>
+                <p className="mt-1 font-mono text-[11px] leading-relaxed text-(--color-fg-dim)">
+                  {project.focus}
+                </p>
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-2">
+              {project.stats.map((s) => (
+                <div key={s.label} className="border-l-2 border-(--color-line) pl-2">
+                  <p className="truncate font-mono text-[8.5px] tracking-wide text-(--color-fg-faint)">
+                    {s.label}
+                  </p>
+                  <p className="truncate font-mono text-[11px] text-(--color-fg)">{s.value}</p>
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {project.tech.map((tech) => (
+                <span
+                  key={tech}
+                  className="rounded-sm border border-(--color-line) px-2 py-0.5 font-mono text-[10px] text-(--color-fg-dim)"
+                >
+                  {tech}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       )}

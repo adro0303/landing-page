@@ -9,6 +9,8 @@ const fadeUp = {
   show: { opacity: 1, y: 0 },
 };
 
+const JOURNEY = ["cs", "software", "backend", "ai", "leadership"] as const;
+
 export function Experience() {
   const { t, lang } = useLanguage();
 
@@ -45,6 +47,24 @@ export function Experience() {
         >
           {t("experience.description")}
         </motion.p>
+
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-80px" }}
+          variants={fadeUp}
+          transition={{ duration: 0.5, delay: 0.12 }}
+          className="mb-12 flex flex-wrap items-center gap-x-2 gap-y-3"
+        >
+          {JOURNEY.map((step, i) => (
+            <div key={step} className="flex items-center gap-2">
+              <span className="rounded-sm border border-(--color-line) bg-(--color-panel)/70 px-3 py-1.5 font-mono text-[11px] tracking-[0.1em] text-(--color-fg-dim)">
+                {t(`experience.journey.${step}`)}
+              </span>
+              {i < JOURNEY.length - 1 && <span className="text-(--color-fg-faint)">→</span>}
+            </div>
+          ))}
+        </motion.div>
 
         <div className="relative pl-6 sm:pl-8">
           <div className="absolute top-2 bottom-2 left-[3px] w-px bg-(--color-line) sm:left-[7px]" />

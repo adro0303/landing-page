@@ -7,6 +7,7 @@ export type EducationEntry = {
   detail: { en: string; es: string };
   credential: { label: { en: string; es: string }; url: string };
   image?: string;
+  imageDimensions?: { width: number; height: number };
 };
 
 export const educationEntries: EducationEntry[] = [
@@ -28,6 +29,7 @@ export const educationEntries: EducationEntry[] = [
       url: "/TITLE.jpeg",
     },
     image: "/TITLE.jpeg",
+    imageDimensions: { width: 952, height: 1428 },
   },
   {
     id: "msmk",
@@ -47,6 +49,7 @@ export const educationEntries: EducationEntry[] = [
       url: "/MSMK_NOTAS.pdf",
     },
     image: "/MSMK_NOTAS.png",
+    imageDimensions: { width: 1656, height: 2339 },
   },
 ];
 

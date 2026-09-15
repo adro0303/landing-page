@@ -6,6 +6,13 @@ import { IdCard } from "@/components/sections/IdCard";
 import { FloppyDisk3D } from "@/components/decor/FloppyDisk3D";
 import { openHiddenTerminal } from "@/lib/terminalBus";
 
+const HOW_I_THINK_FLOW = ["problem", "user", "system", "solution", "impact"] as const;
+
+const HOW_I_THINK_TRAITS = {
+  en: ["Problem solving", "Ownership", "Learning", "Product thinking", "Reliability", "Simplicity"],
+  es: ["Resolución de problemas", "Compromiso", "Aprendizaje", "Visión de producto", "Fiabilidad", "Simplicidad"],
+};
+
 const fadeUp = {
   hidden: { opacity: 0, y: 32 },
   show: { opacity: 1, y: 0 },
@@ -13,7 +20,7 @@ const fadeUp = {
 
 export function Identity() {
   const profile = useProfileText();
-  const { t } = useLanguage();
+  const { t, lang } = useLanguage();
 
   return (
     <section id="identity" className="relative bg-(--color-void) px-6 py-28 sm:px-10 lg:px-20">
@@ -164,6 +171,43 @@ export function Identity() {
                   </motion.div>
                 );
               })}
+            </div>
+          </TerminalWindow>
+        </motion.div>
+
+        <motion.div
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, margin: "-80px" }}
+          variants={fadeUp}
+          transition={{ duration: 0.55, delay: 0.2 }}
+          className="mt-6"
+        >
+          <TerminalWindow title="cat how_i_think.log" accent="var(--color-blue)">
+            <p className="mb-4 font-display text-xl text-(--color-fg) sm:text-2xl">
+              {t("howithink.title")}
+            </p>
+            <div className="mb-5 flex flex-wrap items-center gap-2">
+              {HOW_I_THINK_FLOW.map((step, i) => (
+                <div key={step} className="flex items-center gap-2">
+                  <span className="rounded-sm border border-(--color-line) px-2.5 py-1 font-mono text-[10px] tracking-[0.15em] text-(--color-fg-dim) sm:text-[11px]">
+                    {t(`howithink.flow.${step}`)}
+                  </span>
+                  {i < HOW_I_THINK_FLOW.length - 1 && (
+                    <span className="text-(--color-fg-faint)">→</span>
+                  )}
+                </div>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {HOW_I_THINK_TRAITS[lang].map((trait) => (
+                <span
+                  key={trait}
+                  className="rounded-sm border border-(--color-blue)/40 bg-(--color-blue)/5 px-2.5 py-1 font-mono text-[11px] text-(--color-blue)"
+                >
+                  {trait}
+                </span>
+              ))}
             </div>
           </TerminalWindow>
         </motion.div>

@@ -7,6 +7,9 @@ import { LanguageToggle } from "@/components/layout/LanguageToggle";
 import { InteractiveTerminal } from "@/components/terminal/InteractiveTerminal";
 import { ToolsLauncher } from "@/components/layout/ToolsLauncher";
 import { HeroSection } from "@/components/hero/HeroSection";
+import { WhatIDo } from "@/components/sections/WhatIDo";
+import { CurrentFocus } from "@/components/sections/CurrentFocus";
+import { AIExplained } from "@/components/sections/AIExplained";
 import { Identity } from "@/components/sections/Identity";
 import { Experience } from "@/components/sections/Experience";
 import { Education } from "@/components/sections/Education";
@@ -27,6 +30,9 @@ export default function App() {
       <LanguageToggle className="fixed top-3 right-3 z-[90]" />
       <main className="relative">
         <HeroSection booted={!booting} />
+        <WhatIDo />
+        <CurrentFocus />
+        <AIExplained />
         <Identity />
         <Experience />
         <Education />

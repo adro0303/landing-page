@@ -1,5 +1,8 @@
 export const sections = [
   { id: "hero", label: "BOOT" },
+  { id: "whatido", label: "WHAT I DO" },
+  { id: "current", label: "RIGHT NOW" },
+  { id: "ai", label: "AI" },
   { id: "identity", label: "IDENTITY" },
   { id: "experience", label: "EXPERIENCE" },
   { id: "education", label: "EDUCATION" },

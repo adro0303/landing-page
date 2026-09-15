@@ -72,6 +72,10 @@ export function Education() {
                     <img
                       src={entry.image}
                       alt={entry.degree[lang]}
+                      width={entry.imageDimensions?.width}
+                      height={entry.imageDimensions?.height}
+                      loading="lazy"
+                      decoding="async"
                       className="w-full transition-opacity hover:opacity-80"
                     />
                     <span
