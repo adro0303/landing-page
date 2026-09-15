@@ -79,7 +79,7 @@ export function Education() {
                       className="w-full transition-opacity hover:opacity-80"
                     />
                     <span
-                      className="animate-scan pointer-events-none absolute inset-x-0 top-0 h-[35%]"
+                      className="animate-scan pointer-events-none absolute inset-x-0 top-[30%] h-[40%]"
                       style={{
                         background: `linear-gradient(to bottom, transparent 0%, color-mix(in srgb, ${entry.color} 15%, transparent) 25%, color-mix(in srgb, ${entry.color} 70%, transparent) 50%, color-mix(in srgb, ${entry.color} 15%, transparent) 75%, transparent 100%)`,
                       }}

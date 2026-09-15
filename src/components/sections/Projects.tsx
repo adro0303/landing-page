@@ -49,40 +49,39 @@ export function Projects() {
     const track = trackRef.current;
     if (!container || !track) return;
 
-    const ctx = gsap.context(() => {
-      if (track.scrollWidth - container.clientWidth <= 0) return;
-      gsap.to(track, {
-        // functions so GSAP re-measures on every ScrollTrigger.refresh() —
-        // a static value here goes stale once webfonts finish swapping in
-        // and the cards reflow wider, leaving the last card(s) unreachable.
-        x: () => -(track.scrollWidth - container.clientWidth),
-        ease: "none",
-        scrollTrigger: {
-          trigger: container,
-          start: "top top",
-          end: () => `+=${track.scrollWidth - container.clientWidth}`,
-          scrub: 0.6,
-          pin: true,
-          anticipatePin: 1,
-          invalidateOnRefresh: true,
-        },
-      });
-    }, container);
+    let ctx: gsap.Context | undefined;
+    let cancelled = false;
 
-    // The pin's start/end depend on the layout of every section above it —
-    // webfonts swapping in (and any other late reflow) after this trigger
-    // is created shifts that position. If the user has already scrolled
-    // into the stale pin zone by the time a refresh corrects it, GSAP
-    // snaps the page to the new position, which reads as an abrupt jump.
-    // Refreshing early (fonts ready + a fixed fallback shortly after
-    // mount) makes that correction land before anyone could realistically
-    // have scrolled this far down a 9-section page.
-    document.fonts?.ready?.then(() => ScrollTrigger.refresh());
-    const settleTimer = window.setTimeout(() => ScrollTrigger.refresh(), 1200);
+    // The pin's start/end positions depend on the layout of every section
+    // above it, which webfonts swapping in can still reflow. Measuring
+    // and creating the trigger only after fonts have settled — instead of
+    // creating it early and refreshing later — means there's no stale
+    // measurement for a mid-scroll refresh to ever have to correct, so
+    // there's nothing to visibly snap into place.
+    const ready = document.fonts?.ready ?? Promise.resolve();
+    ready.then(() => {
+      if (cancelled) return;
+      ctx = gsap.context(() => {
+        if (track.scrollWidth - container.clientWidth <= 0) return;
+        gsap.to(track, {
+          x: () => -(track.scrollWidth - container.clientWidth),
+          ease: "none",
+          scrollTrigger: {
+            trigger: container,
+            start: "top top",
+            end: () => `+=${track.scrollWidth - container.clientWidth}`,
+            scrub: 0.6,
+            pin: true,
+            anticipatePin: 1,
+            invalidateOnRefresh: true,
+          },
+        });
+      }, container);
+    });
 
     return () => {
-      window.clearTimeout(settleTimer);
-      ctx.revert();
+      cancelled = true;
+      ctx?.revert();
     };
     // filteredProjects.length changes the track's scrollWidth — the pin's
     // travel distance has to be rebuilt from scratch, not just refreshed.
