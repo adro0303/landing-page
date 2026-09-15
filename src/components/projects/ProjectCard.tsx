@@ -45,7 +45,7 @@ function AiToolsPreview() {
       playsInline
       preload="none"
       aria-hidden="true"
-      className="h-28 w-full rounded-sm border border-(--color-line) object-cover"
+      className="h-56 w-full rounded-sm border border-(--color-line) object-cover"
     />
   );
 }
