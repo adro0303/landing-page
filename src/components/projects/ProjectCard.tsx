@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { localizeProject, type Project } from "@/data/projects";
 import { useLanguage } from "@/lib/i18n";
+import { useDeviceCapability } from "@/lib/useDeviceCapability";
 import { PipelineViz } from "./PipelineViz";
 import { DeviceLinkViz } from "./DeviceLinkViz";
 import { SecurityViz } from "./SecurityViz";
@@ -10,8 +11,59 @@ import { HubViz } from "./HubViz";
 import { GuardrailFlowViz } from "./GuardrailFlowViz";
 import { AiToolsLaunchpad } from "./AiToolsLaunchpad";
 
+// muted preview of the three tools below actually running — only starts
+// downloading/playing once the card is scrolled into view, and stays
+// paused on the first frame for prefers-reduced-motion
+function AiToolsPreview() {
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const [inView, setInView] = useState(false);
+  const { reducedMotion } = useDeviceCapability();
+
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(([entry]) => setInView(entry.isIntersecting), {
+      threshold: 0.2,
+    });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const el = videoRef.current;
+    if (!el || reducedMotion) return;
+    if (inView) el.play().catch(() => {});
+    else el.pause();
+  }, [inView, reducedMotion]);
+
+  return (
+    <video
+      ref={videoRef}
+      src="/ai-tools-demo.webm"
+      muted
+      loop
+      playsInline
+      preload="none"
+      aria-hidden="true"
+      className="h-10 w-16 rounded-sm border border-(--color-line) object-cover shadow-[0_0_0_2px_var(--color-panel)]"
+    />
+  );
+}
+
 function Visual({ project }: { project: Project }) {
-  if (project.id === "ai-tools") return <AiToolsLaunchpad accent={project.accent} />;
+  if (project.id === "ai-tools") {
+    return (
+      <div className="relative">
+        {/* small looping preview of the tools actually running, layered as a
+            corner badge — adds no layout height, so it can't reintroduce the
+            card-taller-than-viewport overflow this section was tuned for */}
+        <div className="absolute -top-3 -right-1 z-10">
+          <AiToolsPreview />
+        </div>
+        <AiToolsLaunchpad accent={project.accent} />
+      </div>
+    );
+  }
   switch (project.kind) {
     case "pipeline":
       return <PipelineViz project={project} />;
