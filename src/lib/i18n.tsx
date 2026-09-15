@@ -226,9 +226,9 @@ const dict = {
       en: "runs entirely in your browser — no server, no account, no API calls.",
       es: "corre entero en tu navegador — sin servidor, sin cuenta, sin llamadas a APIs.",
     },
-    problem: { en: "problem — ", es: "problema — " },
+    whatItIs: { en: "what it is — ", es: "qué es — " },
     built: { en: "built — ", es: "construido — " },
-    why: { en: "why it matters — ", es: "por qué importa — " },
+    learned: { en: "what it taught me — ", es: "qué aprendí — " },
     technicalDetails: { en: "technical details", es: "detalles técnicos" },
     categories: {
       all: { en: "ALL", es: "TODO" },

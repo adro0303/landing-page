@@ -145,7 +145,7 @@ function answerAsk(query: string, text: ProfileText, lang: Lang): string[] {
   const q = query.toLowerCase();
   if (/(strongest|best) project/.test(q)) {
     const p = localizeProject(projects[0], lang);
-    return [`${p.title} — ${p.tagline}`, `why: ${p.why}`];
+    return [`${p.title} — ${p.tagline}`, `learned: ${p.learned}`];
   }
   if (/stack|tech|language/.test(q)) {
     return [Array.from(new Set(projects.flatMap((p) => p.tech))).join(", ")];

@@ -6,9 +6,9 @@ export type ProjectCategory = "systems" | "security" | "data-ai" | "automation";
 
 export type ProjectText = {
   tagline: string;
-  problem: string;
+  what: string;
   built: string;
-  why: string;
+  learned: string;
   status: string;
   role: string;
   focus: string;
@@ -93,10 +93,11 @@ export const projects: Project[] = [
     category: "security",
     title: "AI-LogAnomalyDetectionSystem",
     tagline: "Unsupervised anomaly detection over OpenSSH logs — no labeled attack data required",
-    problem: 'In security logs, "normal" vastly outweighs "attack," and clean labels rarely exist.',
+    what: "An anomaly detection pipeline that scans SSH login logs and flags suspicious activity — without needing pre-labeled examples of what an attack looks like.",
     built:
       "A config-driven pipeline (Isolation Forest, LOF, One-Class SVM) with temporal feature engineering, weak-label heuristics for evaluation, and PR-AUC / Recall@K as proxy metrics.",
-    why: "Forces careful evaluation design when ground truth barely exists — accuracy alone would be meaningless here.",
+    learned:
+      "Learned to design an evaluation strategy when there's no ground truth to check against — accuracy alone means nothing when 99% of the data is normal traffic.",
     role: "End-to-end pipeline design and evaluation.",
     focus: "Defensible metrics when ground truth barely exists.",
     tech: ["Python", "scikit-learn", "Docker", "pytest", "GitHub Actions"],
@@ -110,10 +111,11 @@ export const projects: Project[] = [
     accent: "var(--color-red)",
     es: {
       tagline: "Detección de anomalías no supervisada sobre logs de OpenSSH — sin datos de ataque etiquetados",
-      problem: 'En los logs de seguridad, lo "normal" supera con creces a los "ataques", y rara vez hay etiquetas limpias.',
+      what: "Un pipeline de detección de anomalías que analiza logs de acceso SSH y marca actividad sospechosa — sin necesitar ejemplos pre-etiquetados de qué es un ataque.",
       built:
         "Un pipeline configurable (Isolation Forest, LOF, One-Class SVM) con ingeniería de features temporales, heurísticas de etiquetado débil para evaluación, y PR-AUC / Recall@K como métricas proxy.",
-      why: "Obliga a diseñar la evaluación con cuidado cuando apenas hay ground truth — la accuracy sola no significaría nada aquí.",
+      learned:
+        "Aprendí a diseñar una estrategia de evaluación cuando no hay ground truth con el que comparar — la accuracy sola no significa nada cuando el 99% de los datos es tráfico normal.",
       role: "Diseño y evaluación del pipeline de principio a fin.",
       focus: "Métricas defendibles cuando apenas hay ground truth.",
       status: "Pipeline de portfolio · no es un sistema SOC en producción",
@@ -136,11 +138,11 @@ export const projects: Project[] = [
     category: "data-ai",
     title: "Quant Research Lab",
     tagline: "BSc final year project — can news predict returns, and can investor mandates beat a risk score?",
-    problem:
-      "Two linked questions: does daily macro news improve next-day ETF return forecasts, and do multi-dimensional investor mandates allocate better than a single risk score?",
+    what: "My BSc final year project — does daily macro news predict next-day ETF returns, and do investor risk profiles beat a single score?",
     built:
       "A PyTorch MLP vs. 5 classical baselines under strict walk-forward validation for the forecasting side; a Random Forest mandate predictor feeding a regime-aware, backtested ETF allocator on the portfolio side.",
-    why: "Both repos report the results that didn't work too, instead of only showing wins — the Markowitz baseline beats the mandate strategy on Sharpe.",
+    learned:
+      "Learned to use strict walk-forward validation instead of a lucky train/test split — and to publish the result that didn't work instead of hiding it.",
     role: "Independent research across two linked studies.",
     focus: "Forecasting rigor and honest reporting of what didn't work.",
     tech: ["Python", "PyTorch", "scikit-learn", "pandas"],
@@ -154,11 +156,11 @@ export const projects: Project[] = [
     accent: "var(--color-cyan)",
     es: {
       tagline: "Proyecto final de grado — ¿pueden las noticias predecir rendimientos, y pueden los mandatos de inversor superar un score de riesgo?",
-      problem:
-        "Dos preguntas ligadas: ¿mejoran las noticias macro diarias la predicción del retorno de ETFs al día siguiente, y asignan mejor los mandatos de inversor multidimensionales que un único score de riesgo?",
+      what: "Mi proyecto final de grado — ¿predicen las noticias macro diarias el retorno de ETFs al día siguiente, y superan los perfiles de riesgo de inversor a un único score?",
       built:
         "Un MLP en PyTorch frente a 5 baselines clásicos bajo validación walk-forward estricta para la parte de predicción; un predictor de mandato con Random Forest que alimenta un asignador de ETFs con backtesting sensible al régimen en la parte de cartera.",
-      why: "Ambos repos también reportan los resultados que no funcionaron, no solo los éxitos — el baseline de Markowitz supera a la estrategia de mandato en Sharpe.",
+      learned:
+        "Aprendí a usar validación walk-forward estricta en vez de un split de train/test con suerte — y a publicar el resultado que no funcionó en vez de esconderlo.",
       role: "Investigación independiente en dos estudios ligados.",
       focus: "Rigor en la predicción y reporte honesto de lo que no funcionó.",
       status: "Coventry University, Grado en IA · Proyecto Final de Grado",
@@ -207,11 +209,11 @@ export const projects: Project[] = [
     title: "ai-tools",
     tagline:
       "Three interactive, zero-cost demos extracted from this site's hidden terminal — sorting, pathfinding, and a tiny neural net",
-    problem:
-      "Static portfolio project cards don't prove you can build interactive, non-trivial UI — algorithms and a real trained model, not just describe them.",
+    what: "Three small interactive tools built into this site's own hidden terminal — a sorting-algorithm race, a pathfinding visualizer, and a digit recognizer backed by a neural network I trained myself.",
     built:
       "Three self-contained React components: a sorting-algorithm race (bubble/selection/merge/quick as real generators), an A*/Dijkstra pathfinding visualizer, and a digit recognizer backed by a tiny MLP trained offline with NumPy on scikit-learn's digits dataset (97% test accuracy) — all running 100% client-side.",
-    why: "The digit recognizer's training script and weights ship in the repo, so the accuracy claim is checkable, not just asserted — same honest-reporting habit as the other projects.",
+    learned:
+      "Learned to train a small neural network from scratch with just NumPy, no PyTorch or TensorFlow — and shipped the weights so the 97.8% accuracy is checkable, not just claimed.",
     role: "Solo build of all three tools plus the offline training script.",
     focus: "Interactive proof over static description.",
     tech: ["TypeScript", "React", "NumPy", "scikit-learn"],
@@ -226,11 +228,11 @@ export const projects: Project[] = [
     es: {
       tagline:
         "Tres demos interactivas y gratuitas, extraídas de la terminal oculta de esta web — ordenación, pathfinding y una red neuronal diminuta",
-      problem:
-        "Las tarjetas de proyecto estáticas no demuestran que sepas construir UI interactiva no trivial — algoritmos y un modelo entrenado de verdad, no solo describirlos.",
+      what: "Tres herramientas interactivas construidas en la terminal oculta de esta misma web — una carrera de algoritmos de ordenación, un visualizador de pathfinding, y un reconocedor de dígitos con una red neuronal que entrené yo mismo.",
       built:
         "Tres componentes de React autocontenidos: una carrera de algoritmos de ordenación (bubble/selection/merge/quick como generadores reales), un visualizador de pathfinding A*/Dijkstra, y un reconocedor de dígitos con un MLP diminuto entrenado offline con NumPy sobre el dataset de dígitos de scikit-learn (97% de precisión en test) — todo corriendo 100% en el cliente.",
-      why: "El script de entrenamiento y los pesos del reconocedor de dígitos van en el repo, así que la cifra de precisión se puede comprobar, no solo afirmar — la misma costumbre de reportar con honestidad que en los demás proyectos.",
+      learned:
+        "Aprendí a entrenar una red neuronal pequeña desde cero con solo NumPy, sin PyTorch ni TensorFlow — y publiqué los pesos para que el 97.8% de precisión se pueda comprobar, no solo afirmar.",
       role: "Desarrollo en solitario de las tres herramientas y el script de entrenamiento offline.",
       focus: "Prueba interactiva por encima de la descripción estática.",
       status: "Demos interactivas · extraído de la propia terminal de esta web",
@@ -244,10 +246,11 @@ export const projects: Project[] = [
     category: "systems",
     title: "overclaude",
     tagline: "Curates and wires up add-ons for Claude Code — without opening a single inbound port",
-    problem: "Every 'always-on' integration for an AI coding agent is also attack surface you didn't ask for.",
+    what: "A curation layer for Claude Code add-ons I use daily — a codebase knowledge graph, on-demand internet access, and remote control from my phone over Telegram, all wired together myself.",
     built:
       "A curation layer for Claude Code add-ons: a codebase knowledge graph, on-demand internet access, remote control from mobile / Telegram, and custom notification hooks — all pull-based, nothing listening.",
-    why: "The support-nudge feature ships opt-in and off by default — the whole design optimizes for zero inbound exposure over convenience.",
+    learned:
+      "Learned to design for zero inbound exposure by default — every integration is pull-based, nothing listens for incoming connections, and the one feature that could nudge the user ships opt-in and off.",
     role: "Solo design and build of the curation layer.",
     focus: "Zero inbound exposure over convenience.",
     tech: ["TypeScript", "MCP", "Telegram Bot API", "Node.js"],
@@ -261,10 +264,11 @@ export const projects: Project[] = [
     accent: "var(--color-green)",
     es: {
       tagline: "Selecciona y conecta add-ons para Claude Code — sin abrir un solo puerto entrante",
-      problem: "Cada integración 'siempre activa' para un agente de código con IA es también superficie de ataque que no pediste.",
+      what: "Una capa de curación para add-ons de Claude Code que uso a diario — un grafo de conocimiento del código, acceso a internet bajo demanda, y control remoto desde el móvil por Telegram, todo conectado por mí.",
       built:
         "Una capa de curación para add-ons de Claude Code: un grafo de conocimiento del código, acceso a internet bajo demanda, control remoto desde móvil / Telegram, y hooks de notificación personalizados — todo por pull, nada escuchando.",
-      why: "El aviso de soporte se activa opt-in y viene desactivado por defecto — todo el diseño prioriza cero exposición entrante sobre la comodidad.",
+      learned:
+        "Aprendí a diseñar con cero exposición entrante por defecto — cada integración funciona por pull, nada escucha conexiones entrantes, y la única función que podría interrumpir al usuario viene apagada por defecto.",
       role: "Diseño y desarrollo en solitario de la capa de curación.",
       focus: "Cero exposición entrante por encima de la comodidad.",
       status: "Desarrollo en solitario · creado el 19-08-2026",
@@ -278,11 +282,11 @@ export const projects: Project[] = [
     category: "security",
     title: "SimplyApply + Firefox autofill",
     tagline: "Fork of an open-source résumé tailoring tool — added a Firefox extension and fixed a fabrication-guardrail security gap",
-    problem:
-      "The upstream tool's no-fabrication guardrail checked work history, education, and skills against your base résumé — but not name, email, phone, or URLs.",
+    what: "A Firefox extension I built on top of an existing open-source résumé tool, autofilling job applications directly on Greenhouse, Lever, and Workday.",
     built:
       "A Manifest V3 Firefox extension that autofills ATS pages (Greenhouse/Lever/Workday) from a local backend, a new cover-letter endpoint with the same fail-closed guardrail as résumé tailoring, plus a fix so the fabrication check covers contact fields too, and an auth token requirement on every extension-facing endpoint.",
-    why: "A security review I ran found that gap: a rogue browser extension or a poisoned job posting could have silently rewritten contact info or backend LLM settings. Same instinct as AI-LogAnomalyDetectionSystem — don't trust a plausible-looking output without checking it.",
+    learned:
+      "Ran a security review on someone else's codebase and found a real gap in its anti-fabrication guardrail — it checked your work history and skills but not your contact details. Fixed it and added auth to every extension-facing endpoint.",
     role: "Built the extension and new endpoints on top of an existing open-source fork; found and fixed the guardrail/auth gap myself.",
     focus: "Fail-closed guardrails — a false positive is annoying, a false negative costs you an offer.",
     tech: ["Python", "FastAPI", "TypeScript", "Firefox WebExtension", "SQLite"],
@@ -296,11 +300,11 @@ export const projects: Project[] = [
     accent: "var(--color-amber)",
     es: {
       tagline: "Fork de una herramienta open-source de adaptación de CVs — añadí una extensión de Firefox y arreglé un fallo de seguridad en el guardrail anti-invención",
-      problem:
-        "El guardrail anti-invención original comprobaba experiencia, estudios y habilidades contra tu CV base — pero no el nombre, email, teléfono ni URLs de contacto.",
+      what: "Una extensión de Firefox que construí sobre una herramienta open-source existente de adaptación de CVs, que autocompleta solicitudes de empleo directamente en Greenhouse, Lever y Workday.",
       built:
         "Una extensión de Firefox (Manifest V3) que autocompleta páginas de ATS (Greenhouse/Lever/Workday) desde un backend local, un nuevo endpoint de carta de presentación con el mismo diseño fail-closed que la adaptación de CV, más un fix para que la comprobación anti-invención cubra también los datos de contacto, y un token de autenticación obligatorio en cada endpoint de la extensión.",
-      why: "Una revisión de seguridad que hice encontró ese hueco: una extensión de navegador maliciosa o una oferta de empleo envenenada podían reescribir en silencio los datos de contacto o la configuración del LLM del backend. El mismo instinto que en AI-LogAnomalyDetectionSystem — no fiarse de una salida que parece correcta sin comprobarla.",
+      learned:
+        "Hice una revisión de seguridad sobre el código de otra persona y encontré un fallo real en su guardrail anti-invención — comprobaba tu experiencia y habilidades pero no tus datos de contacto. Lo arreglé y añadí autenticación a cada endpoint expuesto a la extensión.",
       role: "Construí la extensión y los nuevos endpoints sobre un fork open-source existente; encontré y arreglé yo mismo el fallo de guardrail/autenticación.",
       focus: "Guardrails fail-closed — un falso positivo es molesto, un falso negativo te cuesta una oferta.",
       status: "Fork (AGPL-3.0) · pipeline original de artbyjazi/simply-apply",
@@ -315,11 +319,11 @@ export const projects: Project[] = [
     category: "automation",
     title: "pocket-server",
     tagline: "An old Android phone, de-Googled and rooted, into a 24/7 home server — no Raspberry Pi, no cloud bill",
-    problem:
-      "Reaching a laptop remotely — waking it, checking email, watching markets — normally means buying and paying for always-on hardware.",
+    what: "An old Android phone, de-Googled and rooted, running as a 24/7 home server with a local LLM — no Raspberry Pi, no cloud bill.",
     built:
       "A spare phone running Termux + a local LLM, reachable only over a private Tailscale VPN — it sends Wake-on-LAN packets, drafts email replies, and reports through private Telegram bots, with a watchdog that checks its own health every 5 minutes.",
-    why: "Every risky action needs an explicit human confirmation first: the watchdog pings and drafts on its own, but nothing that shuts down a machine or sends an email fires without a person saying go.",
+    learned:
+      "Learned to build in safety rails for anything autonomous: the watchdog can check its own health and draft replies on its own, but nothing that shuts down a machine or sends an email fires without me confirming it first.",
     role: "Solo build: rooting, VPN setup, local LLM integration, and the confirmation guardrails.",
     focus: "Zero cloud cost and zero exposed ports, with a human always in the loop.",
     tech: ["Android", "Termux", "Python", "local LLM", "Tailscale", "Telegram"],
@@ -334,11 +338,11 @@ export const projects: Project[] = [
     es: {
       tagline:
         "Un móvil Android antiguo, sin Google y rooteado, convertido en servidor doméstico 24/7 — sin Raspberry Pi, sin factura de nube",
-      problem:
-        "Acceder a un portátil en remoto — despertarlo, revisar el correo, vigilar mercados — normalmente implica comprar y pagar hardware siempre encendido.",
+      what: "Un móvil Android antiguo, sin Google y rooteado, funcionando como servidor doméstico 24/7 con un LLM local — sin Raspberry Pi, sin factura de nube.",
       built:
         "Un móvil de repuesto con Termux + un LLM local, accesible solo a través de una VPN privada con Tailscale — envía paquetes Wake-on-LAN, redacta respuestas de email y reporta por bots privados de Telegram, con un watchdog que revisa su propia salud cada 5 minutos.",
-      why: "Cada acción de riesgo necesita confirmación humana explícita antes: el watchdog comprueba y redacta por su cuenta, pero nada que apague una máquina o envíe un email se dispara sin que una persona diga adelante.",
+      learned:
+        "Aprendí a construir barreras de seguridad para cualquier cosa autónoma: el watchdog puede comprobar su propia salud y redactar respuestas por su cuenta, pero nada que apague una máquina o envíe un email se dispara sin que yo lo confirme antes.",
       role: "Desarrollo en solitario: rooteo, configuración de VPN, integración del LLM local y las barreras de confirmación.",
       focus: "Cero coste de nube y cero puertos expuestos, con un humano siempre en el bucle.",
       status: "Repo más reciente · creado el 04-09-2026",
@@ -354,10 +358,11 @@ export const projects: Project[] = [
     category: "data-ai",
     title: "youtube-ai-pipeline",
     tagline: "Local AI video pipeline: script → voice → character-consistent images → assembly",
-    problem: "Generating narrated AI-image videos end-to-end without paying for cloud inference.",
+    what: "A local pipeline that turns a script into a narrated video with character-consistent AI-generated scenes — script, voice, images, and final assembly, all running on my own hardware.",
     built:
       "n8n orchestrates a fully local flow: Kokoro TTS, ComfyUI (Krea2 Turbo + a style-reference LoRA) for character-consistent scene images, and an ffmpeg video-worker for assembly — no paid cloud services in the loop.",
-    why: "Real hardware constraints, documented honestly instead of glossed over: 6GB VRAM minimum, ~30GB RAM peak, ~90s per image.",
+    learned:
+      "Learned to orchestrate four different AI stages with n8n and to work within real hardware limits instead of just renting more cloud GPU — and to document those limits honestly (6GB VRAM minimum, ~90s per image) instead of glossing over them.",
     role: "Local orchestration across four AI stages.",
     focus: "Character-consistent generation on consumer hardware.",
     tech: ["n8n", "ComfyUI", "Kokoro TTS", "Docker Compose", "ffmpeg"],
@@ -371,10 +376,11 @@ export const projects: Project[] = [
     accent: "var(--color-amber)",
     es: {
       tagline: "Pipeline local de vídeo con IA: guion → voz → imágenes con personaje consistente → montaje",
-      problem: "Generar vídeos narrados con imágenes de IA de principio a fin sin pagar por inferencia en la nube.",
+      what: "Un pipeline local que convierte un guion en un vídeo narrado con escenas generadas por IA con personaje consistente — guion, voz, imágenes y montaje final, todo corriendo en mi propio hardware.",
       built:
         "n8n orquesta un flujo totalmente local: Kokoro TTS, ComfyUI (Krea2 Turbo + una LoRA de referencia de estilo) para imágenes de escena con personaje consistente, y un video-worker con ffmpeg para el montaje — sin servicios de nube de pago en el proceso.",
-      why: "Limitaciones de hardware reales, documentadas con honestidad en vez de disimuladas: 6GB de VRAM mínimo, ~30GB de RAM en pico, ~90s por imagen.",
+      learned:
+        "Aprendí a orquestar cuatro etapas de IA distintas con n8n y a trabajar dentro de límites reales de hardware en vez de simplemente alquilar más GPU en la nube — y a documentar esos límites con honestidad (6GB de VRAM mínimo, ~90s por imagen) en vez de disimularlos.",
       role: "Orquestación local a través de cuatro etapas de IA.",
       focus: "Generación con personaje consistente en hardware de consumo.",
       status: "En progreso · repo con push más reciente",
@@ -388,10 +394,11 @@ export const projects: Project[] = [
     category: "systems",
     title: "ipa-builder",
     tagline: "Unsigned iOS builds in the cloud — no Mac, no $99/yr Apple Developer account",
-    problem: "Testing your own iOS app normally means owning a Mac or paying Apple.",
+    what: "A GitHub Actions workflow that builds unsigned iOS apps in the cloud on a macOS runner — no Mac, no $99/yr Apple Developer account needed.",
     built:
       "A GitHub Actions workflow that spins up a macOS runner to compile any Expo / React Native project, using scoped fine-grained tokens to securely check out a different target repo.",
-    why: "Pure CI/infrastructure engineering — no app code, just a secure, reusable build pipeline solving a real cost problem.",
+    learned:
+      "Learned to scope GitHub tokens tightly for secure cross-repo checkouts — this pipeline can build any target repo without ever holding more access than it needs.",
     role: "CI/CD pipeline engineering, no app code.",
     focus: "Secure cross-repo builds without owning a Mac.",
     tech: ["GitHub Actions", "macOS runners", "Bash / YAML", "gh CLI"],
@@ -405,10 +412,11 @@ export const projects: Project[] = [
     accent: "var(--color-cyan)",
     es: {
       tagline: "Builds de iOS sin firmar en la nube — sin Mac, sin cuenta de Apple Developer de $99/año",
-      problem: "Probar tu propia app de iOS normalmente implica tener un Mac o pagar a Apple.",
+      what: "Un workflow de GitHub Actions que compila apps de iOS sin firmar en la nube usando un runner macOS — sin Mac, sin cuenta de Apple Developer de $99/año.",
       built:
         "Un workflow de GitHub Actions que levanta un runner macOS para compilar cualquier proyecto Expo / React Native, usando tokens de permisos acotados para hacer checkout de forma segura de otro repo destino.",
-      why: "Ingeniería pura de CI/infraestructura — sin código de app, solo un pipeline de build seguro y reutilizable que resuelve un problema de coste real.",
+      learned:
+        "Aprendí a acotar tokens de GitHub con precisión para hacer checkouts seguros entre repos — este pipeline puede compilar cualquier repo destino sin tener nunca más acceso del que necesita.",
       role: "Ingeniería del pipeline de CI/CD, sin código de app.",
       focus: "Builds seguros entre repos sin tener un Mac.",
       status: "Open source · MIT · pipeline de build más activo recientemente",

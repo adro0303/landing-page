@@ -113,12 +113,12 @@ export function ProjectCard({ project: rawProject }: { project: Project }) {
         <Visual project={project} />
 
         <p className="font-mono text-[12px] leading-snug text-(--color-fg-dim)">
-          <span className="text-(--color-fg-faint)">{t("projects.problem")}</span>
-          {project.problem}
+          <span className="text-(--color-fg-faint)">{t("projects.whatItIs")}</span>
+          {project.what}
         </p>
         <p className="font-mono text-[12px] leading-snug text-(--color-fg-dim)">
-          <span style={{ color: project.accent }}>{t("projects.why")}</span>
-          {project.why}
+          <span style={{ color: project.accent }}>{t("projects.learned")}</span>
+          {project.learned}
         </p>
 
         <button
