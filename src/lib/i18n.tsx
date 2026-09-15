@@ -34,10 +34,6 @@ const dict = {
       en: "Software Engineer building useful things with AI.",
       es: "Ingeniero de Software que construye cosas útiles con IA.",
     },
-    pitchTags: {
-      en: "Software Engineering · Applied AI · Backend",
-      es: "Ingeniería de Software · IA Aplicada · Backend",
-    },
     credBsc: { en: "BSc Artificial Intelligence", es: "Grado en Inteligencia Artificial" },
     credIelts: { en: "IELTS C1", es: "IELTS C1" },
     credLocation: { en: "Based in Spain", es: "Con base en España" },

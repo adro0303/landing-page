@@ -116,9 +116,6 @@ export function HeroSection({ booted }: { booted: boolean }) {
         <p className="mt-3 max-w-lg text-balance font-display text-xl leading-snug text-(--color-phosphor-hot) sm:text-2xl">
           {t("hero.pitch")}
         </p>
-        <p className="mt-1 font-mono text-[11px] tracking-[0.15em] text-(--color-phosphor-dim) sm:text-xs">
-          {t("hero.pitchTags")}
-        </p>
         <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
           {(["credBsc", "credIelts", "credLocation", "credOpen"] as const).map((key) => (
             <span

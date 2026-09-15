@@ -69,9 +69,21 @@ export function Projects() {
       });
     }, container);
 
+    // The pin's start/end depend on the layout of every section above it —
+    // webfonts swapping in (and any other late reflow) after this trigger
+    // is created shifts that position. If the user has already scrolled
+    // into the stale pin zone by the time a refresh corrects it, GSAP
+    // snaps the page to the new position, which reads as an abrupt jump.
+    // Refreshing early (fonts ready + a fixed fallback shortly after
+    // mount) makes that correction land before anyone could realistically
+    // have scrolled this far down a 9-section page.
     document.fonts?.ready?.then(() => ScrollTrigger.refresh());
+    const settleTimer = window.setTimeout(() => ScrollTrigger.refresh(), 1200);
 
-    return () => ctx.revert();
+    return () => {
+      window.clearTimeout(settleTimer);
+      ctx.revert();
+    };
     // filteredProjects.length changes the track's scrollWidth — the pin's
     // travel distance has to be rebuilt from scratch, not just refreshed.
   }, [pinEnabled, filteredProjects.length]);
