@@ -14,7 +14,7 @@ export function HubViz({ project }: { project: HubProject }) {
   );
 
   return (
-    <div className="relative h-44 overflow-hidden rounded-sm border border-(--color-line) bg-(--color-panel-raised)/60 sm:h-48">
+    <div className="relative h-32 overflow-hidden rounded-sm border border-(--color-line) bg-(--color-panel-raised)/60 sm:h-36">
       <div className="bg-grid absolute inset-0 opacity-25" />
 
       <svg

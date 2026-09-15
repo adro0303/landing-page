@@ -82,14 +82,14 @@ export function Projects() {
 
   return (
     <section id="projects" className="relative bg-(--color-void)">
-      <div ref={containerRef} className="relative w-full overflow-hidden py-28">
-        <div className="mx-auto mb-10 max-w-6xl px-6 sm:px-10 lg:px-20">
+      <div ref={containerRef} className="relative w-full overflow-hidden pt-6 pb-14 sm:pt-8 sm:pb-20">
+        <div className="mx-auto mb-3 max-w-6xl px-6 sm:px-10 lg:px-20">
           <motion.p
             initial={{ opacity: 0, y: 24 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.5 }}
-            className="mb-3 font-mono text-xs tracking-[0.35em] text-(--color-blue)"
+            className="mb-2 font-mono text-xs tracking-[0.35em] text-(--color-blue)"
           >
             {t("projects.eyebrow")}
           </motion.p>
@@ -98,7 +98,7 @@ export function Projects() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.55, delay: 0.05 }}
-            className="mb-4 font-display text-5xl text-(--color-fg) sm:text-6xl"
+            className="mb-2 font-display text-5xl text-(--color-fg) sm:text-6xl"
           >
             ps --projects
           </motion.h2>
@@ -107,7 +107,7 @@ export function Projects() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: "-80px" }}
             transition={{ duration: 0.5, delay: 0.1 }}
-            className="mb-6 max-w-xl font-mono text-sm text-(--color-fg-dim)"
+            className="mb-3 max-w-xl font-mono text-sm text-(--color-fg-dim)"
           >
             {t("projects.description")}{" "}
             <span className="hidden lg:inline">{t("projects.scrollHintDesktop")}</span>
@@ -129,7 +129,7 @@ export function Projects() {
                   type="button"
                   onClick={() => setActiveCategory(cat)}
                   aria-pressed={active}
-                  className={`rounded-sm border px-3 py-1.5 font-mono text-[11px] tracking-[0.15em] transition-colors ${
+                  className={`rounded-sm border px-3 py-1 font-mono text-[11px] tracking-[0.15em] transition-colors ${
                     active
                       ? "border-(--color-blue) bg-(--color-blue)/10 text-(--color-blue)"
                       : "border-(--color-line) text-(--color-fg-faint) hover:border-(--color-fg-dim) hover:text-(--color-fg-dim)"

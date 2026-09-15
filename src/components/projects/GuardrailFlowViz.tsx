@@ -4,8 +4,8 @@ export function GuardrailFlowViz({ project }: { project: GuardrailProject }) {
   const { stages, accent } = project;
 
   return (
-    <div className="rounded-sm border border-(--color-line) bg-(--color-panel-raised)/60 px-4 py-5">
-      <svg viewBox="0 0 100 40" className="h-20 w-full" fill="none">
+    <div className="rounded-sm border border-(--color-line) bg-(--color-panel-raised)/60 px-4 py-3">
+      <svg viewBox="0 0 100 40" className="h-16 w-full" fill="none">
         <path
           d="M64,14 Q50,32 36,14"
           stroke="var(--color-line)"
@@ -45,7 +45,7 @@ export function GuardrailFlowViz({ project }: { project: GuardrailProject }) {
         ))}
       </div>
 
-      <p className="mt-3 text-center font-mono text-[9px] text-(--color-fg-faint)">
+      <p className="mt-2 text-center font-mono text-[9px] text-(--color-fg-faint)">
         ↺ {project.retryLabel}
       </p>
     </div>

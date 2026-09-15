@@ -21,7 +21,7 @@ export function SecurityViz({ project }: { project: SecurityProject }) {
   return (
     <div className="grid gap-4 sm:grid-cols-5">
       <div className="sm:col-span-3">
-        <div className="h-40 overflow-hidden rounded-sm border border-(--color-line) bg-black/40 p-3">
+        <div className="h-28 overflow-hidden rounded-sm border border-(--color-line) bg-black/40 p-3">
           <div className="animate-marquee-y flex flex-col gap-1.5">
             {[...project.logLines, ...project.logLines].map((line, i) => (
               <p
@@ -38,7 +38,7 @@ export function SecurityViz({ project }: { project: SecurityProject }) {
         </div>
       </div>
       <div className="sm:col-span-2">
-        <div className="relative h-40 overflow-hidden rounded-sm border border-(--color-line) bg-black/40">
+        <div className="relative h-28 overflow-hidden rounded-sm border border-(--color-line) bg-black/40">
           <div className="bg-grid absolute inset-0 opacity-30" />
           {dots.map((d, i) => {
             const anomaly = anomalyIdx.has(i);

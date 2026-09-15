@@ -40,13 +40,13 @@ export function ProjectCard({ project: rawProject }: { project: Project }) {
       className="relative flex h-full w-[86vw] shrink-0 flex-col overflow-hidden rounded-sm border border-(--color-line) bg-(--color-panel)/85 backdrop-blur-sm sm:w-[70vw] md:w-[520px]"
       style={{ boxShadow: `0 0 0 1px color-mix(in srgb, ${project.accent} 14%, transparent)` }}
     >
-      <div className="flex items-start justify-between gap-4 border-b border-(--color-line) bg-(--color-panel-raised)/70 px-5 py-4">
+      <div className="flex items-start justify-between gap-4 border-b border-(--color-line) bg-(--color-panel-raised)/70 px-5 py-2">
         <div>
           <p className="font-mono text-[10px] tracking-[0.3em] text-(--color-fg-faint)">
             PROCESS_{String(project.index).padStart(2, "0")}
           </p>
           <h3
-            className="font-display text-2xl tracking-wide sm:text-[1.7rem]"
+            className="font-display text-xl tracking-wide sm:text-2xl"
             style={{ color: project.accent }}
           >
             {project.title}
@@ -58,19 +58,19 @@ export function ProjectCard({ project: rawProject }: { project: Project }) {
         />
       </div>
 
-      <div className="flex flex-1 flex-col gap-4 px-5 py-5">
-        <p className="font-mono text-[13px] leading-relaxed text-(--color-fg) sm:text-sm">
+      <div className="flex flex-1 flex-col gap-1.5 px-5 py-2">
+        <p className="font-mono text-[13px] leading-snug text-(--color-fg) sm:text-sm">
           {project.tagline}
         </p>
 
         <Visual project={project} />
 
-        <div className="grid grid-cols-2 gap-4 border-y border-(--color-line) py-3">
+        <div className="grid grid-cols-2 gap-4 border-y border-(--color-line) py-1">
           <div>
             <p className="font-mono text-[9px] tracking-[0.25em] text-(--color-fg-faint)">
               {t("projects.role")}
             </p>
-            <p className="mt-1 font-mono text-[11px] leading-relaxed text-(--color-fg-dim)">
+            <p className="mt-1 font-mono text-[11px] leading-snug text-(--color-fg-dim)">
               {project.role}
             </p>
           </div>
@@ -78,7 +78,7 @@ export function ProjectCard({ project: rawProject }: { project: Project }) {
             <p className="font-mono text-[9px] tracking-[0.25em] text-(--color-fg-faint)">
               {t("projects.focus")}
             </p>
-            <p className="mt-1 font-mono text-[11px] leading-relaxed text-(--color-fg-dim)">
+            <p className="mt-1 font-mono text-[11px] leading-snug text-(--color-fg-dim)">
               {project.focus}
             </p>
           </div>
@@ -98,7 +98,7 @@ export function ProjectCard({ project: rawProject }: { project: Project }) {
         <button
           type="button"
           onClick={() => setNotesOpen(true)}
-          className="flex w-fit items-center gap-1.5 self-start rounded-sm border border-(--color-cyan)/55 bg-(--color-cyan)/10 px-3 py-1.5 font-mono text-[11px] tracking-wide text-(--color-cyan) transition-all select-none hover:gap-2.5"
+          className="flex w-fit items-center gap-1.5 self-start rounded-sm border border-(--color-cyan)/55 bg-(--color-cyan)/10 px-3 py-1 font-mono text-[11px] tracking-wide text-(--color-cyan) transition-all select-none hover:gap-2.5"
         >
           {t("projects.expandNotes")}
           <svg viewBox="0 0 24 24" className="h-3 w-3 shrink-0" fill="none" stroke="currentColor" strokeWidth={2.5}>
@@ -106,7 +106,7 @@ export function ProjectCard({ project: rawProject }: { project: Project }) {
           </svg>
         </button>
 
-        <div className="mt-auto flex flex-wrap gap-1.5 pt-1">
+        <div className="mt-auto flex flex-wrap gap-1.5">
           {project.tech.map((tech) => (
             <span
               key={tech}
@@ -118,7 +118,7 @@ export function ProjectCard({ project: rawProject }: { project: Project }) {
         </div>
       </div>
 
-      <div className="flex items-center justify-between gap-3 border-t border-(--color-line) bg-(--color-panel-raised)/70 px-5 py-3">
+      <div className="flex items-center justify-between gap-3 border-t border-(--color-line) bg-(--color-panel-raised)/70 px-5 py-1.5">
         <span className="truncate font-mono text-[10px] text-(--color-fg-faint)">
           {project.status}
         </span>

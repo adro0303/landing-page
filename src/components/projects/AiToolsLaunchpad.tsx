@@ -42,8 +42,8 @@ export function AiToolsLaunchpad({
   const { lang, t } = useLanguage();
 
   return (
-    <div className="rounded-sm border border-(--color-line) bg-(--color-panel-raised)/60 p-4">
-      <div className="flex flex-col gap-2.5">
+    <div className="rounded-sm border border-(--color-line) bg-(--color-panel-raised)/60 p-2.5">
+      <div className="flex flex-col gap-1">
         {TOOLS.map((item) => (
           <button
             key={item.tool}
@@ -52,18 +52,18 @@ export function AiToolsLaunchpad({
               openTool(item.tool);
               onLaunch?.();
             }}
-            className="group flex items-center gap-3 rounded-sm border border-(--color-line) bg-(--color-panel)/70 px-3 py-2.5 text-left transition-colors hover:border-(--accent)"
+            className="group flex items-center gap-3 rounded-sm border border-(--color-line) bg-(--color-panel)/70 px-3 py-1 text-left transition-colors hover:border-(--accent)"
             style={{ "--accent": item.accent } as CSSProperties}
           >
             <span
-              className="flex h-7 w-7 shrink-0 items-center justify-center rounded-sm border text-[11px]"
+              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-sm border text-[10px]"
               style={{ borderColor: item.accent, color: item.accent }}
             >
               ▶
             </span>
             <span className="min-w-0 flex-1">
               <span className="block font-mono text-[12px] text-(--color-fg)">{item.label}</span>
-              <span className="mt-0.5 block font-mono text-[11px] leading-snug text-(--color-fg-dim)">
+              <span className="mt-0.5 block truncate font-mono text-[11px] leading-snug text-(--color-fg-dim)">
                 {lang === "es" ? item.es : item.en}
               </span>
             </span>
@@ -76,7 +76,7 @@ export function AiToolsLaunchpad({
           </button>
         ))}
       </div>
-      <p className="mt-1 pt-2.5 font-mono text-[10px] text-(--color-fg-faint)" style={{ color: `color-mix(in srgb, ${accent} 60%, var(--color-fg-faint))` }}>
+      <p className="mt-1 pt-1 font-mono text-[10px] text-(--color-fg-faint)" style={{ color: `color-mix(in srgb, ${accent} 60%, var(--color-fg-faint))` }}>
         {t("projects.aiToolsNote")}
       </p>
     </div>

@@ -8,6 +8,11 @@ const fadeUp = {
   show: { opacity: 1, y: 0 },
 };
 
+const deploy = {
+  hidden: { opacity: 0, scaleY: 0.4, y: -16 },
+  show: { opacity: 1, scaleY: 1, y: 0 },
+};
+
 export function Education() {
   const { t, lang } = useLanguage();
 
@@ -49,10 +54,12 @@ export function Education() {
           {educationEntries.map((entry, i) => (
             <motion.div
               key={entry.id}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
+              initial="hidden"
+              whileInView="show"
               viewport={{ once: true, margin: "-100px" }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
+              variants={deploy}
+              transition={{ duration: 0.5, delay: i * 0.1, ease: "easeOut" }}
+              style={{ transformOrigin: "top" }}
             >
               <TerminalWindow title={`${entry.institution} — ${entry.period}`} accent={entry.color}>
                 {entry.image && (
@@ -97,10 +104,12 @@ export function Education() {
 
         {certificationEntries.length > 0 && (
           <motion.div
-            initial={{ opacity: 0, y: 24 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial="hidden"
+            whileInView="show"
             viewport={{ once: true, margin: "-100px" }}
-            transition={{ duration: 0.5, delay: 0.15 }}
+            variants={deploy}
+            transition={{ duration: 0.5, delay: 0.15, ease: "easeOut" }}
+            style={{ transformOrigin: "top" }}
             className="mt-6"
           >
             <TerminalWindow title="cat certifications.txt">
