@@ -45,7 +45,7 @@ function AiToolsPreview() {
       playsInline
       preload="none"
       aria-hidden="true"
-      className="h-10 w-16 rounded-sm border border-(--color-line) object-cover shadow-[0_0_0_2px_var(--color-panel)]"
+      className="h-28 w-full rounded-sm border border-(--color-line) object-cover"
     />
   );
 }
@@ -53,14 +53,9 @@ function AiToolsPreview() {
 function Visual({ project }: { project: Project }) {
   if (project.id === "ai-tools") {
     return (
-      <div className="relative">
-        {/* small looping preview of the tools actually running, layered as a
-            corner badge — adds no layout height, so it can't reintroduce the
-            card-taller-than-viewport overflow this section was tuned for */}
-        <div className="absolute -top-3 -right-1 z-10">
-          <AiToolsPreview />
-        </div>
-        <AiToolsLaunchpad accent={project.accent} />
+      <div className="flex flex-col gap-2">
+        <AiToolsPreview />
+        <AiToolsLaunchpad accent={project.accent} compact />
       </div>
     );
   }

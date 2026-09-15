@@ -35,11 +35,46 @@ const TOOLS: {
 export function AiToolsLaunchpad({
   accent,
   onLaunch,
+  compact = false,
 }: {
   accent: string;
   onLaunch?: () => void;
+  /** icon-row form used under the project-card preview video, where the
+   * video itself carries the "what does this do" job the descriptions
+   * normally do */
+  compact?: boolean;
 }) {
   const { lang, t } = useLanguage();
+
+  if (compact) {
+    return (
+      <div className="grid grid-cols-3 gap-1.5">
+        {TOOLS.map((item) => (
+          <button
+            key={item.tool}
+            type="button"
+            onClick={() => {
+              openTool(item.tool);
+              onLaunch?.();
+            }}
+            title={lang === "es" ? item.es : item.en}
+            className="flex flex-col items-center gap-1 rounded-sm border border-(--color-line) bg-(--color-panel)/70 px-2 py-1.5 text-center transition-colors hover:border-(--accent)"
+            style={{ "--accent": item.accent } as CSSProperties}
+          >
+            <span
+              className="flex h-5 w-5 shrink-0 items-center justify-center rounded-sm border text-[9px]"
+              style={{ borderColor: item.accent, color: item.accent }}
+            >
+              ▶
+            </span>
+            <span className="truncate font-mono text-[10px] text-(--color-fg-dim)">
+              {item.label.replace(".exe", "")}
+            </span>
+          </button>
+        ))}
+      </div>
+    );
+  }
 
   return (
     <div className="rounded-sm border border-(--color-line) bg-(--color-panel-raised)/60 p-2.5">
