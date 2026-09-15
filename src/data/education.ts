@@ -43,9 +43,10 @@ export const educationEntries: EducationEntry[] = [
       es: "Distinción en Programación, y en Estructuras de Datos y Algoritmos.",
     },
     credential: {
-      label: { en: "view transcript →", es: "ver notas →" },
+      label: { en: "view full transcript →", es: "ver notas completas →" },
       url: "/MSMK_NOTAS.pdf",
     },
+    image: "/MSMK_NOTAS.png",
   },
 ];
 
