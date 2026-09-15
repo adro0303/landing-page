@@ -60,12 +60,18 @@ export function Education() {
                     href={entry.credential.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="mb-4 block overflow-hidden rounded-sm border border-(--color-line)"
+                    className="relative mb-4 block overflow-hidden rounded-sm border border-(--color-line)"
                   >
                     <img
                       src={entry.image}
                       alt={entry.degree[lang]}
                       className="w-full transition-opacity hover:opacity-80"
+                    />
+                    <span
+                      className="animate-scan pointer-events-none absolute inset-x-0 h-[35%] mix-blend-overlay"
+                      style={{
+                        background: `linear-gradient(to bottom, transparent 0%, ${entry.color} 50%, transparent 100%)`,
+                      }}
                     />
                   </a>
                 )}
