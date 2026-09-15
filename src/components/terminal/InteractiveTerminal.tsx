@@ -1,14 +1,18 @@
-import { useEffect, useRef, useState } from "react";
+import { lazy, Suspense, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { profile, useProfileText, type ProfileText } from "@/data/profile";
 import { localizeProject, projects } from "@/data/projects";
 import { useLanguage, type Lang } from "@/lib/i18n";
 import { OPEN_TERMINAL_EVENT, OPEN_TOOL_EVENT, type OpenTerminalDetail, type ToolName } from "@/lib/terminalBus";
-import { DigitRecognizer } from "./DigitRecognizer";
-import { MatrixRain } from "./MatrixRain";
-import { Pathfinder } from "./Pathfinder";
 import { PlasmaEffect } from "./PlasmaEffect";
-import { SortRace } from "./SortRace";
+
+// these four are only ever rendered after an explicit user action (typing a
+// command or clicking a launcher card), so they're split out of the main
+// bundle instead of shipping to everyone who never opens the hidden shell
+const DigitRecognizer = lazy(() => import("./DigitRecognizer").then((m) => ({ default: m.DigitRecognizer })));
+const MatrixRain = lazy(() => import("./MatrixRain").then((m) => ({ default: m.MatrixRain })));
+const Pathfinder = lazy(() => import("./Pathfinder").then((m) => ({ default: m.Pathfinder })));
+const SortRace = lazy(() => import("./SortRace").then((m) => ({ default: m.SortRace })));
 
 type Line = { text: string; tone?: "dim" | "accent" | "error" | "prompt" };
 
@@ -453,10 +457,12 @@ export function InteractiveTerminal() {
         &gt;_
       </button>
 
-      {showMatrix && <MatrixRain onDismiss={() => setShowMatrix(false)} />}
-      {showSort && <SortRace onClose={() => setShowSort(false)} />}
-      {showPathfind && <Pathfinder onClose={() => setShowPathfind(false)} />}
-      {showDigit && <DigitRecognizer onClose={() => setShowDigit(false)} />}
+      <Suspense fallback={null}>
+        {showMatrix && <MatrixRain onDismiss={() => setShowMatrix(false)} />}
+        {showSort && <SortRace onClose={() => setShowSort(false)} />}
+        {showPathfind && <Pathfinder onClose={() => setShowPathfind(false)} />}
+        {showDigit && <DigitRecognizer onClose={() => setShowDigit(false)} />}
+      </Suspense>
 
       <AnimatePresence>
         {open && (
