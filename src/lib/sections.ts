@@ -2,6 +2,7 @@ export const sections = [
   { id: "hero", label: "BOOT" },
   { id: "identity", label: "IDENTITY" },
   { id: "experience", label: "EXPERIENCE" },
+  { id: "education", label: "EDUCATION" },
   { id: "stack", label: "STACK" },
   { id: "projects", label: "PROJECTS" },
   { id: "uplink", label: "UPLINK" },

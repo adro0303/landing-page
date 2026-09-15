@@ -12,6 +12,7 @@ const dict = {
     hero: { en: "BOOT", es: "INICIO" },
     identity: { en: "IDENTITY", es: "IDENTIDAD" },
     experience: { en: "EXPERIENCE", es: "EXPERIENCIA" },
+    education: { en: "EDUCATION", es: "EDUCACIÓN" },
     stack: { en: "STACK", es: "STACK" },
     projects: { en: "PROJECTS", es: "PROYECTOS" },
     uplink: { en: "UPLINK", es: "CONTACTO" },
@@ -52,15 +53,22 @@ const dict = {
       es: "Trabajos reales, equipos reales — no solo proyectos personales.",
     },
   },
+  education: {
+    eyebrow: { en: "03 // EDUCATION", es: "03 // EDUCACIÓN" },
+    description: {
+      en: "Degree, dual-award transcript, and the certifications behind them.",
+      es: "Título, notas de la doble titulación, y las certificaciones detrás.",
+    },
+  },
   stack: {
-    eyebrow: { en: "03 // SYSTEM STACK", es: "03 // STACK DEL SISTEMA" },
+    eyebrow: { en: "04 // SYSTEM STACK", es: "04 // STACK DEL SISTEMA" },
     description: {
       en: "Modules currently loaded on the system bus — grouped by what they're for, not alphabetized for show.",
       es: "Módulos cargados actualmente en el sistema — agrupados por para qué sirven, no alfabetizados para lucir.",
     },
   },
   projects: {
-    eyebrow: { en: "04 // ACTIVE PROCESSES", es: "04 // PROCESOS ACTIVOS" },
+    eyebrow: { en: "05 // ACTIVE PROCESSES", es: "05 // PROCESOS ACTIVOS" },
     description: {
       en: "Six real repos, activated one at a time.",
       es: "Seis repos reales, activados uno a la vez.",
@@ -107,7 +115,7 @@ const dict = {
     close: { en: "close", es: "cerrar" },
   },
   uplink: {
-    eyebrow: { en: "05 // UPLINK", es: "05 // ENLACE" },
+    eyebrow: { en: "06 // UPLINK", es: "06 // ENLACE" },
     resumeCaption: {
       en: "One-page CV — role, stack, and shipped work.",
       es: "CV de una página — rol, stack y trabajo entregado.",

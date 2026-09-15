@@ -9,6 +9,7 @@ import { ToolsLauncher } from "@/components/layout/ToolsLauncher";
 import { HeroSection } from "@/components/hero/HeroSection";
 import { Identity } from "@/components/sections/Identity";
 import { Experience } from "@/components/sections/Experience";
+import { Education } from "@/components/sections/Education";
 import { StackBlueprint } from "@/components/sections/StackBlueprint";
 import { Projects } from "@/components/sections/Projects";
 import { Uplink } from "@/components/sections/Uplink";
@@ -28,6 +29,7 @@ export default function App() {
         <HeroSection booted={!booting} />
         <Identity />
         <Experience />
+        <Education />
         <StackBlueprint />
         <Projects />
         <Uplink />
