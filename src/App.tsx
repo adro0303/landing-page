@@ -16,19 +16,32 @@ import { Education } from "@/components/sections/Education";
 import { StackBlueprint } from "@/components/sections/StackBlueprint";
 import { Projects } from "@/components/sections/Projects";
 import { Uplink } from "@/components/sections/Uplink";
-import { LanguageProvider } from "@/lib/i18n";
+import { LanguageProvider, useLanguage } from "@/lib/i18n";
+
+function SkipLink() {
+  const { t } = useLanguage();
+  return (
+    <a
+      href="#main-content"
+      className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-sm focus:border focus:border-(--color-blue) focus:bg-(--color-void) focus:px-4 focus:py-2 focus:font-mono focus:text-xs focus:text-(--color-blue)"
+    >
+      {t("a11y.skipToContent")}
+    </a>
+  );
+}
 
 export default function App() {
   const [booting, setBooting] = useState(true);
 
   return (
     <LanguageProvider>
+      <SkipLink />
       {booting && <BootSequence onDone={() => setBooting(false)} />}
       <CRTOverlay />
       <ScrollRail />
       <TopBar />
       <LanguageToggle className="fixed top-3 right-3 z-[90]" />
-      <main className="relative">
+      <main id="main-content" className="relative">
         <HeroSection booted={!booting} />
         <WhatIDo />
         <CurrentFocus />

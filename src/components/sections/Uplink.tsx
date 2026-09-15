@@ -48,7 +48,7 @@ export function Uplink() {
   }, [cvPickerOpen]);
 
   return (
-    <section id="uplink" className="relative bg-(--color-void) px-6 py-32 sm:px-10 lg:px-20">
+    <footer id="uplink" className="relative bg-(--color-void) px-6 py-32 sm:px-10 lg:px-20">
       <div className="mx-auto max-w-6xl">
         <motion.p
           initial={{ opacity: 0, y: 24 }}
@@ -279,6 +279,6 @@ export function Uplink() {
           </motion.div>
         )}
       </AnimatePresence>
-    </section>
+    </footer>
   );
 }

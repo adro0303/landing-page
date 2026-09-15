@@ -8,6 +8,9 @@ type Leaf = { en: string; es: string };
 type Tree = { [key: string]: Leaf | Tree };
 
 const dict = {
+  a11y: {
+    skipToContent: { en: "Skip to main content", es: "Saltar al contenido principal" },
+  },
   nav: {
     hero: { en: "BOOT", es: "INICIO" },
     whatido: { en: "WHAT I DO", es: "A QUÉ ME DEDICO" },
