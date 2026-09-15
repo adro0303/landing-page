@@ -55,6 +55,20 @@ export function Education() {
               transition={{ duration: 0.5, delay: i * 0.1 }}
             >
               <TerminalWindow title={`${entry.institution} — ${entry.period}`} accent={entry.color}>
+                {entry.image && (
+                  <a
+                    href={entry.credential.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mb-4 block overflow-hidden rounded-sm border border-(--color-line)"
+                  >
+                    <img
+                      src={entry.image}
+                      alt={entry.degree[lang]}
+                      className="w-full transition-opacity hover:opacity-80"
+                    />
+                  </a>
+                )}
                 <p className="font-display text-lg text-(--color-fg) sm:text-xl" style={{ color: entry.color }}>
                   {entry.degree[lang]}
                 </p>

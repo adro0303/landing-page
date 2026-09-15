@@ -6,6 +6,7 @@ export type EducationEntry = {
   degree: { en: string; es: string };
   detail: { en: string; es: string };
   credential: { label: { en: string; es: string }; url: string };
+  image?: string;
 };
 
 export const educationEntries: EducationEntry[] = [
@@ -23,9 +24,10 @@ export const educationEntries: EducationEntry[] = [
       es: "Título del Reino Unido, año de ampliación vía el convenio de doble titulación con MSMK.",
     },
     credential: {
-      label: { en: "view degree →", es: "ver título →" },
+      label: { en: "view full size →", es: "ver a tamaño completo →" },
       url: "/TITLE.jpeg",
     },
+    image: "/TITLE.jpeg",
   },
   {
     id: "msmk",
