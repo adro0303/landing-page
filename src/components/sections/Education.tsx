@@ -81,7 +81,11 @@ export function Education() {
                     <span
                       className="animate-doc-scan pointer-events-none absolute inset-x-0 top-[22.5%] h-[55%]"
                       style={{
-                        background: `linear-gradient(to bottom, transparent 0%, color-mix(in srgb, ${entry.color} 20%, transparent) 10%, color-mix(in srgb, ${entry.color} 70%, transparent) 50%, color-mix(in srgb, ${entry.color} 20%, transparent) 90%, transparent 100%)`,
+                        // a fixed scan color, independent of the card's own accent
+                        // (entry.color) — Coventry's blue and MSMK's cyan blend to
+                        // very different visible intensity at the same alpha, so
+                        // sharing one color keeps both scans reading identically.
+                        background: `linear-gradient(to bottom, transparent 0%, color-mix(in srgb, var(--color-green) 20%, transparent) 10%, color-mix(in srgb, var(--color-green) 70%, transparent) 50%, color-mix(in srgb, var(--color-green) 20%, transparent) 90%, transparent 100%)`,
                       }}
                     />
                   </a>
